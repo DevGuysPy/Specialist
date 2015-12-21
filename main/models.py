@@ -61,3 +61,4 @@ class Location(db.Model):
     street = db.Column(db.String())
     building = db.Column(db.String())
     appartment = db.Column(db.Integer())
+
