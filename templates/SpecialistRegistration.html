@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration specialist</title>
+</head>
+<body>
+    <form method="POST" name="register">
+        <h1>SPECIALIST NAME</h1> <input name="name">
+        <h1>SPECIALIST email</h1> <input name="email">
+        <h1>SPECIALIST phone</h1> <input name="phone">
+        <h1>SPECIALIST experience</h1> <input name="exp">
+        <h1>SPECIALIST discription</h1> <input name="description">
+        <select name="services">
+        {% for service in services %}
+                 <option value="{{ service.title }}"> {{ service.title }} </option>
+        {% endfor %}
+        </select>
+        <input type="submit" name="iskat">
+
+    </form>
+</body>
+</html>

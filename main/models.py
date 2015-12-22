@@ -6,7 +6,7 @@ class AbstractUser(object):
     name = db.Column(db.String(128), nullable=False)
     phone = db.Column(db.String(12))
     email = db.Column(db.String(), nullable=False, unique=True)
-    photo = db.Column(db.String(), unique=True)
+    photo = db.Column(db.String(), unique=True, nullable=True)
 
 
 class SpecialistService(db.Model):

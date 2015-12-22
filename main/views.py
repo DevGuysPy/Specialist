@@ -11,11 +11,12 @@ from .models import Specialist, Service
 
 @app.route('/')
 def index():
+
     # s1 = Specialist(name="Vasya", email='vasya@santechnika.net')
     # s2 = Specialist(name="Kolya", email='kolya@elektromerezhi.com.ua')
     # db.session.add(s1)
     # db.session.add(s2)
-    # service1 = Service(title=u"Сантехника", domain=u"Дом. работы")
+    # service1 = Service(title=u"Гуся", domain=u"Дом. работы")
     # service2 = Service(title=u"Электрика", domain=u"Дом. работы")
     # db.session.add(service1)
     # db.session.add(service2)
@@ -57,3 +58,37 @@ def search():
 @app.route('/specialist/<int:specialist_id>/profile')
 def specialist_profile(specialist_id):
     return render_template('specialist/profile.html')
+
+@app.route('/specialist-registration/', methods=['GET', 'POST'])
+def specialist_regisration():
+
+        services = Service.query.all()
+
+        if request.method == "POST":
+            services_query = request.form['services'].encode('utf-8')
+            chosen_services = Service.query.filter_by(title=services_query).all()
+
+            new_specialist = Specialist(name=request.form['name'],
+                            email=request.form['email'],
+                            phone=request.form['phone'],
+                            experience=request.form['exp'],
+                            description=request.form['description'],
+                            services=chosen_services)
+            db.session.add(new_specialist)
+            db.session.commit()
+            return render_template("SpecialistRegistration.html")
+
+        return render_template("SpecialistRegistration.html", services=services)
+
+@app.route('/service-registration/', methods=['GET', 'POST'])
+def service_register():
+
+    if request.method == "POST":
+        new_service = Service(title=request.form['title'],
+                              domain=request.form['domain'])
+        db.session.add(new_service)
+        db.session.commit()
+
+        return render_template("RegisterService.html")
+
+    return render_template("RegisterService.html")
