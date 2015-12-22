@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add service activity</title>
+    <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.css') }}" rel="stylesheet">
+</head>
+<body>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <h1>Specialist</h1><br>
+        {{ form.specialist }}<br>
+        <h1>Customer</h1><br>
+        {{ form.customer }}<br>
+        <h1>Service</h1><br>
+        {{ form.service }}<br>
+        <h1>Description</h1><br>
+        {{ form.description }}<br>
+        <h1>Start</h1>
+        <div class="well">
+            <div id="datetimepicker1" class="input-append date">
+                {{ form.start }}
+                <span class="add-on">
+                    select
+                </span>
+            </div>
+        </div>
+        <h1>End</h1>
+        <div class="well">
+            <div id="datetimepicker2" class="input-append date">
+                {{ form.end }}
+                <span class="add-on">
+                    select
+                </span>
+            </div>
+        </div>
+        {{ form.custom }}
+        <input type="submit" name="submit">
+    </form>
+    {% if msgs %}
+        {{ msgs }}
+    {% endif %}
+</body>
+<script src="{{ url_for('static', filename='js/jquery-1.11.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap-datapicker.js') }}"></script>
+<script src="{{ url_for('static', filename='js/base.js') }}"></script>
+</html>

@@ -1,4 +1,5 @@
-from app import db
+from app import db, session
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class AbstractUser(object):
@@ -52,6 +53,58 @@ class ServiceActivity(db.Model):
 
     specialist_rating = db.Column(db.Integer())
     customer_rating = db.Column(db.Integer())
+
+    confirmed = db.Column(db.Boolean(), default=False)
+
+    @classmethod
+    def get_or_create(cls,
+                      specialist,
+                      customer,
+                      service,
+                      start=None,
+                      end=None,
+                      description=None,
+                      specialist_rating=None,
+                      customer_rating=None):
+        """
+        Func for adding ServicesActivity
+
+        :param Specialist specialist: specialist
+        :param Customer customer: customer
+        :param Service service: service
+        :param int start: start
+        :param int end: end
+        :param str description: description
+        :param int specialist_rating: specialist_rating
+        :param int customer_rating: customer_rating
+        :return :
+        """
+        try:
+            activity = ServiceActivity.query.filter_by(
+                specialist=specialist, customer=customer, service=service).one()
+            created = False
+        except NoResultFound:
+            activity = ServiceActivity(
+                specialist=specialist, customer=customer, service=service)
+            session.add(activity)
+            session.commit()
+
+            if start:
+                activity.start = start
+            if end:
+                activity.end = end
+            if description:
+                activity.description = description
+            if specialist_rating and specialist_rating <= 5:
+                activity.specialist_rating = specialist_rating
+            if customer_rating and customer_rating <= 5:
+                activity.customer_rating = customer_rating
+
+            session.commit()
+
+            created = True
+
+        return activity, created
 
 
 class Location(db.Model):
