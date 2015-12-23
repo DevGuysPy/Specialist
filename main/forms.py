@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField, DateTimeField, SelectField
+from wtforms import StringField, DateTimeField, ValidationError
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, optional
 from models import Specialist, Customer, Service
@@ -7,6 +7,11 @@ from models import Specialist, Customer, Service
 
 class SearchForm(Form):
     query = StringField('query', validators=[DataRequired()])
+
+
+def start_end_validation(form, field):
+    if field.data > form.end.data:
+        raise ValidationError('Start of activity must be earlier than end of activity')
 
 
 class AddServiceActivityForm(Form):
@@ -22,15 +27,6 @@ class AddServiceActivityForm(Form):
         query_factory=Service.query.all,
         get_pk=lambda a: a.id,
         get_label=lambda a: a.title)
-    description = StringField('description', validators=[optional()])
-    start = DateTimeField('start_rel', format='%Y-%d-%m %H:%M:%S', validators=[optional()])
-    end = DateTimeField('end_rel', format='%Y-%d-%m %H:%M:%S', validators=[optional()])
-
-    def validate(self):
-        if not super(AddServiceActivityForm, self).validate():
-            return False
-        result = True
-        if self.start.data > self.end.data:
-            result = False
-
-        return result
+    description = StringField('Description', validators=[optional()])
+    start = DateTimeField('Start', format='%Y-%d-%m %H:%M:%S', validators=[optional(), start_end_validation])
+    end = DateTimeField('End', format='%Y-%d-%m %H:%M:%S', validators=[optional()])

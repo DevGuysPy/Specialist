@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-from flask import render_template, url_for
+from flask import render_template, url_for, flash
 from back_end import app
 from app import session
 from .models import Specialist, Service, ServiceActivity
@@ -70,7 +70,6 @@ def confirm_specialist_activity(token):
 @app.route('/service_activity/add', methods=['GET', 'POST'])
 def add_service_activity():
     form = AddServiceActivityForm()
-
     msgs = []
     if form.validate_on_submit():
 
@@ -93,11 +92,18 @@ def add_service_activity():
                            end=form.end.data or "Not specified",
                            confirm_url=str(confirm_url)))
 
-            msgs.append('Email sent')
+            flash('Email sent')
+
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash("Error in the {} field - {}".format(
+                    getattr(form, field).label.text,
+                    error
+                ))
 
     context = {
         'form': form,
-        'msgs': '\n'.join(msgs)
     }
 
     return render_template("ServiceActivity.html", **context)

@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add service activity</title>
-    <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.css') }}" rel="stylesheet">
-</head>
-<body>
+{% extends "Base.html" %}
+{% block title %}
+    Add service activity
+{% endblock %}
+
+{% block body %}
     <form method="POST">
         {{ form.csrf_token }}
         <h1>Specialist</h1><br>
@@ -41,9 +38,4 @@
     {% if msgs %}
         {{ msgs }}
     {% endif %}
-</body>
-<script src="{{ url_for('static', filename='js/jquery-1.11.0.min.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap-datapicker.js') }}"></script>
-<script src="{{ url_for('static', filename='js/base.js') }}"></script>
-</html>
+{% endblock %}
