@@ -61,11 +61,8 @@ class ServiceActivity(db.Model):
                       specialist,
                       customer,
                       service,
-                      start=None,
-                      end=None,
-                      description=None,
-                      specialist_rating=None,
-                      customer_rating=None):
+                      start,
+                      defaults=None):
         """
         Func for adding ServicesActivity
 
@@ -73,38 +70,30 @@ class ServiceActivity(db.Model):
         :param Customer customer: customer
         :param Service service: service
         :param int start: start
-        :param int end: end
-        :param str description: description
-        :param int specialist_rating: specialist_rating
-        :param int customer_rating: customer_rating
+        :param dict defaults: defaults
         :return :
         """
+
         try:
             activity = ServiceActivity.query.filter_by(
-                specialist=specialist, customer=customer, service=service).one()
-            created = False
+                specialist=specialist, customer=customer,
+                service=service, start=start).one()
+            return activity, False
         except NoResultFound:
             activity = ServiceActivity(
-                specialist=specialist, customer=customer, service=service)
+                specialist=specialist, customer=customer,
+                service=service, start=start)
             session.add(activity)
-            session.commit()
 
-            if start:
-                activity.start = start
-            if end:
-                activity.end = end
-            if description:
-                activity.description = description
-            if specialist_rating and specialist_rating <= 5:
-                activity.specialist_rating = specialist_rating
-            if customer_rating and customer_rating <= 5:
-                activity.customer_rating = customer_rating
+            if defaults:
+                for field, value in defaults.items():
+                    if hasattr(cls, field):
+                        setattr(activity, field, value)
+                    else:
+                        raise AttributeError(
+                            "ServiceActivity has no attribute {}".format(field))
 
-            session.commit()
-
-            created = True
-
-        return activity, created
+        return activity, True
 
 
 class Location(db.Model):

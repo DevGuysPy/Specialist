@@ -10,8 +10,9 @@ class SearchForm(Form):
 
 
 def start_end_validation(form, field):
-    if field.data > form.end.data:
-        raise ValidationError('Start of activity must be earlier than end of activity')
+    if form.end.data and field.data > form.end.data:
+        raise ValidationError(
+            'Start of activity must be earlier than end of activity')
 
 
 class AddServiceActivityForm(Form):
@@ -28,5 +29,7 @@ class AddServiceActivityForm(Form):
         get_pk=lambda a: a.id,
         get_label=lambda a: a.title)
     description = StringField('Description', validators=[optional()])
-    start = DateTimeField('Start', format='%Y-%d-%m %H:%M:%S', validators=[optional(), start_end_validation])
-    end = DateTimeField('End', format='%Y-%d-%m %H:%M:%S', validators=[optional()])
+    start = DateTimeField('Start', format='%Y-%d-%m %H:%M:%S',
+                          validators=[start_end_validation])
+    end = DateTimeField('End', format='%Y-%d-%m %H:%M:%S',
+                        validators=[optional()])

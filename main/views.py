@@ -70,13 +70,16 @@ def confirm_specialist_activity(token):
 @app.route('/service_activity/add', methods=['GET', 'POST'])
 def add_service_activity():
     form = AddServiceActivityForm()
-    msgs = []
+
     if form.validate_on_submit():
 
         activity, created = ServiceActivity.get_or_create(
             specialist=form.specialist.data, customer=form.customer.data,
-            service=form.service.data, description=form.description.data,
-            start=form.start.data, end=form.end.data)
+            service=form.service.data, start=form.start.data,
+            defaults={
+                'end': form.end.data,
+                'description': form.description.data
+            })
 
         if not activity.confirmed:
             token = generate_confirmation_token(activity.id)
@@ -92,7 +95,7 @@ def add_service_activity():
                            end=form.end.data or "Not specified",
                            confirm_url=str(confirm_url)))
 
-            flash('Email sent')
+            flash('Email was sent successfully')
 
     if form.errors:
         for field, errors in form.errors.items():

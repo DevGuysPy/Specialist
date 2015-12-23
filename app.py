@@ -17,5 +17,11 @@ mail = Mail()
 mail.init_app(app)
 # basedir = os.path.abspath(os.path.dirname(__file__))
 
+
+@app.after_request
+def call_after_request_callbacks(response):
+    session.commit()
+    return response
+
 import main.models
 import main.views
