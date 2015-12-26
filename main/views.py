@@ -10,23 +10,6 @@ import settings
 
 @app.route('/')
 def index():
-    # s1 = Specialist(name="Vasya", email='vasya@santechnika.net')
-    # s2 = Specialist(name="Kolya", email='kolya@elektromerezhi.com.ua')
-    # db.session.add(s1)
-    # db.session.add(s2)
-    # service1 = Service(title=u"Сантехника", domain=u"Дом. работы")
-    # service2 = Service(title=u"Электрика", domain=u"Дом. работы")
-    # db.session.add(service1)
-    # db.session.add(service2)
-    # s1 = Specialist.query.filter(Specialist.name == 'Vasya')[0]
-    # service1 = Service.query.filter(Service.title == u"Сантехника")
-    # s2 = Specialist.query.filter(Specialist.name == 'Kolya')[0]
-    # service2 = Service.query.filter(Service.title == u"Электрика")
-    # s1.services.append(service1[0])
-    # s2.services.append(service2[0])
-    # db.session.add(s1)
-    # db.session.add(s2)
-    # db.session.commit()
     return render_template('index.html')
 
 
