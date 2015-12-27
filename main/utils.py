@@ -17,15 +17,15 @@ def confirm_token(token, expiration=3600):
             max_age=expiration
         )
     except BadSignature:
-        return False
+        return
     return item
 
 
-def send_email(to, subject, template):
+def send_email(to, subject, template, sender=None):
     msg = Message(
         subject,
         recipients=[to],
         html=template,
-        sender=app.config['MAIL_DEFAULT_SENDER']
+        sender=sender or app.config['MAIL_DEFAULT_SENDER']
     )
     mail.send(msg)

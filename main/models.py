@@ -64,7 +64,7 @@ class ServiceActivity(db.Model):
                       start,
                       defaults=None):
         """
-        Func for adding ServicesActivity
+        Func for adding ServiceActivity
 
         :param Specialist specialist: specialist
         :param Customer customer: customer

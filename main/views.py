@@ -1,7 +1,6 @@
 # -*- encoding: utf-8 -*-
 from flask import render_template, url_for, flash
 from back_end import app
-from app import session
 from .models import Specialist, Service, ServiceActivity
 from utils import generate_confirmation_token, confirm_token, send_email
 from forms import SearchForm, AddServiceActivityForm
@@ -37,17 +36,18 @@ def specialist_profile(specialist_id):
     return render_template('specialist/profile.html')
 
 
-@app.route('/confirm_specialist_activity/<token>')
+@app.route('/service_activity/confirm/<token>')
 def confirm_specialist_activity(token):
     activity_id = confirm_token(token)
     activity = ServiceActivity.query.filter_by(id=activity_id).first_or_404()
     if activity.confirmed:
-        msg = 'Activity already confirmed.'
+        flash('Activity already confirmed.')
     else:
         activity.confirmed = True
-        session.commit()
-        msg = 'You have confirmed your relationship with {}.'.format(activity.specialist.name)
-    return render_template('confirm.html', msg=msg)
+        flash('You have confirmed your relationship with {}.'.format(
+            activity.specialist.name))
+
+    return render_template('ConfirmServiceActivity.html')
 
 
 @app.route('/service_activity/add', methods=['GET', 'POST'])
@@ -74,8 +74,9 @@ def add_service_activity():
                            form.specialist.data.name),
                        template=settings.CONFIRM_ACTIVITY_HTML.format(
                            service=form.service.data.title.encode('utf-8'),
-                           start=form.start.data or "Not specified",
+                           start=form.start.data,
                            end=form.end.data or "Not specified",
+                           description=form.description.data or "Not specified",
                            confirm_url=str(confirm_url)))
 
             flash('Email was sent successfully')
