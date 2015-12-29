@@ -7,4 +7,6 @@ $(function() {
         format: 'yyyy-dd-MM hh:mm:ss',
         language: 'en'
     });
+
 });
+

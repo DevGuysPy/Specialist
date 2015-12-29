@@ -1,16 +1,16 @@
 # -*- encoding: utf-8 -*-
-from flask import render_template, url_for, flash, request
+
+from flask import url_for, flash, render_template, request, jsonify
 from back_end import app
-from app import session
-from .models import Specialist, Service, ServiceActivity
+from app import session, db
 from utils import generate_confirmation_token, confirm_token, send_email
-from forms import SearchForm, AddServiceActivityForm
+from forms import SearchForm, AddServiceActivityForm, SpecialistForm
 import settings
+from .models import Specialist, Service, ServiceActivity, SpecialistService
 
 
 @app.route('/')
 def index():
-
     # s1 = Specialist(name="Vasya", email='vasya@santechnika.net')
     # s2 = Specialist(name="Kolya", email='kolya@elektromerezhi.com.ua')
     # db.session.add(s1)
@@ -56,29 +56,54 @@ def specialist_profile(specialist_id):
 
 
 @app.route('/specialist-registration/', methods=['GET', 'POST'])
-def specialist_regisration():
+def specialist_registration():
+    services = Service.query.all()
+    form = SpecialistForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            services_query_identifiers = request.form.getlist('services')
+            services_objects = []
 
-        services = Service.query.all()
+            for service_identifier in services_query_identifiers:
+                chosen_services = Service.query.filter_by \
+                    (id=service_identifier).all()
+                services_objects.append(chosen_services)
 
-        if request.method == "POST":
-            services_query = request.form['services'].encode('utf-8')
-            chosen_services = Service.query.filter_by(title=services_query).all()
+            new_specialist = Specialist(name=form.name.data,
+                                        email=form.email.data,
+                                        phone=form.phone.data,
+                                        experience=form.experience.data,
+                                        description=form.description.data)
 
-            new_specialist = Specialist(name=request.form['name'],
-                            email=request.form['email'],
-                            phone=request.form['phone'],
-                            experience=request.form['exp'],
-                            description=request.form['description'],
-                            services=chosen_services)
-            session.add(new_specialist)
+            db.session.add(new_specialist)
+            db.session.flush()
+            db.session.refresh(new_specialist)
 
-            return render_template("SpecialistRegistration.html")
+            for services_ids in services_objects:
+                service_id = services_ids[0].id
+                specialist_service = \
+                    SpecialistService(specialist_id=new_specialist.id,
+                                      service_id=service_id)
+                db.session.add(specialist_service)
 
-        return render_template("SpecialistRegistration.html", services=services)
+            db.session.commit()
+
+            return jsonify({
+                'status': 'ok',
+            })
+        else:
+            return jsonify({
+                'input_errors': form.errors,
+                'status': 'error'
+
+            })
+
+    return render_template("SpecialistRegistration.html", services=services,
+                           form=form)
+
 
 @app.route('/service-registration/', methods=['GET', 'POST'])
 def service_register():
-
     if request.method == "POST":
         new_service = Service(title=request.form['title'],
                               domain=request.form['domain'])
@@ -87,6 +112,7 @@ def service_register():
         return render_template("RegisterService.html")
 
     return render_template("RegisterService.html")
+
 
 @app.route('/confirm_specialist_activity/<token>')
 def confirm_specialist_activity(token):
@@ -97,7 +123,8 @@ def confirm_specialist_activity(token):
     else:
         activity.confirmed = True
         session.commit()
-        msg = 'You have confirmed your relationship with {}.'.format(activity.specialist.name)
+        msg = 'You have confirmed your relationship with {}.'.format(
+            activity.specialist.name)
     return render_template('confirm.html', msg=msg)
 
 
@@ -144,4 +171,3 @@ def add_service_activity():
     }
 
     return render_template("ServiceActivity.html", **context)
-
