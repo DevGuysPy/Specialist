@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from flask import url_for, flash, render_template, request, jsonify
-from back_end import app
-from app import session, db
+from flask import render_template, url_for, flash, request, jsonify
+from app import app, session, db
+
 from utils import generate_confirmation_token, confirm_token, send_email
 from forms import SearchForm, AddServiceActivityForm, SpecialistForm
 import settings
@@ -11,6 +11,7 @@ from .models import Specialist, Service, ServiceActivity, SpecialistService
 
 @app.route('/')
 def index():
+
     # s1 = Specialist(name="Vasya", email='vasya@santechnika.net')
     # s2 = Specialist(name="Kolya", email='kolya@elektromerezhi.com.ua')
     # db.session.add(s1)
@@ -28,6 +29,7 @@ def index():
     # db.session.add(s1)
     # db.session.add(s2)
     # db.session.commit()
+
     return render_template('index.html')
 
 
@@ -114,18 +116,18 @@ def service_register():
     return render_template("RegisterService.html")
 
 
-@app.route('/confirm_specialist_activity/<token>')
+@app.route('/service_activity/confirm/<token>')
 def confirm_specialist_activity(token):
     activity_id = confirm_token(token)
     activity = ServiceActivity.query.filter_by(id=activity_id).first_or_404()
     if activity.confirmed:
-        msg = 'Activity already confirmed.'
+        flash('Activity already confirmed.')
     else:
         activity.confirmed = True
-        session.commit()
-        msg = 'You have confirmed your relationship with {}.'.format(
-            activity.specialist.name)
-    return render_template('confirm.html', msg=msg)
+        flash('You have confirmed your relationship with {}.'.format(
+            activity.specialist.name))
+
+    return render_template('ConfirmServiceActivity.html')
 
 
 @app.route('/service_activity/add', methods=['GET', 'POST'])
@@ -152,8 +154,9 @@ def add_service_activity():
                            form.specialist.data.name),
                        template=settings.CONFIRM_ACTIVITY_HTML.format(
                            service=form.service.data.title.encode('utf-8'),
-                           start=form.start.data or "Not specified",
+                           start=form.start.data,
                            end=form.end.data or "Not specified",
+                           description=form.description.data or "Not specified",
                            confirm_url=str(confirm_url)))
 
             flash('Email was sent successfully')
