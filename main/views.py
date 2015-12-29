@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from flask import render_template, url_for, flash
-from back_end import app
+from app import app
 from .models import Specialist, Service, ServiceActivity
 from utils import generate_confirmation_token, confirm_token, send_email
 from forms import SearchForm, AddServiceActivityForm

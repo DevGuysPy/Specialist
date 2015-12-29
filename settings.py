@@ -16,6 +16,8 @@ MAIL_PASSWORD = os.environ.get('APP_MAIL_PASSWORD')
 # mail accounts
 MAIL_DEFAULT_SENDER = 'jyvylo5@gmail.com'
 
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+
 try:
     from local_settings import *
 except ImportError:
