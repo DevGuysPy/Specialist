@@ -38,7 +38,8 @@ def search():
 
 @app.route('/specialist/<int:specialist_id>/profile')
 def specialist_profile(specialist_id):
-    return render_template('specialist/profile.html')
+    spec = Specialist.query.filter_by(id=specialist_id).first()
+    return render_template('specialist/profile.html', spec=spec)
 
 
 @app.route('/service_activity/confirm/<token>')
