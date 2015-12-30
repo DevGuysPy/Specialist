@@ -1,8 +1,11 @@
 from flask_wtf import Form
-from wtforms import StringField, DateTimeField, ValidationError
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, optional
-from models import Specialist, Customer, Service
+from wtforms_alchemy import model_form_factory
+from wtforms import StringField, DateTimeField, ValidationError, IntegerField
+from wtforms.validators import DataRequired
+from models import ServiceActivity, Specialist, Customer, Service
+
+
+BaseModelForm = model_form_factory(Form)
 
 
 class SearchForm(Form):
@@ -15,21 +18,22 @@ def start_end_validation(form, field):
             'Start of activity must be earlier than end of activity')
 
 
-class AddServiceActivityForm(Form):
-    specialist = QuerySelectField(
-        query_factory=Specialist.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.name)
-    customer = QuerySelectField(
-        query_factory=Customer.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.name)
-    service = QuerySelectField(
-        query_factory=Service.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.title)
-    description = StringField('Description', validators=[optional()])
-    start = DateTimeField('Start', format='%Y-%d-%m %H:%M:%S',
-                          validators=[start_end_validation])
-    end = DateTimeField('End', format='%Y-%d-%m %H:%M:%S',
-                        validators=[optional()])
+def id_exist(form, field):
+    model = eval(field.label.text)
+    if model.query.filter(model.id == field.data).count() == 0:
+        raise ValidationError('{} does not exist'.format(field.label.text))
+
+
+class AddServiceActivityForm(BaseModelForm):
+    class Meta:
+        model = ServiceActivity
+        only = ['description', 'end']
+
+    specialist_id = IntegerField('Specialist',
+                                 validators=[DataRequired(), id_exist])
+    customer_id = IntegerField('Customer',
+                               validators=[DataRequired(), id_exist])
+    service_id = IntegerField('Service',
+                              validators=[DataRequired(), id_exist])
+    start = DateTimeField('Start',
+                          validators=[DataRequired(), start_end_validation])

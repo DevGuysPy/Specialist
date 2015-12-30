@@ -1,4 +1,4 @@
-from app import db, session
+from app import db
 from sqlalchemy.orm.exc import NoResultFound
 
 
@@ -83,7 +83,7 @@ class ServiceActivity(db.Model):
             activity = ServiceActivity(
                 specialist=specialist, customer=customer,
                 service=service, start=start)
-            session.add(activity)
+            db.session.add(activity)
 
             if defaults:
                 for field, value in defaults.items():

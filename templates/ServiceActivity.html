@@ -7,11 +7,14 @@
     <form method="POST">
         {{ form.csrf_token }}
         <h1>Specialist</h1><br>
-        {{ form.specialist }}<br>
+        <input type="text" id="specialist" class="typeahead"><br>
+        {{ form.specialist_id(id="specialist_id", type="hidden") }}
         <h1>Customer</h1><br>
-        {{ form.customer }}<br>
+        <input type="text" id="customer" class="typeahead"><br>
+        {{ form.customer_id(id="customer_id", type="hidden") }}
         <h1>Service</h1><br>
-        {{ form.service }}<br>
+        <input type="text" id="service" class="typeahead"><br>
+        {{ form.service_id(id="service_id", type="hidden") }}
         <h1>Description</h1><br>
         {{ form.description }}<br>
         <h1>Start</h1>
@@ -32,10 +35,13 @@
                 </span>
             </div>
         </div>
-        {{ form.custom }}
         <input type="submit" name="submit">
     </form>
-    {% if msgs %}
-        {{ msgs }}
-    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
+    <script>
+        initServiceActivity({{ data.specialists|safe }}, {{ data.customers|safe }}, {{ data.services|safe }})
+    </script>
 {% endblock %}

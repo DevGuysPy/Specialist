@@ -1,10 +1,10 @@
 $(function() {
     $('#datetimepicker1').datetimepicker({
-        format: 'yyyy-dd-MM hh:mm:ss',
+        format: 'yyyy-MM-dd hh:mm:ss',
         language: 'en'
     });
     $('#datetimepicker2').datetimepicker({
-        format: 'yyyy-dd-MM hh:mm:ss',
+        format: 'yyyy-MM-dd hh:mm:ss',
         language: 'en'
     });
 });
