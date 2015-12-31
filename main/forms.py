@@ -3,7 +3,7 @@ from flask_wtf import Form
 from wtforms import StringField, DateTimeField, ValidationError, IntegerField, TextAreaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, optional, Email, Length, NumberRange
-from wtforms_components import Unique
+from wtforms_components import PhoneNumberField
 from models import Specialist, Customer, Service, AbstractUser
 
 
@@ -55,7 +55,7 @@ class SpecialistForm(Form):
     name = StringField('name',
                        validators=[
                             DataRequired(),
-                            Length(max=128),])
+                            Length(max=128)])
     email = StringField('email',
                         validators=[
                             DataRequired(),
@@ -70,10 +70,9 @@ class SpecialistForm(Form):
     experience = IntegerField('experience',
                               validators=[
                                 DataRequired(),
-                                NumberRange(min=1, max=70)])
+                                NumberRange(max=100)])
     description = TextAreaField('description',
                                 validators=[
-                                    DataRequired(),
                                     Length(max=750),
                                     optional()])
 
