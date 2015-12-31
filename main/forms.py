@@ -1,9 +1,10 @@
 from flask_wtf import Form
 
-from wtforms import StringField, DateTimeField, ValidationError, IntegerField, validators, TextAreaField
+from wtforms import StringField, DateTimeField, ValidationError, IntegerField, TextAreaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, optional, Email
-from models import Specialist, Customer, Service
+from wtforms.validators import DataRequired, optional, Email, Length, NumberRange
+from wtforms_components import Unique
+from models import Specialist, Customer, Service, AbstractUser
 
 
 class SearchForm(Form):
@@ -36,31 +37,43 @@ class AddServiceActivityForm(Form):
                         validators=[optional()])
 
 
-def validation_on_existed_email(form, field):
-    email_to_be = Specialist.query.filter_by(email=form.email.data).all()
-    if email_to_be:
-        raise ValidationError(
-            'This email already exists')
+class UniqueValidator(object):
 
-def validation_on_existed_phone(form, field):
-    phone_to_be = Specialist.query.filter_by(phone=form.phone.data).all()
-    if phone_to_be:
-        raise ValidationError(
-            'This phone already exists')
+    def __init__(self, model, field, message=None):
+        self.model = model
+        self.field = field
+        if not message:
+            message = u'Already exists'
+        self.message = message
+
+    def __call__(self, form, field):
+        existing = self.model.query.filter(self.field == field.data).first()
+        if existing:
+            raise ValidationError(self.message)
 
 class SpecialistForm(Form):
     name = StringField('name',
-                       [validators.Length(min=4, max=50), DataRequired()])
+                       validators=[
+                            DataRequired(),
+                            Length(max=128),])
     email = StringField('email',
-                        [validators.Length(min=6, max=35),
-                         DataRequired(), Email(),
-                         validation_on_existed_email])
+                        validators=[
+                            DataRequired(),
+                            Length(max=255),
+                            Email(),
+                            UniqueValidator(Specialist, Specialist.email)])
     phone = StringField('phone',
-                        [validators.Length(min=5, max=12),
-                         DataRequired(), validation_on_existed_phone])
+                        validators=[
+                            DataRequired(),
+                            Length(min=5, max=12),
+                            UniqueValidator(Specialist, Specialist.phone)])
     experience = IntegerField('experience',
-                              [validators.NumberRange(min=3, max=70),
-                               DataRequired()])
+                              validators=[
+                                DataRequired(),
+                                NumberRange(min=1, max=70)])
     description = TextAreaField('description',
-                                [validators.Length(max=750), DataRequired()])
+                                validators=[
+                                    DataRequired(),
+                                    Length(max=750),
+                                    optional()])
 

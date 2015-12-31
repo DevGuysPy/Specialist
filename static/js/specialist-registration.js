@@ -8,8 +8,8 @@ $(document).ready(function(){
             data: $('form').serializeArray()
         }).done(function(response){
             if (response.status == 'ok') {
-                var Succeed = $('.luks');
-                Succeed.html('Sdelano');
+                var Succeed = $('.done');
+                Succeed.html('Success!');
             } else {
                 for(var key in response.input_errors) {
                     var errorDiv = $('#error_' + key);

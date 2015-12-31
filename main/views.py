@@ -59,18 +59,10 @@ def specialist_profile(specialist_id):
 
 @app.route('/specialist-registration/', methods=['GET', 'POST'])
 def specialist_registration():
-    services = Service.query.all()
+    all_services = Service.query.all()
     form = SpecialistForm(request.form)
     if request.method == 'POST':
         if form.validate():
-            services_query_identifiers = request.form.getlist('services')
-            services_objects = []
-
-            for service_identifier in services_query_identifiers:
-                chosen_services = Service.query.filter_by \
-                    (id=service_identifier).all()
-                services_objects.append(chosen_services)
-
             new_specialist = Specialist(name=form.name.data,
                                         email=form.email.data,
                                         phone=form.phone.data,
@@ -81,8 +73,12 @@ def specialist_registration():
             db.session.flush()
             db.session.refresh(new_specialist)
 
-            for services_ids in services_objects:
-                service_id = services_ids[0].id
+            services_query_identifiers = request.form.getlist('services')
+            services_objects = Service.query.filter(
+                Service.id.in_(services_query_identifiers)).all()
+
+            for service_object in services_objects:
+                service_id = service_object.id
                 specialist_service = \
                     SpecialistService(specialist_id=new_specialist.id,
                                       service_id=service_id)
@@ -97,10 +93,9 @@ def specialist_registration():
             return jsonify({
                 'input_errors': form.errors,
                 'status': 'error'
-
             })
 
-    return render_template("SpecialistRegistration.html", services=services,
+    return render_template("SpecialistRegistration.html", services=all_services,
                            form=form)
 
 
