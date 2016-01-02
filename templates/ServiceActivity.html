@@ -42,6 +42,6 @@
 {% block script %}
     <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
     <script>
-        initServiceActivity({{ data.specialists|safe }}, {{ data.customers|safe }}, {{ data.services|safe }})
+        initServiceActivity({{ data.specialists|safe }}, {{ data.customers|safe }}, {{ data.services|safe }});
     </script>
 {% endblock %}

@@ -38,13 +38,16 @@ class Customer(AbstractUser, db.Model):
 class ServiceActivity(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
-    specialist_id = db.Column(db.Integer(), db.ForeignKey('specialist.id'), nullable=False)
+    specialist_id = db.Column(db.Integer(), db.ForeignKey('specialist.id'),
+                              nullable=False)
     specialist = db.relationship('Specialist')
 
-    customer_id = db.Column(db.Integer(), db.ForeignKey('customer.id'), nullable=False)
+    customer_id = db.Column(db.Integer(), db.ForeignKey('customer.id'),
+                            nullable=False)
     customer = db.relationship('Customer')
 
-    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'), nullable=False)
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
+                           nullable=False)
     service = db.relationship('Service')
 
     start = db.Column(db.DateTime())

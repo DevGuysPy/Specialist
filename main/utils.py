@@ -5,7 +5,9 @@ from app import mail, app
 
 def generate_confirmation_token(confirmation_item):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-    return serializer.dumps(confirmation_item, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+    return serializer.dumps(confirmation_item,
+                            salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
 def confirm_token(token, expiration=3600):
