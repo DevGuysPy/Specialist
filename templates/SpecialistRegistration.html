@@ -1,0 +1,61 @@
+{% extends "Base.html" %}
+
+
+{% block body %}
+    <div class="container">
+        <div class="card-panel" style="width: 640px;height: 750px;margin-right: 0px;margin-left: 300px;">
+            <div class="panel-title">
+                <center><h3>Specialist Registration</h3></center>
+            </div>
+
+            <form method="POST" >
+                {{ form.csrf_token }}
+                <div class="form-group">
+                    {{ form.name(placeholder="Enter your name") }}
+                    <div id="error_name" class="error"></div>
+                </div>
+                <div class="form-group">
+                    {{ form.email(placeholder="Enter your email") }}
+                    <div id="error_email" class="error"></div>
+                </div>
+                <div class="form-group">
+                    {{ form.phone(placeholder="Enter your tel. number") }}
+                    <div id="error_phone" class="error"></div>
+                </div>
+                 <div class="form-group">
+                    {{ form.experience(placeholder="Enter your experience(in years)") }}
+                     <div id="error_experience" class="error"></div>
+                 </div>
+                <div class="form-group">
+                    <div class="input-field" style="margin-top: 0px;">
+                    {{ form.description(placeholder="Describe yourselves", id="textarea1", class="materialize-textarea", length="750") }}
+                    <div id="error_description" class="error"></div>
+                    </div>
+                </div>
+                <div class="input-field">
+                    <select multiple name="services">
+                        <option value="" disabled selected>Services</option>
+                        {% for service in services %}
+                        <option value="{{ service.id }}">{{ service.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <center><button class="form-submit btn waves-effect waves-light" type="submit" name="action">Submit
+                    <i class="material-icons right">send</i>
+                </button></center>
+             <div class="done"></div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function() {
+            $('select').material_select();
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/specialist-registration.js') }}"></script>
+{% endblock %}
+
+
