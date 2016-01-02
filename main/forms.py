@@ -12,16 +12,17 @@ class SearchForm(Form):
     query = StringField('query', validators=[DataRequired()])
 
 
-def start_end_validation(form, field):
+def validate_start_end(form, field):
     if form.end.data and field.data > form.end.data:
         raise ValidationError(
             'Start of activity must be earlier than end of activity')
 
 
-def id_exist(form, field):
-    model = eval(field.label.text)
-    if model.query.filter(model.id == field.data).count() == 0:
-        raise ValidationError('{} does not exist'.format(field.label.text))
+def validate_id_for(model):
+    def validate_id(form, field):
+        if model.query.filter(model.id == field.data).count() == 0:
+            raise ValidationError('{} does not exist'.format(field.label.text))
+    return validate_id
 
 
 class AddServiceActivityForm(BaseModelForm):
@@ -30,10 +31,10 @@ class AddServiceActivityForm(BaseModelForm):
         only = ['description', 'end']
 
     specialist_id = IntegerField('Specialist',
-                                 validators=[DataRequired(), id_exist])
+                                 validators=[DataRequired(), validate_id_for(Specialist)])
     customer_id = IntegerField('Customer',
-                               validators=[DataRequired(), id_exist])
+                               validators=[DataRequired(), validate_id_for(Customer)])
     service_id = IntegerField('Service',
-                              validators=[DataRequired(), id_exist])
+                              validators=[DataRequired(), validate_id_for(Service)])
     start = DateTimeField('Start',
-                          validators=[DataRequired(), start_end_validation])
+                          validators=[DataRequired(), validate_start_end])

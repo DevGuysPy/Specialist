@@ -2,11 +2,14 @@
 import json
 
 from flask import render_template, url_for, flash, request
+
 from app import app, cache
-from .models import Specialist, Service, ServiceActivity, Customer
-from utils import generate_confirmation_token, confirm_token, send_email, get_model_column_values
-from forms import SearchForm, AddServiceActivityForm
+
 import settings
+from models import Specialist, Service, ServiceActivity, Customer
+from utils import generate_confirmation_token, confirm_token,\
+    send_email, get_model_column_values
+from forms import SearchForm, AddServiceActivityForm
 
 
 @app.route('/')
@@ -98,42 +101,41 @@ def add_service_activity():
 
     @cache.cached(key_prefix='service_activity_data')
     def get_data():
-        with app.test_request_context():
-            specialists = get_model_column_values(
-                Specialist,
-                columns=[
-                    {
-                        'dict_key': 'id', 'column': 'id'
-                    },
-                    {
-                        'dict_key': 'name', 'column': 'name'
-                    }
-                ])
-            customers = get_model_column_values(
-                Customer,
-                columns=[
-                    {
-                        'dict_key': 'id', 'column': 'id'
-                    },
-                    {
-                        'dict_key': 'name', 'column': 'name'
-                    }
-                ])
-            services = get_model_column_values(
-                Service,
-                columns=[
-                    {
-                        'dict_key': 'id', 'column': 'id'
-                    },
-                    {
-                        'dict_key': 'name', 'column': 'title'
-                    }
-                ])
-            return {
-                'specialists': json.dumps(specialists),
-                'customers': json.dumps(customers),
-                'services': json.dumps(services)
-            }
+        specialists = get_model_column_values(
+            Specialist,
+            columns=[
+                {
+                    'dict_key': 'id', 'column': 'id'
+                },
+                {
+                    'dict_key': 'name', 'column': 'name'
+                }
+            ])
+        customers = get_model_column_values(
+            Customer,
+            columns=[
+                {
+                    'dict_key': 'id', 'column': 'id'
+                },
+                {
+                    'dict_key': 'name', 'column': 'name'
+                }
+            ])
+        services = get_model_column_values(
+            Service,
+            columns=[
+                {
+                    'dict_key': 'id', 'column': 'id'
+                },
+                {
+                    'dict_key': 'name', 'column': 'title'
+                }
+            ])
+        return {
+            'specialists': json.dumps(specialists),
+            'customers': json.dumps(customers),
+            'services': json.dumps(services)
+        }
 
     context = {
         'form': form,
