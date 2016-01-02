@@ -3,8 +3,13 @@ from flask_wtf import Form
 from wtforms import StringField, DateTimeField, ValidationError, IntegerField, TextAreaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, optional, Email, Length, NumberRange
-from wtforms_components import PhoneNumberField
-from models import Specialist, Customer, Service, AbstractUser
+from wtforms_alchemy import model_form_factory
+
+from models import ServiceActivity, Specialist, Customer, Service
+
+
+BaseModelForm = model_form_factory(Form)
+
 
 
 class SearchForm(Form):
@@ -75,4 +80,25 @@ class SpecialistForm(Form):
                                 validators=[
                                     Length(max=750),
                                     optional()])
+
+
+def id_exist(form, field):
+    model = eval(field.label.text)
+    if model.query.filter(model.id == field.data).count() == 0:
+        raise ValidationError('{} does not exist'.format(field.label.text))
+
+
+class AddServiceActivityForm(BaseModelForm):
+    class Meta:
+        model = ServiceActivity
+        only = ['description', 'end']
+
+    specialist_id = IntegerField('Specialist',
+                                 validators=[DataRequired(), id_exist])
+    customer_id = IntegerField('Customer',
+                               validators=[DataRequired(), id_exist])
+    service_id = IntegerField('Service',
+                              validators=[DataRequired(), id_exist])
+    start = DateTimeField('Start',
+                          validators=[DataRequired(), start_end_validation])
 

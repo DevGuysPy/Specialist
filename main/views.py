@@ -1,12 +1,15 @@
 # -*- encoding: utf-8 -*-
 
-from flask import render_template, url_for, flash, request, jsonify
-from app import app, session, db
+import json
 
-from utils import generate_confirmation_token, confirm_token, send_email
+from flask import render_template, url_for, flash, request, jsonify
+from app import app, cache, db
+from .models import Specialist, Service, ServiceActivity, Customer, SpecialistService
+
+from utils import generate_confirmation_token, confirm_token, send_email, get_model_column_values
 from forms import SearchForm, AddServiceActivityForm, SpecialistForm
+
 import settings
-from .models import Specialist, Service, ServiceActivity, SpecialistService
 
 
 @app.route('/')
@@ -85,7 +88,7 @@ def service_register():
     if request.method == "POST":
         new_service = Service(title=request.form['title'],
                               domain=request.form['domain'])
-        session.add(new_service)
+        db.session.add(new_service)
 
         return render_template("RegisterService.html")
 
@@ -110,11 +113,16 @@ def confirm_specialist_activity(token):
 def add_service_activity():
     form = AddServiceActivityForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate():
+        specialist = Specialist.query.get(form.specialist_id.data)
+        customer = Customer.query.get(form.customer_id.data)
+        service = Service.query.get(form.service_id.data)
 
         activity, created = ServiceActivity.get_or_create(
-            specialist=form.specialist.data, customer=form.customer.data,
-            service=form.service.data, start=form.start.data,
+            specialist=specialist,
+            customer=customer,
+            service=service,
+            start=form.start.data,
             defaults={
                 'end': form.end.data,
                 'description': form.description.data
@@ -125,11 +133,11 @@ def add_service_activity():
             confirm_url = url_for('confirm_specialist_activity',
                                   token=token, _external=True)
 
-            send_email(to=form.specialist.data.email,
+            send_email(to=specialist.email,
                        subject='You have been invited by {}'.format(
-                           form.specialist.data.name),
+                           specialist.name),
                        template=settings.CONFIRM_ACTIVITY_HTML.format(
-                           service=form.service.data.title.encode('utf-8'),
+                           service=service.title.encode('utf-8'),
                            start=form.start.data,
                            end=form.end.data or "Not specified",
                            description=form.description.data or "Not specified",
@@ -145,8 +153,48 @@ def add_service_activity():
                     error
                 ))
 
+    @cache.cached(key_prefix='service_activity_data')
+    def get_data():
+        with app.test_request_context():
+            specialists = get_model_column_values(
+                Specialist,
+                columns=[
+                    {
+                        'dict_key': 'id', 'column': 'id'
+                    },
+                    {
+                        'dict_key': 'name', 'column': 'name'
+                    }
+                ])
+            customers = get_model_column_values(
+                Customer,
+                columns=[
+                    {
+                        'dict_key': 'id', 'column': 'id'
+                    },
+                    {
+                        'dict_key': 'name', 'column': 'name'
+                    }
+                ])
+            services = get_model_column_values(
+                Service,
+                columns=[
+                    {
+                        'dict_key': 'id', 'column': 'id'
+                    },
+                    {
+                        'dict_key': 'name', 'column': 'title'
+                    }
+                ])
+            return {
+                'specialists': json.dumps(specialists),
+                'customers': json.dumps(customers),
+                'services': json.dumps(services)
+            }
+
     context = {
         'form': form,
+        'data': get_data()
     }
 
     return render_template("ServiceActivity.html", **context)
