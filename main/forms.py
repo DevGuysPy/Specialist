@@ -1,35 +1,57 @@
+from sqlalchemy import exists
 from flask_wtf import Form
-from wtforms import StringField, DateTimeField, ValidationError
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, optional
-from models import Specialist, Customer, Service
+from wtforms_alchemy import model_form_factory
+from wtforms import StringField, DateTimeField, ValidationError, IntegerField
+from wtforms.validators import DataRequired
+
+from models import ServiceActivity, Specialist, Customer, Service, db
+
+
+BaseModelForm = model_form_factory(Form)
 
 
 class SearchForm(Form):
     query = StringField('query', validators=[DataRequired()])
 
 
-def start_end_validation(form, field):
+def validate_start_end(form, field):
     if form.end.data and field.data > form.end.data:
         raise ValidationError(
             'Start of activity must be earlier than end of activity')
 
 
-class AddServiceActivityForm(Form):
-    specialist = QuerySelectField(
-        query_factory=Specialist.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.name)
-    customer = QuerySelectField(
-        query_factory=Customer.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.name)
-    service = QuerySelectField(
-        query_factory=Service.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.title)
-    description = StringField('Description', validators=[optional()])
-    start = DateTimeField('Start', format='%Y-%d-%m %H:%M:%S',
-                          validators=[start_end_validation])
-    end = DateTimeField('End', format='%Y-%d-%m %H:%M:%S',
-                        validators=[optional()])
+def validate_id_for(model):
+    def validate_id(form, field):
+        if not db.session.query(
+                exists().where(model.id == field.data)).scalar():
+            raise ValidationError(
+                '{} with id {} does not exist'.format(
+                    field.label.text, field.data))
+    return validate_id
+
+
+class AddServiceActivityForm(BaseModelForm):
+    class Meta:
+        model = ServiceActivity
+        only = ['description', 'end']
+
+    specialist_id = IntegerField('Specialist',
+                                 validators=[
+                                     DataRequired(),
+                                     validate_id_for(Specialist)
+                                 ])
+    customer_id = IntegerField('Customer',
+                               validators=[
+                                   DataRequired(),
+                                   validate_id_for(Customer)
+                               ])
+    service_id = IntegerField('Service',
+                              validators=[
+                                  DataRequired(),
+                                  validate_id_for(Service)
+                              ])
+    start = DateTimeField('Start',
+                          validators=[
+                              DataRequired(),
+                              validate_start_end
+                          ])

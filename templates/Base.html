@@ -5,6 +5,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/typeahead.css') }}" rel="stylesheet">
     {% block css %}{% endblock %}
 </head>
 
@@ -23,6 +24,8 @@
 <script src="{{ url_for('static', filename='js/jquery-1.11.0.min.js') }}"></script>
 <script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap-datapicker.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lodash.js') }}"></script>
+<script src="{{ url_for('static', filename='js/typeahead.js') }}"></script>
 <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 
 {% block script %}{% endblock %}
