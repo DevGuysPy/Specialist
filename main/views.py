@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 import json
 
-from flask import render_template, url_for, flash, request
-
+from flask import render_template, url_for, flash
+from flask_views.edit import FormView
 from app import app, cache
 
 import settings
@@ -55,11 +55,11 @@ def confirm_specialist_activity(token):
     return render_template('ConfirmServiceActivity.html')
 
 
-@app.route('/service_activity/add', methods=['GET', 'POST'])
-def add_service_activity():
-    form = AddServiceActivityForm()
+class AddServiceActivity(FormView):
+    form_class = AddServiceActivityForm
+    template_name = 'ServiceActivity.html'
 
-    if request.method == 'POST' and form.validate():
+    def form_valid(self, form):
         specialist = Specialist.query.get(form.specialist_id.data)
         customer = Customer.query.get(form.customer_id.data)
         service = Service.query.get(form.service_id.data)
@@ -91,7 +91,9 @@ def add_service_activity():
 
             flash('Email was sent successfully')
 
-    if form.errors:
+        return super(AddServiceActivity, self).form_valid(form)
+    
+    def form_invalid(self, form):
         for field, errors in form.errors.items():
             for error in errors:
                 flash("Error in the {} field - {}".format(
@@ -99,8 +101,19 @@ def add_service_activity():
                     error
                 ))
 
+        return super(AddServiceActivity, self).form_invalid(form)
+
+    def get_success_url(self):
+        return url_for('add_service_activity')
+
+    def get_context_data(self, **kwargs):
+        context = super(AddServiceActivity, self).get_context_data(**kwargs)
+        context.update({'typeahead_data': self.get_typeahead_data()})
+
+        return super(AddServiceActivity, self).get_context_data(**context)
+
     @cache.cached(key_prefix='service_activity_data')
-    def get_data():
+    def get_typeahead_data(self):
         specialists = get_model_column_values(
             Specialist,
             columns=[
@@ -131,15 +144,15 @@ def add_service_activity():
                     'dict_key': 'name', 'column': 'title'
                 }
             ])
+
         return {
             'specialists': json.dumps(specialists),
             'customers': json.dumps(customers),
             'services': json.dumps(services)
         }
 
-    context = {
-        'form': form,
-        'data': get_data()
-    }
 
-    return render_template("ServiceActivity.html", **context)
+app.add_url_rule(
+    '/service_activity/add',
+    view_func=AddServiceActivity.as_view('add_service_activity')
+)

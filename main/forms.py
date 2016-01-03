@@ -26,7 +26,7 @@ def validate_id_for(model):
                 exists().where(model.id == field.data)).scalar():
             raise ValidationError(
                 '{} with id {} does not exist'.format(
-                    field.label.text, field.data))
+                    model.__name__, field.data))
     return validate_id
 
 
