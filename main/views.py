@@ -1,14 +1,13 @@
 # -*- encoding: utf-8 -*-
-import json
+from flask import render_template, url_for, flash, jsonify
+from flask_views.base import TemplateView
 
-from flask import render_template, url_for, flash
-from flask_views.edit import FormView
-from app import app, cache
+from app import app
 
 import settings
 from models import Specialist, Service, ServiceActivity, Customer
 from utils import generate_confirmation_token, confirm_token,\
-    send_email, get_model_column_values
+    send_email
 from forms import SearchForm, AddServiceActivityForm
 
 
@@ -36,12 +35,6 @@ def search():
                            **ctx)
 
 
-@app.route('/specialist/<int:specialist_id>/profile')
-def specialist_profile(specialist_id):
-    spec = Specialist.query.filter_by(id=specialist_id).first()
-    return render_template('specialist/profile.html', spec=spec)
-
-
 @app.route('/service_activity/confirm/<token>')
 def confirm_specialist_activity(token):
     activity_id = confirm_token(token)
@@ -56,19 +49,47 @@ def confirm_specialist_activity(token):
     return render_template('ConfirmServiceActivity.html')
 
 
-class AddServiceActivity(FormView):
-    form_class = AddServiceActivityForm
-    template_name = 'ServiceActivity.html'
+class SpecialistProfile(TemplateView):
+    template_name = 'SpecialistProfile.html'
 
-    def form_valid(self, form):
-        specialist = Specialist.query.get(form.specialist_id.data)
-        customer = Customer.query.get(form.customer_id.data)
-        service = Service.query.get(form.service_id.data)
+    def __init__(self):
+        super(SpecialistProfile, self).__init__()
+        self.specialist = None
 
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(SpecialistProfile, self).get_context_data()
+        context.update({'specialist': self.get_specialist(kwargs)})
+        context.update({'form': AddServiceActivityForm.get_form(self.specialist)})
+
+        return context
+
+    def get_specialist(self, kwargs):
+        self.specialist = Specialist.query.get(kwargs.get('specialist_id'))
+        return self.specialist
+
+
+app.add_url_rule(
+    '/specialist/<int:specialist_id>/profile',
+    view_func=SpecialistProfile.as_view('specialist_profile')
+)
+
+
+@app.route('/specialist/<int:specialist_id>/add_service_activity',
+           methods=['POST'])
+def add_service_activity(specialist_id):
+    specialist = Specialist.query.get(specialist_id)
+    form = AddServiceActivityForm.get_form(specialist)
+
+    if form.validate():
         activity, created = ServiceActivity.get_or_create(
             specialist=specialist,
-            customer=customer,
-            service=service,
+            # temporary (waiting for registration and login)
+            customer=Customer.query.get(1),
+            service=form.service.data,
             start=form.start.data,
             defaults={
                 'end': form.end.data,
@@ -84,76 +105,17 @@ class AddServiceActivity(FormView):
                        subject='You have been invited by {}'.format(
                            specialist.name),
                        template=settings.CONFIRM_ACTIVITY_HTML.format(
-                           service=service.title.encode('utf-8'),
+                           service=form.service.data.title.encode('utf-8'),
                            start=form.start.data,
                            end=form.end.data or "Not specified",
                            description=form.description.data or "Not specified",
                            confirm_url=str(confirm_url)))
 
-            flash('Email was sent successfully')
-
-        return super(AddServiceActivity, self).form_valid(form)
-    
-    def form_invalid(self, form):
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash("Error in the {} field - {}".format(
-                    getattr(form, field).label.text,
-                    error
-                ))
-
-        return super(AddServiceActivity, self).form_invalid(form)
-
-    def get_success_url(self):
-        return url_for('add_service_activity')
-
-    def get_context_data(self, **kwargs):
-        context = super(AddServiceActivity, self).get_context_data(**kwargs)
-        context.update({'typeahead_data': self.get_typeahead_data()})
-
-        return super(AddServiceActivity, self).get_context_data(**context)
-
-    @cache.cached(key_prefix='service_activity_data')
-    def get_typeahead_data(self):
-        specialists = get_model_column_values(
-            Specialist,
-            columns=[
-                {
-                    'dict_key': 'id', 'column': 'id'
-                },
-                {
-                    'dict_key': 'name', 'column': 'name'
-                }
-            ])
-        customers = get_model_column_values(
-            Customer,
-            columns=[
-                {
-                    'dict_key': 'id', 'column': 'id'
-                },
-                {
-                    'dict_key': 'name', 'column': 'name'
-                }
-            ])
-        services = get_model_column_values(
-            Service,
-            columns=[
-                {
-                    'dict_key': 'id', 'column': 'id'
-                },
-                {
-                    'dict_key': 'name', 'column': 'title'
-                }
-            ])
-
-        return {
-            'specialists': json.dumps(specialists),
-            'customers': json.dumps(customers),
-            'services': json.dumps(services)
-        }
-
-
-app.add_url_rule(
-    '/service_activity/add',
-    view_func=AddServiceActivity.as_view('add_service_activity')
-)
+        return jsonify({
+            'status': 'ok'
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'errors': form.errors
+        })

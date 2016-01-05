@@ -1,10 +1,11 @@
 from sqlalchemy import exists
 from flask_wtf import Form
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory
-from wtforms import StringField, DateTimeField, ValidationError, IntegerField
+from wtforms import StringField, DateTimeField, ValidationError
 from wtforms.validators import DataRequired
 
-from models import ServiceActivity, Specialist, Customer, Service, db
+from models import ServiceActivity, db
 
 
 BaseModelForm = model_form_factory(Form)
@@ -35,23 +36,18 @@ class AddServiceActivityForm(BaseModelForm):
         model = ServiceActivity
         only = ['description', 'end']
 
-    specialist_id = IntegerField('Specialist',
-                                 validators=[
-                                     DataRequired(),
-                                     validate_id_for(Specialist)
-                                 ])
-    customer_id = IntegerField('Customer',
-                               validators=[
-                                   DataRequired(),
-                                   validate_id_for(Customer)
-                               ])
-    service_id = IntegerField('Service',
-                              validators=[
-                                  DataRequired(),
-                                  validate_id_for(Service)
-                              ])
+    service = QuerySelectField(
+        query_factory=None,
+        get_pk=lambda a: a.id,
+        get_label=lambda a: a.title)
     start = DateTimeField('Start',
                           validators=[
                               DataRequired(),
                               validate_start_end
                           ])
+
+    @classmethod
+    def get_form(cls, specialist):
+        form = cls()
+        form.service.query = specialist.services.all()
+        return form

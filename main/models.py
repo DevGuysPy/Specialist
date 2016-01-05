@@ -21,7 +21,9 @@ class SpecialistService(db.Model):
 class Specialist(AbstractUser, db.Model):
     experience = db.Column(db.Integer())
     description = db.Column(db.Text())
-    services = db.relationship('Service', secondary="specialist_service")
+    services = db.relationship('Service',
+                               secondary="specialist_service",
+                               lazy='dynamic')
 
 
 class Service(db.Model):
