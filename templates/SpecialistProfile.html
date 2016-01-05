@@ -1,0 +1,19 @@
+{% extends "Base.html" %}
+{% block body %}
+    {% if specialist.services.all()|length == 0 %}
+        <p>{{ specialist.name }} doesn't offer any services</p>
+        <a class="waves-effect waves-light btn modal-trigger disabled" href="#add_service_activity_modal">Order service</a>
+    {% else %}
+        <a class="waves-effect waves-light btn modal-trigger" href="#add_service_activity_modal">Order service</a>
+    {% endif %}
+
+    {% include "AddServiceActivityModal.html" %}
+
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
+    <script type="text/javascript">
+        initServiceActivityModal("{{ url_for('add_service_activity', specialist_id=specialist.id) }}")
+    </script>
+{% endblock %}
