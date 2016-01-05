@@ -14,8 +14,18 @@ class SpecialistService(db.Model):
     __tablename__ = 'specialist_service'
     specialist_id = db.Column(db.Integer(), db.ForeignKey('specialist.id'),
                               primary_key=True)
-    service_id = db.Column(db.Integer(),  db.ForeignKey('service.id'),
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            primary_key=True)
+
+
+class Company(db.Model):
+    __tablename__ = 'company'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    logo = db.Column(db.String(), unique=True)
+    employees = db.relationship("Specialist",
+                                backref='company',
+                                cascade='all, delete-orphan')
 
 
 class Specialist(AbstractUser, db.Model):
@@ -24,6 +34,7 @@ class Specialist(AbstractUser, db.Model):
     services = db.relationship('Service',
                                secondary="specialist_service",
                                lazy='dynamic')
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)
 
 
 class Service(db.Model):
@@ -81,14 +92,14 @@ class ServiceActivity(db.Model):
 
         try:
             activity = ServiceActivity.query.filter_by(
-                specialist=specialist, customer=customer,
-                service=service, start=start).one()
+                    specialist=specialist, customer=customer,
+                    service=service, start=start).one()
             return activity, False
         except NoResultFound:
             activity = ServiceActivity(
-                specialist=specialist, customer=customer,
-                service=service, start=start)
-            db.session.add(activity)
+                    specialist=specialist, customer=customer,
+                    service=service, start=start)
+            session.add(activity)
 
             if defaults:
                 for field, value in defaults.items():
@@ -96,7 +107,7 @@ class ServiceActivity(db.Model):
                         setattr(activity, field, value)
                     else:
                         raise AttributeError(
-                            "ServiceActivity has no attribute {}".format(field))
+                                "ServiceActivity has no attribute {}".format(field))
 
         return activity, True
 
@@ -108,4 +119,3 @@ class Location(db.Model):
     street = db.Column(db.String())
     building = db.Column(db.String())
     appartment = db.Column(db.Integer())
-
