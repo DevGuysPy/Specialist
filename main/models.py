@@ -1,11 +1,19 @@
 from app import db
 from sqlalchemy.orm.exc import NoResultFound
 
+from sqlalchemy_utils import PasswordType
 
 class AbstractUser(object):
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    phone = db.Column(db.String(12))
+    username = db.Column(db.String(128), nullable=False, unique=True)
+    password = db.Column(PasswordType(
+        schemes=[
+            'pbkdf2_sha512',
+            'md5_crypt'
+        ],
+        deprecated=['md5_crypt']
+    ))
+    phone = db.Column(db.String(12), unique=True)
     email = db.Column(db.String(), nullable=False, unique=True)
     photo = db.Column(db.String(), unique=True)
 
@@ -19,6 +27,8 @@ class SpecialistService(db.Model):
 
 
 class Specialist(AbstractUser, db.Model):
+    first_name = db.Column(db.String(128), nullable=False)
+    last_name = db.Column(db.String(128), nullable=False)
     experience = db.Column(db.Integer())
     description = db.Column(db.Text())
     services = db.relationship('Service', secondary="specialist_service")
@@ -28,11 +38,11 @@ class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(256), nullable=False)
     domain = db.Column(db.String(256), nullable=False)
-    # specialists = db.relationship(Specialist)
 
 
 class Customer(AbstractUser, db.Model):
-    pass
+    first_name = db.Column(db.String(128), nullable=False)
+    last_name = db.Column(db.String(128), nullable=False)
 
 
 class ServiceActivity(db.Model):

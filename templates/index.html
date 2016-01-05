@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
 <body>
+    <div>
+        {% for customer in all_customers %}
+        {{ customer.username }}<br>
+        {{ customer.first_name }}<br>
+        {{ customer.last_name }}<br>
+        <hr>
+    {% endfor %}
+    </div>
 
 </body>
 </html>

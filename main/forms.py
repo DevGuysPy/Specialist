@@ -1,11 +1,10 @@
 from flask_wtf import Form
 
-from wtforms import StringField, DateTimeField, ValidationError, IntegerField, TextAreaField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.validators import DataRequired, optional, Email, Length, NumberRange
+from wtforms import StringField, DateTimeField, ValidationError, IntegerField, TextAreaField, PasswordField
+from wtforms.validators import DataRequired, optional, Email, Length, NumberRange, EqualTo
 from wtforms_alchemy import model_form_factory
 
-from models import ServiceActivity, Specialist, Customer, Service
+from models import ServiceActivity, Specialist, AbstractUser, Customer
 
 
 BaseModelForm = model_form_factory(Form)
@@ -22,26 +21,6 @@ def start_end_validation(form, field):
             'Start of activity must be earlier than end of activity')
 
 
-class AddServiceActivityForm(Form):
-    specialist = QuerySelectField(
-        query_factory=Specialist.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.name)
-    customer = QuerySelectField(
-        query_factory=Customer.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.name)
-    service = QuerySelectField(
-        query_factory=Service.query.all,
-        get_pk=lambda a: a.id,
-        get_label=lambda a: a.title)
-    description = StringField('Description', validators=[optional()])
-    start = DateTimeField('Start', format='%Y-%d-%m %H:%M:%S',
-                          validators=[start_end_validation])
-    end = DateTimeField('End', format='%Y-%d-%m %H:%M:%S',
-                        validators=[optional()])
-
-
 class UniqueValidator(object):
 
     def __init__(self, model, field, message=None):
@@ -56,30 +35,87 @@ class UniqueValidator(object):
         if existing:
             raise ValidationError(self.message)
 
-class SpecialistForm(Form):
-    name = StringField('name',
-                       validators=[
-                            DataRequired(),
-                            Length(max=128)])
+
+class CustomerForm(Form):
+    class Meta:
+        model = Customer
+
+    first_name = StringField('first_name',
+                           validators=[
+                                DataRequired(),
+                                Length(max=128)])
+    last_name = StringField('last_name',
+                            validators=[
+                                DataRequired(),
+                                Length(max=128)])
+    username = StringField('username',
+                            validators=[
+                                DataRequired(),
+                                Length(max=128),
+                                UniqueValidator(Specialist, Specialist.username)])
+    password = PasswordField('password',
+                            validators=[
+                                DataRequired()])
+    confirm_password = PasswordField('repeat password',
+                            validators=[
+                                DataRequired(),
+                                EqualTo('password', message='Passwords must match')])
     email = StringField('email',
-                        validators=[
-                            DataRequired(),
-                            Length(max=255),
-                            Email(),
-                            UniqueValidator(Specialist, Specialist.email)])
+                            validators=[
+                                DataRequired(),
+                                Length(max=255),
+                                Email(),
+                                UniqueValidator(Specialist, Specialist.email)])
     phone = StringField('phone',
-                        validators=[
-                            DataRequired(),
-                            Length(min=5, max=12),
-                            UniqueValidator(Specialist, Specialist.phone)])
+                            validators=[
+                                DataRequired(),
+                                Length(min=5, max=12),
+                                UniqueValidator(Specialist, Specialist.phone)])
+
+
+class SpecialistForm(Form):
+    class Meta:
+        model = AbstractUser
+
+    first_name = StringField('first_name',
+                           validators=[
+                                DataRequired(),
+                                Length(max=128)])
+    last_name = StringField('last_name',
+                            validators=[
+                                DataRequired(),
+                                Length(max=128)])
+    username = StringField('username',
+                            validators=[
+                                DataRequired(),
+                                Length(max=128),
+                                UniqueValidator(Specialist, Specialist.username)])
+    password = PasswordField('password',
+                            validators=[
+                                DataRequired()])
+    confirm_password = PasswordField('repeat password',
+                            validators=[
+                                DataRequired(),
+                                EqualTo('password', message='Passwords must match')])
+    email = StringField('email',
+                            validators=[
+                                DataRequired(),
+                                Length(max=255),
+                                Email(),
+                                UniqueValidator(Specialist, Specialist.email)])
+    phone = StringField('phone',
+                            validators=[
+                                DataRequired(),
+                                Length(min=5, max=12),
+                                UniqueValidator(Specialist, Specialist.phone)])
     experience = IntegerField('experience',
-                              validators=[
+                            validators=[
                                 DataRequired(),
                                 NumberRange(max=100)])
     description = TextAreaField('description',
-                                validators=[
-                                    Length(max=750),
-                                    optional()])
+                            validators=[
+                                Length(max=750),
+                                optional()])
 
 
 def id_exist(form, field):

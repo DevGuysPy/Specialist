@@ -14,7 +14,8 @@ import settings
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    all_customers = Customer.query.all()
+    return render_template('index.html', all_customers=all_customers)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -47,7 +48,10 @@ def specialist_registration():
     form = SpecialistForm(request.form)
     if request.method == 'POST':
         if form.validate():
-            new_specialist = Specialist(name=form.name.data,
+            new_specialist = Specialist(username=form.username.data,
+                                        first_name=form.first_name.data,
+                                        last_name=form.last_name.data,
+                                        password=form.password.data,
                                         email=form.email.data,
                                         phone=form.phone.data,
                                         experience=form.experience.data,
@@ -67,8 +71,6 @@ def specialist_registration():
                     SpecialistService(specialist_id=new_specialist.id,
                                       service_id=service_id)
                 db.session.add(specialist_service)
-
-            db.session.commit()
 
             return jsonify({
                 'status': 'ok',

@@ -1,4 +1,18 @@
 $(document).ready(function(){
+    $(".choice").change(function () {
+        $('.specialist-form').hide();
+        $('.customer-form').hide();
+        switch ($(this).val()) {
+            case 'specialist':
+                $('.customer-form').hide();
+                $('.specialist-form').show();
+                break;
+            case 'customer':
+                $('.specialist-form').hide();
+                $('.customer-form').show();
+                break;
+        }
+    });
     $('.form-submit').click(function(event){
         event.preventDefault();
         $('.error').html('');
@@ -17,5 +31,16 @@ $(document).ready(function(){
                 }
             }
         })
+    });
+    $('#conf_pass').on('keyup', function() {
+        var pass = $('#pass');
+        var conf_pass = $('#conf_pass');
+        var message = $('#confirmMessage');
+
+        if(pass.val() == conf_pass.val()){
+            message.html('OK');
+        }else{
+            message.html('Passwords do not match!');
+        }
     });
 });
