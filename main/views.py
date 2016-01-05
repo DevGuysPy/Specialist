@@ -7,7 +7,7 @@ from app import app, cache, db
 from .models import Specialist, Service, ServiceActivity, Customer, SpecialistService
 
 from utils import generate_confirmation_token, confirm_token, send_email, get_model_column_values
-from forms import SearchForm, AddServiceActivityForm, SpecialistForm
+from forms import SearchForm, AddServiceActivityForm, SpecialistForm, CustomerForm
 
 import settings
 
@@ -45,44 +45,69 @@ def specialist_profile(specialist_id):
 @app.route('/specialist-registration/', methods=['GET', 'POST'])
 def specialist_registration():
     all_services = Service.query.all()
-    form = SpecialistForm(request.form)
+    spec_form = SpecialistForm(request.form)
+    cust_form = CustomerForm(request.form)
+
     if request.method == 'POST':
-        if form.validate():
-            new_specialist = Specialist(username=form.username.data,
-                                        first_name=form.first_name.data,
-                                        last_name=form.last_name.data,
-                                        password=form.password.data,
-                                        email=form.email.data,
-                                        phone=form.phone.data,
-                                        experience=form.experience.data,
-                                        description=form.description.data)
+        account_type = request.form['account_type']
+        if account_type == 'specialist':
+            if spec_form.validate():
+                new_specialist = Specialist(username=spec_form.username.data,
+                                            first_name=spec_form.first_name.data,
+                                            last_name=spec_form.last_name.data,
+                                            password=spec_form.password.data,
+                                            email=spec_form.email.data,
+                                            phone=spec_form.phone.data,
+                                            experience=spec_form.experience.data,
+                                            description=spec_form.description.data)
 
-            db.session.add(new_specialist)
-            db.session.flush()
-            db.session.refresh(new_specialist)
+                db.session.add(new_specialist)
+                db.session.flush()
+                db.session.refresh(new_specialist)
 
-            services_query_identifiers = request.form.getlist('services')
-            services_objects = Service.query.filter(
-                Service.id.in_(services_query_identifiers)).all()
+                services_query_identifiers = request.form.getlist('services')
+                services_objects = Service.query.filter(
+                    Service.id.in_(services_query_identifiers)).all()
 
-            for service_object in services_objects:
-                service_id = service_object.id
-                specialist_service = \
-                    SpecialistService(specialist_id=new_specialist.id,
-                                      service_id=service_id)
-                db.session.add(specialist_service)
+                for service_object in services_objects:
+                    service_id = service_object.id
+                    specialist_service = \
+                        SpecialistService(specialist_id=new_specialist.id,
+                                          service_id=service_id)
+                    db.session.add(specialist_service)
 
-            return jsonify({
-                'status': 'ok',
-            })
-        else:
-            return jsonify({
-                'input_errors': form.errors,
-                'status': 'error'
-            })
+                return jsonify({
+                    'status': 'ok',
+                })
+            else:
+                return jsonify({
+                    'input_errors': spec_form.errors,
+                    'status': 'error'
+                })
+        elif account_type == 'customer':
+            if cust_form.validate():
+                new_customer = Customer(username=cust_form.username.data,
+                                        first_name=cust_form.first_name.data,
+                                        last_name=cust_form.last_name.data,
+                                        password=cust_form.password.data,
+                                        email=cust_form.email.data,
+                                        phone=cust_form.phone.data)
+                db.session.add(new_customer)
+                return jsonify({
+                    'status': 'ok',
+                })
+            else:
+                return jsonify({
+                    'input_errors': cust_form.errors,
+                    'status': 'error'
+                })
 
-    return render_template("SpecialistRegistration.html", services=all_services,
-                           form=form)
+    ctx = {
+        'services': all_services,
+        'cpec_form': spec_form,
+        'cust_form': cust_form,
+    }
+    return render_template("SpecialistRegistration.html", **ctx)
 
 
 @app.route('/service-registration/', methods=['GET', 'POST'])

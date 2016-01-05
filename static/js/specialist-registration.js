@@ -1,7 +1,5 @@
 $(document).ready(function(){
     $(".choice").change(function () {
-        $('.specialist-form').hide();
-        $('.customer-form').hide();
         switch ($(this).val()) {
             case 'specialist':
                 $('.customer-form').hide();
