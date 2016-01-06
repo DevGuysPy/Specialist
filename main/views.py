@@ -5,7 +5,7 @@ from flask_views.base import TemplateView
 from app import app, db
 
 import settings
-from models import Specialist, Service, ServiceActivity, Customer, Company
+from models import Specialist, Service, UserUserActivity, Company, User
 from utils import generate_confirmation_token, confirm_token,\
     send_email
 from forms import SearchForm, AddServiceActivityForm
@@ -50,7 +50,7 @@ class CompanyProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompanyProfile, self).get_context_data()
         context.update({'company': self.get_company(kwargs)})
-        context.update({'specialist': self.get_specialist(kwargs)})
+        # context.update({'specialist': self.get_specialist(kwargs)})
 
         return context
 
@@ -58,9 +58,10 @@ class CompanyProfile(TemplateView):
         self.org = Company.query.get(kwargs.get('company_id'))
         return self.org
 
-    def get_specialist(self, kwargs):
-        self.specialist = Specialist.query.filter_by(company_id=kwargs.get('company_id')).all()
-        return self.specialist
+    # def get_specialist(self, kwargs):
+    #     self.specialist = Specialist.query.filter_by(
+    #         company_id=kwargs.get('company_id')).all()
+    #     return self.specialist
 
 
 app.add_url_rule(
@@ -69,84 +70,54 @@ app.add_url_rule(
 )
 
 
-class CustomerProfile(TemplateView):
-    template_name = 'customer/profile.html'
+class UserProfile(TemplateView):
+    template_name = 'user/profile.html'
 
     def __init__(self):
-        super(CustomerProfile, self).__init__()
-        self.customer = None
-        self.activity = None
+        super(UserProfile, self).__init__()
+        self.user = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
-        context = super(CustomerProfile, self).get_context_data()
-        context.update({'customer': self.get_customer(kwargs)})
-        context.update({'activity': self.get_activity(kwargs)})
+        context = super(UserProfile, self).get_context_data()
+        context.update({'user': self.get_user(kwargs)})
+        context.update({'specialist': self.user.specialist})
+        # context.update({'activity': self.get_activity(kwargs)})
+        context.update({'form': AddServiceActivityForm.get_form(
+            self.user.specialist)})
 
         return context
 
-    def get_customer(self, kwargs):
-        self.customer = Customer.query.get(kwargs.get('customer_id'))
-        return self.customer
+    def get_user(self, kwargs):
+        self.user = User.query.get(kwargs.get('user_id'))
+        return self.user
 
-    def get_activity(self, kwargs):
-        self.activity = ServiceActivity.query.filter_by(customer_id=kwargs.get('customer_id')).all()
-        return self.activity
-
-app.add_url_rule(
-    '/customer/<int:customer_id>/profile',
-    view_func=CustomerProfile.as_view('customer_profile')
-)
-
-
-class SpecialistProfile(TemplateView):
-    template_name = 'specialist/profile.html'
-
-    def __init__(self):
-        super(SpecialistProfile, self).__init__()
-        self.specialist = None
-        self.activity = None
-
-    def get(self, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        context = super(SpecialistProfile, self).get_context_data()
-        context.update({'specialist': self.get_specialist(kwargs)})
-        context.update({'activity': self.get_activity(kwargs)})
-        context.update({'form': AddServiceActivityForm.get_form(self.specialist)})
-
-        return context
-
-    def get_specialist(self, kwargs):
-        self.specialist = Specialist.query.get(kwargs.get('specialist_id'))
-        return self.specialist
-
-    def get_activity(self, kwargs):
-        self.activity = ServiceActivity.query.filter_by(specialist_id=kwargs.get('specialist_id')).all()
-        return self.activity
+    # def get_activity(self, kwargs):
+    #     self.user = UserUserActivity.query.filter_by(
+    #         specialist_id=kwargs.get('specialist_id')).all()
+    #     return self.user
 
 
 app.add_url_rule(
-    '/specialist/<int:specialist_id>/profile',
-    view_func=SpecialistProfile.as_view('specialist_profile')
+    '/user/<int:user_id>/profile',
+    view_func=UserProfile.as_view('user_profile')
 )
 
 
-@app.route('/service_activity/confirm/<token>')
+@app.route('/user_user_activity/confirm/<token>')
 def confirm_specialist_activity(token):
     activity_id = confirm_token(token)
-    activity = ServiceActivity.query.filter_by(id=activity_id).first_or_404()
+    activity = UserUserActivity.query.filter_by(
+        id=activity_id).first_or_404()
     if activity.confirmed:
         flash('Activity already confirmed.')
     else:
         activity.confirmed = True
         flash('You have confirmed your relationship with {}.'.format(
-            activity.specialist.name))
+            activity.to_user.username))
 
     return render_template('ConfirmServiceActivity.html')
 
@@ -154,14 +125,20 @@ def confirm_specialist_activity(token):
 @app.route('/specialist/<int:specialist_id>/add_service_activity',
            methods=['POST'])
 def add_service_activity(specialist_id):
-    specialist = Specialist.query.get(specialist_id)
-    form = AddServiceActivityForm.get_form(specialist)
+    user = User.query.join(User.specialist).filter(
+        Specialist.id == specialist_id).first_or_404()
+    if not user.specialist:
+        return jsonify({
+            'status': 'error',
+            'errors': 'User is not specialist'
+        })
+    form = AddServiceActivityForm.get_form(user.specialist)
 
     if form.validate():
-        activity, created = ServiceActivity.get_or_create(
-            specialist=specialist,
+        activity, created = UserUserActivity.get_or_create(
+            from_user=user,
             # temporary (waiting for registration and login)
-            customer=Customer.query.get(1),
+            to_user=User.query.get(2),
             service=form.service.data,
             start=form.start.data,
             defaults={
@@ -175,9 +152,10 @@ def add_service_activity(specialist_id):
             confirm_url = url_for('confirm_specialist_activity',
                                   token=token, _external=True)
 
-            send_email(to=specialist.email,
+            send_email(to=user.email,
                        subject='You have been invited by {}'.format(
-                           specialist.name),
+                           # temporary (waiting for registration and login)
+                           User.query.get(2).username),
                        template=settings.CONFIRM_ACTIVITY_HTML.format(
                            service=form.service.data.title.encode('utf-8'),
                            start=form.start.data,

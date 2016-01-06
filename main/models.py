@@ -1,15 +1,35 @@
 import datetime
 from app import db
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import URLType
+from sqlalchemy_utils import URLType, ChoiceType
 
 
-class AbstractUser(object):
+class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
+
+    username = db.Column(db.String(256), nullable=False)
+
+    first_name = db.Column(db.String(256))
+
+    last_name = db.Column(db.String(256))
+
     phone = db.Column(db.String(12))
+
     email = db.Column(db.String(), nullable=False, unique=True)
+
     photo = db.Column(db.String(), unique=True)
+
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
+                            nullable=True)
+    location = db.relationship('Location')
+
+    specialist = db.relationship("Specialist",
+                                 uselist=False, back_populates="user")
+
+    registration_time = db.Column(db.DateTime(),
+                                  default=datetime.datetime.utcnow)
+
+    confirmed = db.Column(db.Boolean(), default=False)
 
 
 class SpecialistService(db.Model):
@@ -44,22 +64,23 @@ class Company(db.Model):
     confirmed = db.Column(db.Boolean(), default=False)
 
 
-class Specialist(AbstractUser, db.Model):
+class Specialist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User", back_populates="specialist")
+
     experience = db.Column(db.Integer())
+
     description = db.Column(db.Text())
+
     services = db.relationship('Service',
                                secondary="specialist_service",
                                lazy='dynamic')
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'),
-                           nullable=True)
-    company = db.relationship('Company')
 
-    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
-                            nullable=True)
-    location = db.relationship('Location')
-
-    registration_time = db.Column(db.DateTime(),
-                                  default=datetime.datetime.utcnow)
+    org_id = db.Column(db.Integer, db.ForeignKey('company.id'),
+                       nullable=True)
+    org = db.relationship('Company')
 
     confirmed = db.Column(db.Boolean(), default=False)
 
@@ -71,27 +92,16 @@ class Service(db.Model):
     # specialists = db.relationship(Specialist)
 
 
-class Customer(AbstractUser, db.Model):
-    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
-                            nullable=True)
-    location = db.relationship('Location')
-
-    registration_time = db.Column(db.DateTime(),
-                                  default=datetime.datetime.utcnow)
-
-    confirmed = db.Column(db.Boolean(), default=False)
-
-
-class ServiceActivity(db.Model):
+class UserUserActivity(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
-    specialist_id = db.Column(db.Integer(), db.ForeignKey('specialist.id'),
-                              nullable=False)
-    specialist = db.relationship('Specialist')
+    from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+                             nullable=False)
+    from_user = db.relationship('User', foreign_keys=[from_user_id])
 
-    customer_id = db.Column(db.Integer(), db.ForeignKey('customer.id'),
-                            nullable=False)
-    customer = db.relationship('Customer')
+    to_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+                           nullable=False)
+    to_user = db.relationship('User', foreign_keys=[to_user_id])
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
@@ -110,16 +120,16 @@ class ServiceActivity(db.Model):
 
     @classmethod
     def get_or_create(cls,
-                      specialist,
-                      customer,
+                      from_user,
+                      to_user,
                       service,
                       start,
                       defaults=None):
         """
-        Func for adding ServiceActivity
+        Func for adding UserUserActivity
 
-        :param Specialist specialist: specialist
-        :param Customer customer: customer
+        :param User from_user: specialist
+        :param User to_user: customer
         :param Service service: service
         :param int start: start
         :param dict defaults: defaults
@@ -127,13 +137,13 @@ class ServiceActivity(db.Model):
         """
 
         try:
-            activity = ServiceActivity.query.filter_by(
-                specialist=specialist, customer=customer,
+            activity = UserUserActivity.query.filter_by(
+                from_user=from_user, to_user=to_user,
                 service=service, start=start).one()
             return activity, False
         except NoResultFound:
-            activity = ServiceActivity(
-                specialist=specialist, customer=customer,
+            activity = UserUserActivity(
+                from_user=from_user, to_user=to_user,
                 service=service, start=start)
             db.session.add(activity)
 
@@ -146,6 +156,61 @@ class ServiceActivity(db.Model):
                             "ServiceActivity has no attribute {}".format(field))
 
         return activity, True
+
+
+class UserOrgActivity(db.Model):
+    ACTIVITY_TYPE = (
+        (0, 'User Org'),
+        (1, 'Org User')
+    )
+
+    id = db.Column(db.Integer(), primary_key=True)
+
+    org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
+                       nullable=False)
+    org = db.relationship('Company', foreign_keys=[org_id])
+
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+                        nullable=False)
+    user = db.relationship('User', foreign_keys=[user_id])
+
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
+                           nullable=False)
+    service = db.relationship('Service')
+
+    customer = db.Column(ChoiceType(ACTIVITY_TYPE), default=0)
+
+    start = db.Column(db.DateTime())
+    end = db.Column(db.DateTime())
+    description = db.Column(db.Text())
+
+    confirmed = db.Column(db.Boolean(), default=False)
+
+    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+
+class OrgOrgActivity(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+
+    from_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
+                            nullable=False)
+    from_org = db.relationship('Company', foreign_keys=[from_org_id])
+
+    to_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
+                          nullable=False)
+    to_org = db.relationship('Company', foreign_keys=[to_org_id])
+
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
+                           nullable=False)
+    service = db.relationship('Service')
+
+    start = db.Column(db.DateTime())
+    end = db.Column(db.DateTime())
+    description = db.Column(db.Text())
+
+    confirmed = db.Column(db.Boolean(), default=False)
+
+    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
 
 class Location(db.Model):

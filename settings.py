@@ -22,7 +22,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
 
-
 try:
     from local_settings import *
 except ImportError:

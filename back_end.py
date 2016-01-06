@@ -4,7 +4,7 @@ from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import app, db
-from main.models import Service, Specialist, Customer, Company
+from main.models import Service, Specialist, Company
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)

@@ -5,7 +5,7 @@ from wtforms_alchemy import model_form_factory
 from wtforms import StringField, DateTimeField, ValidationError
 from wtforms.validators import DataRequired
 
-from models import ServiceActivity, db
+from models import UserUserActivity, db
 
 
 BaseModelForm = model_form_factory(Form)
@@ -33,7 +33,7 @@ def validate_id_for(model):
 
 class AddServiceActivityForm(BaseModelForm):
     class Meta:
-        model = ServiceActivity
+        model = UserUserActivity
         only = ['description', 'end']
 
     service = QuerySelectField(
