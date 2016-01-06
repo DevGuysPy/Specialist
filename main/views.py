@@ -5,7 +5,7 @@ from flask_views.base import TemplateView
 from app import app
 
 import settings
-from models import Specialist, Service, ServiceActivity, Customer
+from models import Specialist, Service, ServiceActivity, Customer, Company
 from utils import generate_confirmation_token, confirm_token,\
     send_email
 from forms import SearchForm, AddServiceActivityForm
@@ -14,6 +14,18 @@ from forms import SearchForm, AddServiceActivityForm
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/company/<int:company_id>/profile')
+def company_profile(company_id):
+    company = Company.query.filter_by(id=company_id).first()
+    return render_template('company/profile.html', company=company)
+
+
+@app.route('/customer/<int:customer_id>/profile')
+def customer_profile(customer_id):
+    uzver = Customer.query.filter_by(id=customer_id).first()
+    return render_template('customer/profile.html', uzver=uzver)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -50,7 +62,7 @@ def confirm_specialist_activity(token):
 
 
 class SpecialistProfile(TemplateView):
-    template_name = 'SpecialistProfile.html'
+    template_name = 'specialist/profile.html'
 
     def __init__(self):
         super(SpecialistProfile, self).__init__()

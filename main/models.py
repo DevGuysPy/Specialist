@@ -99,7 +99,7 @@ class ServiceActivity(db.Model):
             activity = ServiceActivity(
                     specialist=specialist, customer=customer,
                     service=service, start=start)
-            session.add(activity)
+            db.session.add(activity)
 
             if defaults:
                 for field, value in defaults.items():
