@@ -36,86 +36,153 @@ class UniqueValidator(object):
             raise ValidationError(self.message)
 
 
+# class LoginForm(Form):
+#     username = StringField(
+#         'username',
+#         validators=[
+#             DataRequired()
+#         ]
+#     )
+#     password = PasswordField(
+#         'password',
+#         validators=[
+#             DataRequired()
+#         ]
+#     )
+#     confirm_password = PasswordField(
+#         'repeat password',
+#         validators=[
+#             DataRequired(),
+#             EqualTo('password', message='Passwords must match')
+#         ]
+#     )
+
 class CustomerForm(Form):
     class Meta:
-        model = Customer
+        model = AbstractUser
 
-    first_name = StringField('first_name',
-                           validators=[
-                                DataRequired(),
-                                Length(max=128)])
-    last_name = StringField('last_name',
-                            validators=[
-                                DataRequired(),
-                                Length(max=128)])
-    username = StringField('username',
-                            validators=[
-                                DataRequired(),
-                                Length(max=128),
-                                UniqueValidator(Specialist, Specialist.username)])
-    password = PasswordField('password',
-                            validators=[
-                                DataRequired()])
-    confirm_password = PasswordField('repeat password',
-                            validators=[
-                                DataRequired(),
-                                EqualTo('password', message='Passwords must match')])
-    email = StringField('email',
-                            validators=[
-                                DataRequired(),
-                                Length(max=255),
-                                Email(),
-                                UniqueValidator(Specialist, Specialist.email)])
-    phone = StringField('phone',
-                            validators=[
-                                DataRequired(),
-                                Length(min=5, max=12),
-                                UniqueValidator(Specialist, Specialist.phone)])
+    first_name = StringField(
+        'first_name',
+        validators=[
+            DataRequired(),
+            Length(max=128)
+        ]
+    )
+    last_name = StringField(
+        'last_name',
+        validators=[
+            DataRequired(),
+            Length(max=128)
+        ]
+    )
+    username = StringField(
+        'username',
+        validators=[
+            DataRequired(),
+            Length(max=128),
+            UniqueValidator(Specialist, Specialist.username)
+        ]
+    )
+    password = PasswordField(
+        'password',
+        validators=[
+            DataRequired()
+        ]
+    )
+    confirm_password = PasswordField(
+        'repeat password',
+        validators=[
+            DataRequired(),
+            EqualTo('password', message='Passwords must match')
+        ]
+    )
+    email = StringField(
+        'email',
+        validators=[
+            DataRequired(),
+            Length(max=255),
+            Email(),
+            UniqueValidator(Specialist, Specialist.email)
+        ]
+    )
+    phone = StringField(
+        'phone',
+        validators=[
+            DataRequired(),
+            Length(min=5, max=12),
+            UniqueValidator(Specialist, Specialist.phone)
+        ]
+    )
 
 
 class SpecialistForm(Form):
     class Meta:
         model = AbstractUser
 
-    first_name = StringField('first_name',
-                           validators=[
-                                DataRequired(),
-                                Length(max=128)])
-    last_name = StringField('last_name',
-                            validators=[
-                                DataRequired(),
-                                Length(max=128)])
-    username = StringField('username',
-                            validators=[
-                                DataRequired(),
-                                Length(max=128),
-                                UniqueValidator(Specialist, Specialist.username)])
-    password = PasswordField('password',
-                            validators=[
-                                DataRequired()])
-    confirm_password = PasswordField('repeat password',
-                            validators=[
-                                DataRequired(),
-                                EqualTo('password', message='Passwords must match')])
-    email = StringField('email',
-                            validators=[
-                                DataRequired(),
-                                Length(max=255),
-                                Email(),
-                                UniqueValidator(Specialist, Specialist.email)])
-    phone = StringField('phone',
-                            validators=[
-                                DataRequired(),
-                                Length(min=5, max=12),
-                                UniqueValidator(Specialist, Specialist.phone)])
-    experience = IntegerField('experience',
-                            validators=[
-                                DataRequired(),
-                                NumberRange(max=100)])
-    description = TextAreaField('description',
-                            validators=[
-                                Length(max=750),
-                                optional()])
+    first_name = StringField(
+        'first_name',
+        validators=[
+            DataRequired(),
+            Length(max=128)
+        ]
+    )
+    last_name = StringField(
+        'last_name',
+        validators=[
+            DataRequired(),
+            Length(max=128)
+        ]
+    )
+    username = StringField(
+        'username',
+        validators=[
+            DataRequired(),
+            Length(max=128),
+            UniqueValidator(Specialist, Specialist.username)
+        ]
+    )
+    password = PasswordField(
+        'password',
+        validators=[
+            DataRequired()
+        ]
+    )
+    confirm_password = PasswordField(
+        'repeat password',
+        validators=[
+            DataRequired(),
+            EqualTo('password', message='Passwords must match')
+        ]
+    )
+    email = StringField(
+        'email',
+        validators=[
+            DataRequired(),
+            Length(max=255),
+            Email(),
+            UniqueValidator(Specialist, Specialist.email)
+        ]
+    )
+    phone = StringField(
+        'phone',
+        validators=[
+            DataRequired(),
+            Length(min=5, max=12),
+            UniqueValidator(Specialist, Specialist.phone)]
+    )
+    experience = IntegerField(
+        'experience',
+        validators=[
+            DataRequired(),
+            NumberRange(max=100)
+        ]
+    )
+    description = TextAreaField(
+        'description',
+        validators=[
+            Length(max=750),
+            optional()]
+    )
 
 
 def id_exist(form, field):

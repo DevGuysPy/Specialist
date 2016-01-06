@@ -2,12 +2,12 @@
 
 import json
 
-from flask import render_template, url_for, flash, request, jsonify
+from flask import render_template, url_for, flash, request, jsonify, redirect, session
 from app import app, cache, db
 from .models import Specialist, Service, ServiceActivity, Customer, SpecialistService
 
 from utils import generate_confirmation_token, confirm_token, send_email, get_model_column_values
-from forms import SearchForm, AddServiceActivityForm, SpecialistForm, CustomerForm
+from forms import SearchForm, AddServiceActivityForm, SpecialistForm, CustomerForm, LoginForm
 
 import settings
 
@@ -42,12 +42,24 @@ def specialist_profile(specialist_id):
     return render_template('specialist/profile.html')
 
 
-@app.route('/specialist-registration/', methods=['GET', 'POST'])
-def specialist_registration():
-    all_services = Service.query.all()
-    spec_form = SpecialistForm(request.form)
-    cust_form = CustomerForm(request.form)
+# @app.route('/login', methods = ['GET', 'POST'])
+# @oid.loginhandler
+# def login():
+#     if g.user is not None and g.user.is_authenticated():
+#         return redirect(url_for('index'))
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         session['remember_me'] = form.remember_me.data
+#         return oid.try_login(form.openid.data, ask_for = ['nickname', 'email'])
+#     return render_template('login.html')
 
+
+
+@app.route('/registration/', methods=['GET', 'POST'])
+def registration():
+    all_services = Service.query.all()
+    cust_form = CustomerForm(request.form)
+    spec_form = SpecialistForm(request.form)
     if request.method == 'POST':
         account_type = request.form['account_type']
         if account_type == 'specialist':
@@ -66,15 +78,17 @@ def specialist_registration():
                 db.session.refresh(new_specialist)
 
                 services_query_identifiers = request.form.getlist('services')
-                services_objects = Service.query.filter(
-                    Service.id.in_(services_query_identifiers)).all()
-
-                for service_object in services_objects:
-                    service_id = service_object.id
-                    specialist_service = \
-                        SpecialistService(specialist_id=new_specialist.id,
-                                          service_id=service_id)
-                    db.session.add(specialist_service)
+                for service_id in services_query_identifiers:
+                    existing_services = Service.query.filter_by(id=service_id)
+                    if existing_services:
+                        service_object = Service.query.filter_by(id=service_id).first()
+                        service_object_id = service_object.id
+                        specialist_service = \
+                            SpecialistService(specialist_id=new_specialist.id,
+                                              service_id=service_object_id)
+                        db.session.add(specialist_service)
+                    else:
+                        pass
 
                 return jsonify({
                     'status': 'ok',
@@ -101,13 +115,12 @@ def specialist_registration():
                     'input_errors': cust_form.errors,
                     'status': 'error'
                 })
-
     ctx = {
-        'services': all_services,
-        'cpec_form': spec_form,
+        'spec_form': spec_form,
         'cust_form': cust_form,
+        'services': all_services
     }
-    return render_template("SpecialistRegistration.html", **ctx)
+    return render_template("registration.html", **ctx)
 
 
 @app.route('/service-registration/', methods=['GET', 'POST'])

@@ -1,13 +1,23 @@
 $(document).ready(function(){
+    $('.specialist-form').hide();
+    $('.customer-form').hide();
     $(".choice").change(function () {
+        var entireForm = $('form');
+        var specForm = $('.specialist-form');
+        var custForm = $('.customer-form');
+        var unusedForm = $('.place_for_unused_form');
         switch ($(this).val()) {
             case 'specialist':
-                $('.customer-form').hide();
-                $('.specialist-form').show();
+                custForm.hide();
+                custForm.appendTo(unusedForm);
+                specForm.appendTo(entireForm);
+                specForm.show();
                 break;
             case 'customer':
-                $('.specialist-form').hide();
-                $('.customer-form').show();
+                specForm.hide();
+                specForm.appendTo(unusedForm);
+                custForm.appendTo(entireForm);
+                custForm.show();
                 break;
         }
     });
@@ -16,12 +26,11 @@ $(document).ready(function(){
         $('.error').html('');
         $.ajax({
             method: 'POST',
-            url: '/specialist-registration/',
+            url: '/registration/',
             data: $('form').serializeArray()
         }).done(function(response){
             if (response.status == 'ok') {
-                var Succeed = $('.done');
-                Succeed.html('Success!');
+                document.location.href = "/login/";
             } else {
                 for(var key in response.input_errors) {
                     var errorDiv = $('#error_' + key);
