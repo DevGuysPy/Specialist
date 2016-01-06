@@ -92,13 +92,13 @@ class ServiceActivity(db.Model):
 
         try:
             activity = ServiceActivity.query.filter_by(
-                    specialist=specialist, customer=customer,
-                    service=service, start=start).one()
+                specialist=specialist, customer=customer,
+                service=service, start=start).one()
             return activity, False
         except NoResultFound:
             activity = ServiceActivity(
-                    specialist=specialist, customer=customer,
-                    service=service, start=start)
+                specialist=specialist, customer=customer,
+                service=service, start=start)
             db.session.add(activity)
 
             if defaults:
@@ -107,7 +107,7 @@ class ServiceActivity(db.Model):
                         setattr(activity, field, value)
                     else:
                         raise AttributeError(
-                                "ServiceActivity has no attribute {}".format(field))
+                            "ServiceActivity has no attribute {}".format(field))
 
         return activity, True
 

@@ -2,7 +2,7 @@
 from flask import render_template, url_for, flash, jsonify
 from flask_views.base import TemplateView
 
-from app import app
+from app import app, db
 
 import settings
 from models import Specialist, Service, ServiceActivity, Customer, Company
@@ -109,6 +109,7 @@ def add_service_activity(specialist_id):
             })
 
         if not activity.confirmed:
+            db.session.flush()
             token = generate_confirmation_token(activity.id)
             confirm_url = url_for('confirm_specialist_activity',
                                   token=token, _external=True)
