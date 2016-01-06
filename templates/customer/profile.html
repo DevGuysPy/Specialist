@@ -1,6 +1,6 @@
 {% extends 'Base.html' %}
 
-{% block title %}{{ uzver.name }}{% endblock %}
+{% block title %}{{ customer.name }}{% endblock %}
 {% block body %}
 {% include 'nav.html' %}
 
@@ -10,7 +10,7 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="row">
-                            {% if uzver.photo is none %}
+                            {% if customer.photo is none %}
                                 <div class="col s4">
                                     <img class="circle responsive-img profile-img z-depth-1"
                                          src="https://goo.gl/WrdnWG" alt="Face">
@@ -21,23 +21,23 @@
                                 </div>
                             {% endif %}
                             <div class="col s6 offset-s2">
-                            <span class="card-title grey-text text-darken-4 activator">{{ uzver.name }}
+                            <span class="card-title grey-text text-darken-4 activator">{{ customer.name }}
                                 <i class="material-icons right">more_vert</i></span>
                             </div>
                         </div>
                     </div>
                     <div class="card-reveal">
                         <p>
-                        <h4 class="card-title grey-text text-darken-4">{{ uzver.name }}
+                        <h4 class="card-title grey-text text-darken-4">{{ customer.name }}
                             <i class="mdi-navigation-close right">
                             </i></h4>
                         </p>
 
-                        {% if uzver.phone is not none %}
-                            <p><i class="material-icons">contact_phone</i>{{ uzver.phone }}</p>
+                        {% if customer.phone is not none %}
+                            <p><i class="material-icons">contact_phone</i>{{ customer.phone }}</p>
                         {% endif %}
 
-                        <p><i class="material-icons">email</i>{{ uzver.email }}</p>
+                        <p><i class="material-icons">email</i>{{ customer.email }}</p>
                     </div>
                 </div>
             </div>

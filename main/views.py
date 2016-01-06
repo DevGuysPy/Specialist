@@ -16,18 +16,6 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/company/<int:company_id>/profile')
-def company_profile(company_id):
-    company = Company.query.filter_by(id=company_id).first()
-    return render_template('company/profile.html', company=company)
-
-
-@app.route('/customer/<int:customer_id>/profile')
-def customer_profile(customer_id):
-    uzver = Customer.query.filter_by(id=customer_id).first()
-    return render_template('customer/profile.html', uzver=uzver)
-
-
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     form = SearchForm()
@@ -47,18 +35,59 @@ def search():
                            **ctx)
 
 
-@app.route('/service_activity/confirm/<token>')
-def confirm_specialist_activity(token):
-    activity_id = confirm_token(token)
-    activity = ServiceActivity.query.filter_by(id=activity_id).first_or_404()
-    if activity.confirmed:
-        flash('Activity already confirmed.')
-    else:
-        activity.confirmed = True
-        flash('You have confirmed your relationship with {}.'.format(
-            activity.specialist.name))
+class CompanyProfile(TemplateView):
+    template_name = 'company/profile.html'
 
-    return render_template('ConfirmServiceActivity.html')
+    def __init__(self):
+        super(CompanyProfile, self).__init__()
+        self.org = None
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(CompanyProfile, self).get_context_data()
+        context.update({'company': self.get_company(kwargs)})
+
+        return context
+
+    def get_company(self, kwargs):
+        self.org = Company.query.get(kwargs.get('company_id'))
+        return self.org
+
+
+app.add_url_rule(
+    '/company/<int:company_id>/profile',
+    view_func=CompanyProfile.as_view('company_profile')
+)
+
+
+class CustomerProfile(TemplateView):
+    template_name = 'customer/profile.html'
+
+    def __init__(self):
+        super(CustomerProfile, self).__init__()
+        self.customer = None
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(CustomerProfile, self).get_context_data()
+        context.update({'customer': self.get_customer(kwargs)})
+
+        return context
+
+    def get_customer(self, kwargs):
+        self.customer = Customer.query.get(kwargs.get('customer_id'))
+        return self.customer
+
+app.add_url_rule(
+    '/customer/<int:customer_id>/profile',
+    view_func=CustomerProfile.as_view('customer_profile')
+)
 
 
 class SpecialistProfile(TemplateView):
@@ -88,6 +117,20 @@ app.add_url_rule(
     '/specialist/<int:specialist_id>/profile',
     view_func=SpecialistProfile.as_view('specialist_profile')
 )
+
+
+@app.route('/service_activity/confirm/<token>')
+def confirm_specialist_activity(token):
+    activity_id = confirm_token(token)
+    activity = ServiceActivity.query.filter_by(id=activity_id).first_or_404()
+    if activity.confirmed:
+        flash('Activity already confirmed.')
+    else:
+        activity.confirmed = True
+        flash('You have confirmed your relationship with {}.'.format(
+            activity.specialist.name))
+
+    return render_template('ConfirmServiceActivity.html')
 
 
 @app.route('/specialist/<int:specialist_id>/add_service_activity',
