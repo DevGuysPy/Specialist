@@ -1,5 +1,7 @@
+import datetime
 from app import db
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy_utils import URLType
 
 
 class AbstractUser(object):
@@ -14,14 +16,52 @@ class SpecialistService(db.Model):
     __tablename__ = 'specialist_service'
     specialist_id = db.Column(db.Integer(), db.ForeignKey('specialist.id'),
                               primary_key=True)
-    service_id = db.Column(db.Integer(),  db.ForeignKey('service.id'),
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            primary_key=True)
+
+
+class Company(db.Model):
+    __tablename__ = 'company'
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(256), nullable=False, unique=True)
+
+    website = db.Column(URLType)
+
+    logo = db.Column(db.String(), unique=True)
+
+    category_id = db.Column(db.Integer(), db.ForeignKey('org_category.id'),
+                            nullable=True)
+    category = db.relationship('OrgCategory')
+
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
+                            nullable=True)
+    location = db.relationship('Location')
+
+    created_time = db.Column(db.DateTime(),
+                             default=datetime.datetime.utcnow)
+
+    confirmed = db.Column(db.Boolean(), default=False)
 
 
 class Specialist(AbstractUser, db.Model):
     experience = db.Column(db.Integer())
     description = db.Column(db.Text())
-    services = db.relationship('Service', secondary="specialist_service")
+    services = db.relationship('Service',
+                               secondary="specialist_service",
+                               lazy='dynamic')
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'),
+                           nullable=True)
+    company = db.relationship('Company')
+
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
+                            nullable=True)
+    location = db.relationship('Location')
+
+    registration_time = db.Column(db.DateTime(),
+                                  default=datetime.datetime.utcnow)
+
+    confirmed = db.Column(db.Boolean(), default=False)
 
 
 class Service(db.Model):
@@ -32,7 +72,14 @@ class Service(db.Model):
 
 
 class Customer(AbstractUser, db.Model):
-    pass
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
+                            nullable=True)
+    location = db.relationship('Location')
+
+    registration_time = db.Column(db.DateTime(),
+                                  default=datetime.datetime.utcnow)
+
+    confirmed = db.Column(db.Boolean(), default=False)
 
 
 class ServiceActivity(db.Model):
@@ -58,6 +105,8 @@ class ServiceActivity(db.Model):
     customer_rating = db.Column(db.Integer())
 
     confirmed = db.Column(db.Boolean(), default=False)
+
+    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
     @classmethod
     def get_or_create(cls,
@@ -105,5 +154,9 @@ class Location(db.Model):
     city = db.Column(db.String())
     street = db.Column(db.String())
     building = db.Column(db.String())
-    appartment = db.Column(db.Integer())
+    apartment = db.Column(db.Integer())
 
+
+class OrgCategory(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(256), nullable=False, unique=True)

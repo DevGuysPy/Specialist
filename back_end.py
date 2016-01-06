@@ -4,7 +4,7 @@ from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import app, db
-from main.models import Service, Specialist, Customer
+from main.models import Service, Specialist, Customer, Company
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -42,12 +42,17 @@ def create_all():
 
 
 def connect_all():
+    cm = Company(name=u"Kantora", logo=u"1.png")
+    db.session.add(cm)
+    db.session.commit()
     for n in names:
         service_num = random.randint(0, 1)
         service = services[service_num]
         spec = Specialist.query.filter(Specialist.name == n)[0]
+        comp = Company.query.get(1)
         service1 = Service.query.filter(Service.title == service)
         spec.services.append(service1[0])
+        comp.employees.append(spec)
         db.session.add(spec)
         db.session.commit()
 

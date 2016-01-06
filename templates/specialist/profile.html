@@ -1,6 +1,95 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "Base.html" %}
+{% block title %}{{ specialist.name }} - Profile{% endblock %}
+{% block body %}
+    {% include 'nav.html' %}
 
-</body>
-</html>
+<div class="container">
+    <div class="section">
+
+        <div class="s12">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row">
+                            {% if specialist.photo is none %}
+                                <div class="col s4">
+                                    <img class="circle responsive-img profile-img z-depth-1"
+                                         src="https://goo.gl/WrdnWG" alt="Face">
+                                </div>
+                            {% else %}
+                                <div class="col s4">
+                                    <img class="circle responsive-img profile-img z-depth-1"
+                                         src="{{ url_for('static', filename='photos/')}}{{ specialist.photo }}"
+                                         alt="Face">
+                                </div>
+                            {% endif %}
+                        <div class="col s6 offset-s2">
+                            <span class="card-title grey-text text-darken-4 activator">
+                                {{ specialist.name }}<i class="material-icons right">more_vert</i>
+                            </span>
+                            <p class="medium-small grey-text">
+                                {% for s in specialist.services %}
+                                    {{ s.title }} <br>
+                                {% endfor %}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="card-reveal">
+                    <p>
+                    <h4 class="card-title grey-text text-darken-4">
+                        {{ specialist.name }}<i class="mdi-navigation-close right"></i>
+                    </h4>
+                    <span>
+                        {% for s in specialist.services %}
+                            {{ s.title }},
+                        {% endfor %}
+                        <i class="material-icons">perm_identity</i>
+                    </span>
+                    </p>
+
+                    {% if specialist.experience is not none %}
+                        <p><i class="material-icons">contact_phone</i>{{ specialist.experience }}</p>
+                    {% endif %}
+
+                    {% if specialist.description is not none %}
+                        <p><i class="material-icons">contact_phone</i>{{ specialist.description }}</p>
+                    {% endif %}
+
+                    {% if specialist.phone is not none %}
+                        <p><i class="material-icons">contact_phone</i>{{ specialist.phone }}</p>
+                    {% endif %}
+
+                    <p><i class="material-icons">email</i>{{ specialist.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col s12">
+            {% if specialist.services.all()|length == 0 %}
+                <p>{{ specialist.name }} doesn't offer any services</p>
+                <a class="waves-effect waves-light btn modal-trigger disabled" href="#add_service_activity_modal">Order service</a>
+            {% else %}
+                <a class="waves-effect waves-light btn modal-trigger" href="#add_service_activity_modal">Order service</a>
+            {% endif %}
+
+            {% include "AddServiceActivityModal.html" %}
+            <div class="card-panel"><p>Activity</p></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+{% block script %}
+    <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
+    <script type="text/javascript">
+        initServiceActivityModal("{{ url_for('add_service_activity', specialist_id=specialist.id) }}")
+    </script>
+    <script>
+        $(".button-collapse").sideNav();
+    </script>
+{% endblock %}
+

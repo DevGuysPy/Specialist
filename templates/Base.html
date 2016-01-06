@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
-    <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='bootstrap-3.3.6-dist/css/bootstrap.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/typeahead.css') }}" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/materialize.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='datetimepicker/jquery.datetimepicker.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/base.css') }}" rel="stylesheet">
     {% block css %}{% endblock %}
 </head>
 
@@ -19,13 +20,15 @@
     {% endif %}
 {% endwith %}
 
-{% block body %}{% endblock %}
+<body>
+    {% block body %}{% endblock %}
+</body>
 
-<script src="{{ url_for('static', filename='js/jquery-1.11.0.min.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap-3.3.6-dist/js/bootstrap-datapicker.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/jquery-2.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
+<script src="{{ url_for('static', filename='datetimepicker/jquery.datetimepicker.full.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lodash.js') }}"></script>
-<script src="{{ url_for('static', filename='js/typeahead.js') }}"></script>
 <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 
 {% block script %}{% endblock %}
