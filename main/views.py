@@ -41,6 +41,7 @@ class CompanyProfile(TemplateView):
     def __init__(self):
         super(CompanyProfile, self).__init__()
         self.org = None
+        self.specialist = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -49,12 +50,17 @@ class CompanyProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompanyProfile, self).get_context_data()
         context.update({'company': self.get_company(kwargs)})
+        context.update({'specialist': self.get_specialist(kwargs)})
 
         return context
 
     def get_company(self, kwargs):
         self.org = Company.query.get(kwargs.get('company_id'))
         return self.org
+
+    def get_specialist(self, kwargs):
+        self.specialist = Specialist.query.filter_by(company_id=kwargs.get('company_id')).all()
+        return self.specialist
 
 
 app.add_url_rule(
@@ -69,6 +75,7 @@ class CustomerProfile(TemplateView):
     def __init__(self):
         super(CustomerProfile, self).__init__()
         self.customer = None
+        self.activity = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -77,12 +84,17 @@ class CustomerProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CustomerProfile, self).get_context_data()
         context.update({'customer': self.get_customer(kwargs)})
+        context.update({'activity': self.get_activity(kwargs)})
 
         return context
 
     def get_customer(self, kwargs):
         self.customer = Customer.query.get(kwargs.get('customer_id'))
         return self.customer
+
+    def get_activity(self, kwargs):
+        self.activity = ServiceActivity.query.filter_by(customer_id=kwargs.get('customer_id')).all()
+        return self.activity
 
 app.add_url_rule(
     '/customer/<int:customer_id>/profile',
@@ -96,6 +108,7 @@ class SpecialistProfile(TemplateView):
     def __init__(self):
         super(SpecialistProfile, self).__init__()
         self.specialist = None
+        self.activity = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -104,6 +117,7 @@ class SpecialistProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SpecialistProfile, self).get_context_data()
         context.update({'specialist': self.get_specialist(kwargs)})
+        context.update({'activity': self.get_activity(kwargs)})
         context.update({'form': AddServiceActivityForm.get_form(self.specialist)})
 
         return context
@@ -111,6 +125,10 @@ class SpecialistProfile(TemplateView):
     def get_specialist(self, kwargs):
         self.specialist = Specialist.query.get(kwargs.get('specialist_id'))
         return self.specialist
+
+    def get_activity(self, kwargs):
+        self.activity = ServiceActivity.query.filter_by(specialist_id=kwargs.get('specialist_id')).all()
+        return self.activity
 
 
 app.add_url_rule(

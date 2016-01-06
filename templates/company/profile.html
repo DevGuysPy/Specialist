@@ -42,7 +42,7 @@
             </div>
             <div class="col s12">
                 <ul class="collection">
-                    {% for spec in company.employees %}
+                    {% for spec in specialist %}
                     <li class="collection-item avatar">
                         <img src="{{ url_for('static', filename='photos/') }}{{ spec.photo }}" alt="" class="circle">
                         <a href="{{ url_for('specialist_profile', specialist_id=spec.id) }}">
