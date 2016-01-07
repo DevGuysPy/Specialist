@@ -9,6 +9,9 @@ CONFIRM_ACTIVITY_HTML = \
     "Service: {service}<br>Start: {start}<br>End: {end}<br>" \
     "Description: {description}<br>Please confirm: {confirm_url}"
 
+CONFIRM_USER_HTML = \
+    "{full_name}, please confirm your account: {confirm_url}"
+
 # mail authentication
 MAIL_USERNAME = os.environ.get('APP_MAIL_USERNAME')
 MAIL_PASSWORD = os.environ.get('APP_MAIL_PASSWORD')

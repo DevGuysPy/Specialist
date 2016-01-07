@@ -2,6 +2,7 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.mail import Mail
 from flask_cache import Cache
+from flask_session import Session
 
 
 app = Flask(__name__, static_url_path='/static')
@@ -15,6 +16,10 @@ db = SQLAlchemy(app)
 
 mail = Mail()
 mail.init_app(app)
+
+app_session = Session()
+app.config['SESSION_TYPE'] = 'filesystem'
+app_session.init_app(app)
 # basedir = os.path.abspath(os.path.dirname(__file__))
 
 

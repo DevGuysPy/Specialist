@@ -1,0 +1,37 @@
+<div class="card grey lighten-4">
+    <form id="basic_sign_up_form" method="POST">
+        <div class="card-content grey-text text-darken-1">
+            <span class="card-title">Please enter data below</span>
+                {{ basic_form.csrf_token }}
+                <div class="input-field">
+                    {{ basic_form.username(id="sign_up_username") }}
+                    <label for="sign_up_username">Enter your username</label>
+                    <div id="error_sign_up_username" class="error"></div>
+                </div>
+                <div class="input-field">
+                    {{ basic_form.full_name(id="sign_up_full_name") }}
+                    <label for="sign_up_full_name">Enter your full name</label>
+                    <div id="error_sign_up_full_name" class="error"></div>
+                </div>
+                <div class="input-field">
+                    {{ basic_form.email(id="sign_up_email") }}
+                    <label for="sign_up_email">Enter your email</label>
+                    <div id="error_sign_up_email" class="error"></div>
+                </div>
+                <div class="input-field">
+                    {{ basic_form.password(id="sign_up_password", type="password") }}
+                    <label for="sign_up_password">Enter your password</label>
+                    <div id="error_sign_up_password" class="error"></div>
+                </div>
+                <div class="input-field">
+                    {{ basic_form.confirm_password(id="sign_up_confirm_password", type="password") }}
+                    <label for="sign_up_confirm_password">Confirm password</label>
+                    <div id="error_sign_up_confirm_password" class="error"></div>
+                </div>
+        </div>
+        <div class="card-action">
+            <a id="sign_up_submit_basic" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Create basic account</a>
+            <a id="sign_up_submit_spec" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Continue sign up as specialist</a>
+        </div>
+  </form>
+</div>

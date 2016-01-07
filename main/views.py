@@ -1,14 +1,17 @@
 # -*- encoding: utf-8 -*-
-from flask import render_template, url_for, flash, jsonify
+from flask import render_template, url_for, flash, jsonify, redirect, request,\
+    session
 from flask_views.base import TemplateView
-
+import json
 from app import app, db
-
+from flask_json_multidict import get_json_multidict
 import settings
-from models import Specialist, Service, UserUserActivity, Company, User
+from models import Specialist, Service, UserUserActivity, Company, User,\
+    SpecialistService
 from utils import generate_confirmation_token, confirm_token,\
-    send_email
-from forms import SearchForm, AddServiceActivityForm
+    send_email, get_model_column_values
+from forms import SearchForm, AddServiceActivityForm, RegistrationForm,\
+    SpecialistForm, ServiceForm
 
 
 @app.route('/')
@@ -171,3 +174,123 @@ def add_service_activity(specialist_id):
             'status': 'error',
             'errors': form.errors
         })
+
+
+@app.route('/user/confirm/<token>')
+def confirm_user(token):
+    user_id = confirm_token(token)
+    user = User.query.filter_by(
+        id=user_id).first_or_404()
+    user.confirmed = True
+    return redirect(url_for('user_profile', user_id=user.id))
+
+
+@app.route('/sign_up', methods=['GET', 'POST'])
+def basic_registration():
+    basic_form = RegistrationForm()
+    spec_form = SpecialistForm()
+    ser_form = ServiceForm()
+    if request.method == 'GET':
+        return render_template("Registration.html",
+                               basic_form=basic_form,
+                               spec_form=spec_form,
+                               ser_form=ser_form)
+
+    if basic_form.validate():
+        user = User(username=basic_form.username.data,
+                    first_name=basic_form.full_name.data.split(' ')[0],
+                    last_name=' '.join(basic_form.full_name.data.split(' ')[1:]),
+                    email=basic_form.email.data,
+                    password=basic_form.password.data)
+
+        db.session.add(user)
+        db.session.flush()
+
+        token = generate_confirmation_token(user.id)
+        confirm_url = url_for('confirm_user',
+                              token=token, _external=True)
+        send_email(to=user.email,
+                   subject='Please confirm your account',
+                   template=settings.CONFIRM_USER_HTML.format(
+                       full_name=user.full_name(),
+                       confirm_url=str(confirm_url)))
+
+        session['signing_up_user_id'] = user.id
+
+        return jsonify({
+            'status': 'ok',
+            'user_id': user.id
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'errors': basic_form.errors
+        })
+
+
+@app.route('/_get_services_sign_up')
+def get_services_data():
+    services = get_model_column_values(
+        Service,
+        columns=[
+            {
+                'dict_key': 'name', 'column': 'title'
+            },
+            {
+                'dict_key': 'id', 'column': 'id'
+            }
+        ])
+    return jsonify({
+        'services': services
+    })
+
+
+@app.route('/spec_sign_up', methods=['POST'])
+def sign_up_specialist():
+    form = SpecialistForm()
+    if form.validate():
+        user = User.query.get(session['signing_up_user_id'])
+        user.phone_number = form.phone.data
+        if user.specialist is None:
+            specialist = Specialist(user=user, experience=form.experience.data)
+            db.session.add(specialist)
+            db.session.flush()
+            for service_id in request.form.get('services').split(','):
+                spec_service = SpecialistService(
+                    specialist_id=specialist.id,
+                    service_id=int(service_id))
+                db.session.add(spec_service)
+
+        return jsonify({
+            'status': 'ok',
+            'user_id': user.id
+        })
+
+    return jsonify({
+        'status': 'error',
+        'errors': form.errors
+    })
+
+
+@app.route('/add_service', methods=['POST'])
+def add_service():
+    form = ServiceForm()
+    if form.validate():
+        service = Service(
+            title=form.title.data,
+            domain=form.domain.data,
+            description=form.description.data)
+        db.session.add(service)
+        db.session.flush()
+        return jsonify({
+            'status': 'ok',
+            'service': {
+                'name': service.title,
+                'id': service.id
+            }
+        })
+
+    return jsonify({
+        'status': 'error',
+        'errors': form.errors
+    })

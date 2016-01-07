@@ -2,10 +2,10 @@ from sqlalchemy import exists
 from flask_wtf import Form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory
-from wtforms import StringField, DateTimeField, ValidationError
-from wtforms.validators import DataRequired
-
-from models import UserUserActivity, db
+from wtforms import StringField, DateTimeField, ValidationError, SelectField
+from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms_components import PhoneNumberField
+from models import UserUserActivity, db, get_experience_types, Service
 
 
 BaseModelForm = model_form_factory(Form)
@@ -51,3 +51,42 @@ class AddServiceActivityForm(BaseModelForm):
         form = cls()
         form.service.query = specialist.services.all()
         return form
+
+
+def validate_full_name(form, field):
+    if len(field.data.split(' ')) <= 1:
+        raise ValidationError(
+            'Please enter a valid full name. Example: John Folstrom')
+
+
+class RegistrationForm(Form):
+    username = StringField('Username',
+                           validators=[
+                               DataRequired(),
+                               Length(min=4, max=64)])
+    full_name = StringField('Full Name',
+                            validators=[
+                                DataRequired(),
+                                validate_full_name])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = StringField('Password',
+                           validators=[
+                               DataRequired(),
+                               Length(min=4, max=64),
+                               EqualTo('confirm_password')])
+
+    confirm_password = StringField('Repeat Password',
+                                   validators=[
+                                       DataRequired(),
+                                       Length(min=4, max=64)])
+
+
+class SpecialistForm(Form):
+    experience = SelectField('Experience', choices=get_experience_types())
+    phone = PhoneNumberField('Phone', country_code='UA',
+                             validators=[DataRequired()])
+
+
+class ServiceForm(BaseModelForm):
+    class Meta:
+        model = Service

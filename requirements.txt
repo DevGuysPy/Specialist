@@ -28,3 +28,6 @@ bash==0.4
 gunicorn==19.4.1
 Flask-Cache==0.13.1
 Flask-Views==0.2.1
+passlib==1.6.5
+Flask-Session==0.2.3
+phonenumbers==7.2.2

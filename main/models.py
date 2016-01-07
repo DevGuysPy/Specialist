@@ -1,7 +1,7 @@
 import datetime
 from app import db
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import URLType, ChoiceType
+from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 
 
 class User(db.Model):
@@ -13,7 +13,16 @@ class User(db.Model):
 
     last_name = db.Column(db.String(256))
 
-    phone = db.Column(db.String(12))
+    password = db.Column(PasswordType(
+        schemes=[
+            'pbkdf2_sha512',
+            'md5_crypt'
+        ],
+
+        deprecated=['md5_crypt']
+    ))
+
+    phone_number = db.Column(PhoneNumberType())
 
     email = db.Column(db.String(), nullable=False, unique=True)
 
@@ -30,6 +39,9 @@ class User(db.Model):
                                   default=datetime.datetime.utcnow)
 
     confirmed = db.Column(db.Boolean(), default=False)
+
+    def full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
 
 
 class SpecialistService(db.Model):
@@ -64,13 +76,20 @@ class Company(db.Model):
     confirmed = db.Column(db.Boolean(), default=False)
 
 
+def get_experience_types():
+    types = [('0', 'Less than 1 year')]
+    types.extend(('{}'.format(i), '{} years'.format(i)) for i in range(1, 11))
+    types.append(('11', 'More than 10 years'))
+    return types
+
+
 class Specialist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", back_populates="specialist")
 
-    experience = db.Column(db.Integer())
+    experience = db.Column(ChoiceType(get_experience_types()), default='0')
 
     description = db.Column(db.Text())
 
@@ -89,6 +108,7 @@ class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(256), nullable=False)
     domain = db.Column(db.String(256), nullable=False)
+    description = db.Column(db.Text())
     # specialists = db.relationship(Specialist)
 
 
