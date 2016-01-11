@@ -117,9 +117,10 @@ class UserProfile(TemplateView):
             else:
                 self.activity = UserUserActivity.query.filter_by(
                     to_user_id=kwargs.get('user_id')).all()
+            return self.activity
         else:
             pass
-        return self.activity
+
 
 
 app.add_url_rule(
