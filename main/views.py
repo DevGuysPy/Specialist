@@ -16,6 +16,9 @@ from forms import SearchForm, AddServiceActivityForm, RegistrationForm,\
 
 @app.route('/')
 def index():
+    # cm = Company(name=u"Kantora", logo=u"1.png")
+    # db.session.add(cm)
+    # db.session.commit()
     return render_template('index.html')
 
 
@@ -87,10 +90,18 @@ class UserProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UserProfile, self).get_context_data()
         context.update({'user': self.get_user(kwargs)})
-        context.update({'specialist': self.user.specialist})
-        # context.update({'activity': self.get_activity(kwargs)})
-        context.update({'form': AddServiceActivityForm.get_form(
-            self.user.specialist)})
+        if self.user is not None:
+            context.update({'specialist': self.user.specialist})
+            if self.user.specialist is not None:
+                context.update({'form': AddServiceActivityForm.get_form(
+                    self.user.specialist)})
+            else:
+                pass
+        else:
+            pass
+        context.update({'activity': self.get_activity(kwargs)})
+
+
 
         return context
 
@@ -98,10 +109,14 @@ class UserProfile(TemplateView):
         self.user = User.query.get(kwargs.get('user_id'))
         return self.user
 
-    # def get_activity(self, kwargs):
-    #     self.user = UserUserActivity.query.filter_by(
-    #         specialist_id=kwargs.get('specialist_id')).all()
-    #     return self.user
+    def get_activity(self, kwargs):
+        if self.user.specialist is not None:
+            self.activity = UserUserActivity.query.filter_by(
+                from_user_id=kwargs.get('user_id')).all()
+        else:
+            self.activity = UserUserActivity.query.filter_by(
+                to_user_id=kwargs.get('user_id')).all()
+        return self.activity
 
 
 app.add_url_rule(
