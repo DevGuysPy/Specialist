@@ -74,16 +74,9 @@
 
             <div class="col s12">
             {% if user.specialist is not none %}
-                {% if specialist.services.all()|length == 0 %}
-                    <p>{{ specialist.name }} doesn't offer any services</p>
-                    <a class="waves-effect waves-light btn modal-trigger disabled"
-                       href="#add_service_activity_modal">Order service</a>
-                {% else %}
                     <p class="center-align">
                     <a class="waves-effect waves-light btn modal-trigger"
                        href="#add_service_activity_modal">Order service</a></p>
-                {% endif %}
-
                 {% include "AddServiceActivityModal.html" %}
             {% endif %}
             <p class="flow-text center-align">Activities</p>
