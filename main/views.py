@@ -110,12 +110,15 @@ class UserProfile(TemplateView):
         return self.user
 
     def get_activity(self, kwargs):
-        if self.user.specialist is not None:
-            self.activity = UserUserActivity.query.filter_by(
-                from_user_id=kwargs.get('user_id')).all()
+        if self.user is not None:
+            if self.user.specialist is not None:
+                self.activity = UserUserActivity.query.filter_by(
+                    from_user_id=kwargs.get('user_id')).all()
+            else:
+                self.activity = UserUserActivity.query.filter_by(
+                    to_user_id=kwargs.get('user_id')).all()
         else:
-            self.activity = UserUserActivity.query.filter_by(
-                to_user_id=kwargs.get('user_id')).all()
+            pass
         return self.activity
 
 
