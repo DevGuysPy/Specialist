@@ -121,7 +121,7 @@ class Specialist(db.Model):
 
 class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    title = db.Column(db.String(256), nullable=False)
+    title = db.Column(db.String(256), nullable=False, unique=True)
     domain = db.Column(db.String(256), nullable=False)
     description = db.Column(db.Text())
     # specialists = db.relationship(Specialist)
