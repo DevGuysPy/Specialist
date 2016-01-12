@@ -75,6 +75,7 @@
                    href="#add_service_activity_modal">Order service</a></p>
             {% include "AddServiceActivityModal.html" %}
         {% endif %}
+        {% if activity|length > 0 %}
         <p class="flow-text center-align">Activities</p>
 
             <ul class="collapsible" data-collapsible="accordion">
@@ -123,7 +124,7 @@
                 </li>
             {% endfor %}
             </ul>
-
+        {% endif %}
         </div>
 {% endblock %}
 
