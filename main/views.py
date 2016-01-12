@@ -21,9 +21,6 @@ from forms import SearchForm, AddServiceActivityForm, RegistrationForm,\
 
 @app.route('/')
 def index():
-    # cm = Company(name=u"Kantora", logo=u"1.png")
-    # db.session.add(cm)
-    # db.session.commit()
     return render_template('index.html')
 
 
@@ -126,6 +123,7 @@ app.add_url_rule(
 
 @app.route('/specialist/<int:user_id>/add_service_activity',
            methods=['POST'])
+@login_required
 def add_service_activity(user_id):
     user = User.query.filter(User.id == int(user_id)).first()
     if not user or not user.specialist:
@@ -138,8 +136,7 @@ def add_service_activity(user_id):
     if form.validate():
         activity, created = UserUserActivity.get_or_create(
             from_user=user,
-            # temporary (waiting for registration and login)
-            to_user=User.query.get(2),
+            to_user=current_user,
             service=form.service.data,
             start=form.start.data,
             defaults={
@@ -155,8 +152,7 @@ def add_service_activity(user_id):
 
             send_email(to=user.email,
                        subject='You have been invited by {}'.format(
-                           # temporary (waiting for registration and login)
-                           User.query.get(2).username),
+                           current_user.full_name()),
                        template=settings.CONFIRM_ACTIVITY_HTML.format(
                            service=form.service.data.title.encode('utf-8'),
                            start=form.start.data,
