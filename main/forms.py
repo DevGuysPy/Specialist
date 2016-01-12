@@ -1,11 +1,13 @@
 from sqlalchemy import exists
 from flask_wtf import Form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms_alchemy import model_form_factory
-from wtforms import StringField, DateTimeField, ValidationError, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms_alchemy import model_form_factory, Unique
+from wtforms import StringField, DateTimeField, ValidationError, PasswordField
+from wtforms.validators import DataRequired, Length, Email
 from wtforms_components import PhoneNumberField
-from models import UserUserActivity, db, get_experience_types, Service
+
+from models import UserUserActivity, db, Service, User, \
+    Specialist
 
 
 BaseModelForm = model_form_factory(Form)
@@ -59,30 +61,29 @@ def validate_full_name(form, field):
             'Please enter a valid full name. Example: John Folstrom')
 
 
-class RegistrationForm(Form):
-    username = StringField('Username',
-                           validators=[
-                               DataRequired(),
-                               Length(min=4, max=64)])
+class RegistrationForm(BaseModelForm):
+    class Meta:
+        model = User
+        only = ['email', 'password']
+
     full_name = StringField('Full Name',
                             validators=[
                                 DataRequired(),
                                 validate_full_name])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[DataRequired(),
+                                             Email(),
+                                             Unique(User.email)])
     password = StringField('Password',
                            validators=[
                                DataRequired(),
-                               Length(min=4, max=64),
-                               EqualTo('confirm_password')])
-
-    confirm_password = StringField('Repeat Password',
-                                   validators=[
-                                       DataRequired(),
-                                       Length(min=4, max=64)])
+                               Length(min=4, max=64)])
 
 
-class SpecialistForm(Form):
-    experience = SelectField('Experience', choices=get_experience_types())
+class SpecialistForm(BaseModelForm):
+    class Meta:
+        model = Specialist
+        only = ['experience', 'description']
+
     phone = PhoneNumberField('Phone', country_code='UA',
                              validators=[DataRequired()])
 
@@ -90,3 +91,12 @@ class SpecialistForm(Form):
 class ServiceForm(BaseModelForm):
     class Meta:
         model = Service
+
+
+class LoginForm(Form):
+    email = StringField('Email',
+                        validators=[DataRequired(),
+                                    Email()])
+    password = PasswordField('Password',
+                             validators=[
+                                 DataRequired()])

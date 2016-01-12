@@ -1,0 +1,15 @@
+.collapsible-header {
+    padding: 22px;
+    height: 90px;
+    font-size: large;
+}
+
+.selected-service {
+    margin-left: 5px;
+    display: inline;
+}
+
+.services-title {
+    padding: 10px;
+    margin: 0;
+}

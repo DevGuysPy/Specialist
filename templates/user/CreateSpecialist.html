@@ -1,0 +1,28 @@
+<div class="col offset-l4 l4 s12 offset-m3 m6 center create-specialist-card" style="display: none">
+    <div class="card grey lighten-4">
+        <form id="specialist_form" method="POST">
+            <div class="card-content grey-text text-darken-1">
+                <span class="card-title">Enter data below to become a specialist. (DEMO)</span>
+                    {{ spec_form.csrf_token }}
+                    <div class="input-field">
+                        {{ spec_form.description(id="specialist_description", class="materialize-textarea") }}
+                        <label for="specialist_description">Introduce yourself to clients</label>
+                        <div id="error_specialist_description" class="error"></div>
+                    </div>
+                    <div class="input-field">
+                        {{ spec_form.phone(id="specialist_phone") }}
+                        <label for="specialist_phone">Enter your work phone</label>
+                        <div id="error_specialist_phone" class="error"></div>
+                    </div>
+                    <div class="input-field">
+                        {{ spec_form.experience(id="specialist_experience") }}
+                        <label for="specialist_experience">Select your experience</label>
+                        <div id="error_specialist_experience" class="error"></div>
+                    </div>
+            </div>
+            <div class="card-action">
+                <a id="specialist_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Become a specialist</a><br>
+            </div>
+        </form>
+    </div>
+</div>

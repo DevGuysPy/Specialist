@@ -1,0 +1,136 @@
+{% extends "user/AccountSettings.html" %}
+
+{% block title %}{{ user.full_name() }} - Profile{% endblock %}
+
+{% block settings_content %}
+        <div class="s12">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row">
+                            {% if user.photo is none %}
+                                <div class="col s4">
+                                    <img class="circle responsive-img profile-img z-depth-1"
+                                         src="https://goo.gl/WrdnWG" alt="Face">
+                                </div>
+                            {% else %}
+                                <div class="col s4">
+                                    <img class="circle responsive-img profile-img z-depth-1"
+                                         src="{{ url_for('static', filename='photos/')}}{{ user.photo }}"
+                                         alt="Face">
+                                </div>
+                            {% endif %}
+                        <div class="col s6 offset-s2">
+                            <span class="card-title grey-text text-darken-4 activator">
+                                {{ user.first_name }} {{ user.last_name }}<i class="material-icons right">more_vert</i>
+                            </span>
+                            <p class="medium-small grey-text">
+                                {% if user.specialist is not none %}
+                                    {% for s in user.specialist.services.all() %}
+                                        {{ s.title }} <br>
+                                    {% endfor %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-reveal">
+                    <p class="flow-text">
+                    <h4 class="card-title grey-text text-darken-4">
+                        {{ user.first_name }} {{ user.last_name }}<i class="mdi-navigation-close right"></i>
+                    </h4>
+                    <span>
+                        {% if user.specialist is not none %}
+                        <i class="material-icons">perm_identity</i>
+                            {% for s in user.specialist.services %}
+                                {{ s.title }}
+                            {% endfor %}
+                        {% endif %}
+                    </span>
+                    </p>
+
+                    <p class="flow-text"><i class="material-icons">email</i> {{ user.email}}</p>
+
+                    {% if user.specialist is not none %}
+                        {% if user.specialist.description is not none %}
+                            <p class="flow-text">
+                                <i class="material-icons">contact_phone</i>{{ user.specialist.description }}
+                            </p>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if user.specialist is not none %}
+                        <p class="flow-text">
+                            <i class="material-icons">contact_phone</i>
+                            <a href="tel:{{ user.phone_number }}"> {{ user.phone_number }}</a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col s12">
+        {% if user.specialist is not none %}
+                <p class="center-align">
+                <a class="waves-effect waves-light btn modal-trigger"
+                   href="#add_service_activity_modal">Order service</a></p>
+            {% include "AddServiceActivityModal.html" %}
+        {% endif %}
+        <p class="flow-text center-align">Activities</p>
+
+            <ul class="collapsible" data-collapsible="accordion">
+            {% for a in activity %}
+                <li>
+                    <div class="collapsible-header">
+                        {% if user.specialist is not none %}
+                            {% if a.confirmed == true %}
+                                <div class="chip right" style="background-color: #00c853">
+                                    Confirmed
+                                </div>
+                            {% else %}
+                                <div class="chip right" style="background-color: #d50000">
+                                    Unconfirmed
+                                </div>
+                            {% endif %}
+                            <p class="flow-text">
+                            Customer : <a href="{{ url_for('user_profile', user_id=a.to_user.id) }}">
+                            {{ a.to_user.first_name }} {{ a.to_user.last_name }}
+                            </a>
+                            </p>
+                        {% else %}
+                            {% if a.confirmed == true %}
+                                <div class="chip right" style="background-color: #00c853">
+                                    Confirmed
+                                </div>
+                            {% else %}
+                                <div class="chip right" style="background-color: #d50000">
+                                    Unconfirmed
+                                </div>
+                            {% endif %}
+                            <p class="flow-text">Specialist : <a href="{{ url_for('user_profile', user_id=a.from_user_id) }}">
+                            {{ a.from_user.first_name }} {{ a.from_user.last_name }}
+                            </a>
+                            </p>
+                        {% endif %}
+
+                    </div>
+                    <div class="collapsible-body">
+                        {% if a.end is not none %}
+                        <p class="flow-text"><i class="material-icons">event</i> {{ a.start }} ||| {{ a.end }}</p>
+                        {% else %}
+                        <p class="flow-text"><i class="material-icons">event</i> {{ a.start }}</p>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+
+        </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
+    <script type="text/javascript">
+        initServiceActivityModal("{{ url_for('add_service_activity', user_id=user.id) }}")
+    </script>
+{% endblock %}
+

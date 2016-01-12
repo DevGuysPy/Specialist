@@ -14,7 +14,9 @@
                     </div>
                 </form>
             </li>
-            <li><a href="#">Sass</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('user_profile', user_id=current_user.id) }}">My Profile</a></li>
+            {% endif %}
             <li><a href="#">Components</a></li>
             <li><a href="#">Javascript</a></li>
             <li><a href="#">Mobile</a></li>

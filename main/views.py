@@ -1,17 +1,22 @@
 # -*- encoding: utf-8 -*-
+import json
+
 from flask import render_template, url_for, flash, jsonify, redirect, request,\
     session
 from flask_views.base import TemplateView
-import json
+from flask_views.edit import FormView
+from sqlalchemy.orm.exc import NoResultFound
+from flask.ext.login import login_user, current_user, login_required
+
 from app import app, db
-from flask_json_multidict import get_json_multidict
+
 import settings
 from models import Specialist, Service, UserUserActivity, Company, User,\
     SpecialistService
 from utils import generate_confirmation_token, confirm_token,\
-    send_email, get_model_column_values
+    send_email, get_model_column_values, send_user_verification_email
 from forms import SearchForm, AddServiceActivityForm, RegistrationForm,\
-    SpecialistForm, ServiceForm
+    SpecialistForm, ServiceForm, LoginForm
 
 
 @app.route('/')
@@ -42,7 +47,7 @@ def search():
 
 
 class CompanyProfile(TemplateView):
-    template_name = 'company/profile.html'
+    template_name = 'company/Profile.html'
 
     def __init__(self):
         super(CompanyProfile, self).__init__()
@@ -64,11 +69,6 @@ class CompanyProfile(TemplateView):
         self.org = Company.query.get(kwargs.get('company_id'))
         return self.org
 
-    # def get_specialist(self, kwargs):
-    #     self.specialist = Specialist.query.filter_by(
-    #         company_id=kwargs.get('company_id')).all()
-    #     return self.specialist
-
 
 app.add_url_rule(
     '/company/<int:company_id>/profile',
@@ -77,7 +77,7 @@ app.add_url_rule(
 
 
 class UserProfile(TemplateView):
-    template_name = 'user/profile.html'
+    template_name = 'user/Profile.html'
 
     def __init__(self):
         super(UserProfile, self).__init__()
@@ -90,20 +90,19 @@ class UserProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UserProfile, self).get_context_data()
         context.update({'user': self.get_user(kwargs)})
-        if self.user is not None:
-            context.update({'specialist': self.user.specialist})
-            if self.user.specialist is not None:
-                context.update({'form': AddServiceActivityForm.get_form(
-                    self.user.specialist)})
-            else:
-                pass
-        else:
-            pass
+        context.update({'current_user': current_user})
         context.update({'activity': self.get_activity(kwargs)})
-
-
+        context.update({'session': session})
+        context.update({'form': self.get_service_activity_form() })
 
         return context
+
+    def get_service_activity_form(self):
+        form = None
+        if self.user.specialist:
+            form = AddServiceActivityForm.get_form(self.user.specialist)
+
+        return form
 
     def get_user(self, kwargs):
         self.user = User.query.get(kwargs.get('user_id'))
@@ -118,38 +117,18 @@ class UserProfile(TemplateView):
                 self.activity = UserUserActivity.query.filter_by(
                     to_user_id=kwargs.get('user_id')).all()
             return self.activity
-        else:
-            pass
-
-
 
 app.add_url_rule(
-    '/user/<int:user_id>/profile',
+    '/account/<int:user_id>',
     view_func=UserProfile.as_view('user_profile')
 )
 
 
-@app.route('/user_user_activity/confirm/<token>')
-def confirm_specialist_activity(token):
-    activity_id = confirm_token(token)
-    activity = UserUserActivity.query.filter_by(
-        id=activity_id).first_or_404()
-    if activity.confirmed:
-        flash('Activity already confirmed.')
-    else:
-        activity.confirmed = True
-        flash('You have confirmed your relationship with {}.'.format(
-            activity.to_user.username))
-
-    return render_template('ConfirmServiceActivity.html')
-
-
-@app.route('/specialist/<int:specialist_id>/add_service_activity',
+@app.route('/specialist/<int:user_id>/add_service_activity',
            methods=['POST'])
-def add_service_activity(specialist_id):
-    user = User.query.join(User.specialist).filter(
-        Specialist.id == specialist_id).first_or_404()
-    if not user.specialist:
+def add_service_activity(user_id):
+    user = User.query.filter(User.id == int(user_id)).first()
+    if not user or not user.specialist:
         return jsonify({
             'status': 'error',
             'errors': 'User is not specialist'
@@ -195,44 +174,44 @@ def add_service_activity(specialist_id):
         })
 
 
-@app.route('/user/confirm/<token>')
-def confirm_user(token):
-    user_id = confirm_token(token)
-    user = User.query.filter_by(
-        id=user_id).first_or_404()
-    user.confirmed = True
-    return redirect(url_for('user_profile', user_id=user.id))
+class SignUpView(TemplateView):
+    template_name = "Registration.html"
+
+    def get(self, *args, **kwargs):
+        if current_user.is_authenticated:
+            return redirect(url_for('user_profile', user_id=current_user.id))
+
+        context = self.get_context_data()
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(SignUpView, self).get_context_data(**kwargs)
+        context.update({'basic_form': RegistrationForm()})
+        context.update({'session': session})
+
+        return context
 
 
-@app.route('/sign_up', methods=['GET', 'POST'])
-def basic_registration():
-    basic_form = RegistrationForm()
-    spec_form = SpecialistForm()
-    ser_form = ServiceForm()
-    if request.method == 'GET':
-        return render_template("Registration.html",
-                               basic_form=basic_form,
-                               spec_form=spec_form,
-                               ser_form=ser_form)
+app.add_url_rule(
+    '/sign_up',
+    view_func=SignUpView.as_view('sign_up')
+)
 
-    if basic_form.validate():
-        user = User(username=basic_form.username.data,
-                    first_name=basic_form.full_name.data.split(' ')[0],
-                    last_name=' '.join(basic_form.full_name.data.split(' ')[1:]),
-                    email=basic_form.email.data,
-                    password=basic_form.password.data)
+
+@app.route('/user_sign_up', methods=['POST'])
+def sign_up_user():
+    form = RegistrationForm()
+    if form.validate():
+        user = User(first_name=form.full_name.data.split(' ')[0],
+                    last_name=' '.join(
+                        form.full_name.data.split(' ')[1:]),
+                    email=form.email.data,
+                    password=form.password.data)
 
         db.session.add(user)
         db.session.flush()
 
-        token = generate_confirmation_token(user.id)
-        confirm_url = url_for('confirm_user',
-                              token=token, _external=True)
-        send_email(to=user.email,
-                   subject='Please confirm your account',
-                   template=settings.CONFIRM_USER_HTML.format(
-                       full_name=user.full_name(),
-                       confirm_url=str(confirm_url)))
+        send_user_verification_email(user.id)
 
         session['signing_up_user_id'] = user.id
 
@@ -243,7 +222,7 @@ def basic_registration():
     else:
         return jsonify({
             'status': 'error',
-            'errors': basic_form.errors
+            'errors': form.errors
         })
 
 
@@ -264,34 +243,8 @@ def get_services_data():
     })
 
 
-@app.route('/spec_sign_up', methods=['POST'])
-def sign_up_specialist():
-    form = SpecialistForm()
-    if form.validate():
-        user = User.query.get(session['signing_up_user_id'])
-        user.phone_number = form.phone.data
-        if user.specialist is None:
-            specialist = Specialist(user=user, experience=form.experience.data)
-            db.session.add(specialist)
-            db.session.flush()
-            for service_id in request.form.get('services').split(','):
-                spec_service = SpecialistService(
-                    specialist_id=specialist.id,
-                    service_id=int(service_id))
-                db.session.add(spec_service)
-
-        return jsonify({
-            'status': 'ok',
-            'user_id': user.id
-        })
-
-    return jsonify({
-        'status': 'error',
-        'errors': form.errors
-    })
-
-
 @app.route('/add_service', methods=['POST'])
+@login_required
 def add_service():
     form = ServiceForm()
     if form.validate():
@@ -301,6 +254,10 @@ def add_service():
             description=form.description.data)
         db.session.add(service)
         db.session.flush()
+        spec_service = SpecialistService(
+            specialist_id=current_user.specialist.id,
+            service_id=service.id)
+        db.session.add(spec_service)
         return jsonify({
             'status': 'ok',
             'service': {
@@ -313,3 +270,218 @@ def add_service():
         'status': 'error',
         'errors': form.errors
     })
+
+
+@app.route('/add_specialist_service', methods=['POST'])
+@login_required
+def add_searched_services():
+    services = []
+    for service_id in json.loads(request.data).get('selected_service_ids', []):
+        service = Service.query.filter_by(id=service_id).first()
+        if not service:
+            return jsonify({
+                'status': 'error',
+            })
+
+        if service not in current_user.specialist.services.all():
+            services.append({
+                'name': service.title,
+                'id': service_id
+            })
+
+            spec_service = SpecialistService(
+                specialist_id=current_user.specialist.id,
+                service_id=service_id)
+            db.session.add(spec_service)
+
+    return jsonify({
+        'status': 'ok',
+        'services': services
+    })
+
+
+@app.route('/create_specialist', methods=['POST'])
+@login_required
+def create_specialist():
+    form = SpecialistForm()
+    if form.validate():
+        current_user.phone_number = form.phone.data
+        specialist = Specialist(
+            user=current_user,
+            description=form.description.data,
+            experience=form.experience.data)
+
+        db.session.add(specialist)
+
+        return jsonify({
+            'status': 'ok'
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'errors': form.errors
+        })
+
+
+class LoginView(FormView):
+    form_class = LoginForm
+    template_name = 'Login.html'
+    
+    def get(self, *args, **kwargs):
+        if current_user.is_authenticated:
+            return redirect(url_for('user_profile', user_id=current_user.id))
+        return super(LoginView, self).get(*args, **kwargs)
+
+    def form_invalid(self, form):
+        return jsonify({
+            'status': 'error',
+            'errors': form.errors
+        })
+
+    def form_valid(self, form):
+        try:
+            user = User.query.filter(
+                User.email == form.email.data).one()
+        except NoResultFound:
+            return jsonify({
+                'status': 'error',
+                'errors': {
+                    'password':
+                        'User with entered email and password does not exist'
+                }
+            })
+
+        if user.password != form.password.data:
+            return jsonify({
+                'status': 'error',
+                'errors': {
+                    'password':
+                        'User with entered email and password does not exist'
+                }
+            })
+
+        if not user.confirmed:
+            return jsonify({
+                'status': 'error',
+                'errors': {
+                    'password':
+                        'Confirm your email to log in'
+                },
+                'send_confirmation_email_url':
+                    url_for('send_user_verification_email', user_id=user.id)
+            })
+
+        login_user(user)
+
+        if 'next' in request.args:
+            next_url = request.args['next']
+        else:
+            next_url = url_for('user_profile', user_id=user.id)
+
+        return jsonify({
+            'status': 'ok',
+            'login_success_url': next_url
+        })
+
+
+app.add_url_rule(
+    '/login',
+    view_func=LoginView.as_view('login')
+)
+
+
+class AccountSpecialist(TemplateView):
+    template_name = 'user/AccountSettingsSpecialist.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountSpecialist, self).get_context_data()
+        context.update({'user': current_user})
+        context.update({'spec_form': SpecialistForm()})
+        context.update({'ser_form': ServiceForm()})
+        return context
+
+app.add_url_rule(
+    '/account/specialist',
+    view_func=AccountSpecialist.as_view('account_specialist')
+)
+
+
+class AccountCompany(TemplateView):
+    template_name = 'user/AccountSettingsCompany.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountCompany, self).get_context_data()
+        context.update({'user': current_user})
+        return context
+
+app.add_url_rule(
+    '/account/company',
+    view_func=AccountCompany.as_view('account_company')
+)
+
+
+class AccountConfiguration(TemplateView):
+    template_name = 'user/AccountSettingsConfiguration.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountConfiguration, self).get_context_data()
+        context.update({'user': current_user})
+        return context
+
+app.add_url_rule(
+    '/account/settings',
+    view_func=AccountConfiguration.as_view('account_settings')
+)
+
+
+class AccountOffers(TemplateView):
+    template_name = 'user/AccountSettingsOffers.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountOffers, self).get_context_data()
+        context.update({'user': current_user})
+        return context
+
+app.add_url_rule(
+    '/account/offers',
+    view_func=AccountOffers.as_view('account_offers')
+)
+
+
+class AccountOrders(TemplateView):
+    template_name = 'user/AccountSettingsOrders.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountOrders, self).get_context_data()
+        context.update({'user': current_user})
+        return context
+
+app.add_url_rule(
+    '/account/orders',
+    view_func=AccountOrders.as_view('account_orders')
+)

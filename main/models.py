@@ -7,8 +7,6 @@ from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
-    username = db.Column(db.String(256), nullable=False)
-
     first_name = db.Column(db.String(256))
 
     last_name = db.Column(db.String(256))
@@ -20,7 +18,7 @@ class User(db.Model):
         ],
 
         deprecated=['md5_crypt']
-    ))
+    ), nullable=False)
 
     phone_number = db.Column(PhoneNumberType())
 
@@ -43,6 +41,21 @@ class User(db.Model):
     def full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
+    def __repr__(self):
+        return '<User %r>' % (self.full_name())
+
 
 class SpecialistService(db.Model):
     __tablename__ = 'specialist_service'
@@ -61,6 +74,8 @@ class Company(db.Model):
     website = db.Column(URLType)
 
     logo = db.Column(db.String(), unique=True)
+
+    description = db.Column(db.Text())
 
     category_id = db.Column(db.Integer(), db.ForeignKey('org_category.id'),
                             nullable=True)
