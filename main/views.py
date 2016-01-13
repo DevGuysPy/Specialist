@@ -62,7 +62,7 @@ class UserProfile(TemplateView):
     def get(self, *args, **kwargs):
         self.user = User.query.get(kwargs.get('user_id'))
         if not self.user:
-            return page_not_found()
+            return account_not_found()
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
