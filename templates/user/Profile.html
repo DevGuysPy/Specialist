@@ -69,7 +69,8 @@
     </div>
 
     <div class="col s12">
-    {% if user.specialist %}
+    {% if current_user.id == user.id %}
+    {% elif user.specialist %}
             <p class="center-align">
             <a class="waves-effect waves-light btn modal-trigger btn-def"
                href="#add_service_activity_modal">Order service</a></p>

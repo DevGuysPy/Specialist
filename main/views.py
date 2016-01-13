@@ -437,7 +437,15 @@ class AccountOffers(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOffers, self).get_context_data()
         context.update({'user': current_user})
+        context.update({'offers': self.get_offers()})
+
         return context
+
+    def get_offers(self):
+        self.offers = UserUserActivity.query.filter_by(
+                from_user_id=current_user.id).all()
+
+        return self.offers
 
 app.add_url_rule(
     '/account/offers',
@@ -456,7 +464,15 @@ class AccountOrders(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOrders, self).get_context_data()
         context.update({'user': current_user})
+        context.update({'orders': self.get_orders()})
+
         return context
+
+    def get_orders(self):
+        self.orders = UserUserActivity.query.filter_by(
+                to_user_id=current_user.id).all()
+
+        return self.orders
 
 app.add_url_rule(
     '/account/orders',

@@ -2,12 +2,43 @@
 
 {% block settings_content %}
     <div id="company_settings_content">
-        <div class="card">
-            <div class="card-content">
-                <p class="flow-text center-align services-title">
-                    Here you can see all your relations with specialists as customer.
-                </p>
+        {% if orders|length > 0 %}
+            <ul class="collapsible" data-collapsible="accordion">
+                {% for a in orders %}
+                    <li>
+                        <div class="collapsible-header">
+                            {% if a.confirmed == true %}
+                                <div class="chip right confirmed">
+                                    Confirmed
+                                </div>
+                            {% else %}
+                                <div class="chip right unconfirmed">
+                                    Unconfirmed
+                                </div>
+                            {% endif %}
+                            <p class="flow-text">Specialist : <a href="{{ url_for('user_profile', user_id=a.from_user_id) }}">
+                                {{ a.from_user.full_name() }}
+                            </a>
+                            </p>
+                        </div>
+                        <div class="collapsible-body">
+                            {% if a.end %}
+                                <p class="flow-text"><i class="material-icons">event</i> {{ a.start }} ||| {{ a.end }}</p>
+                            {% else %}
+                                <p class="flow-text"><i class="material-icons">event</i> {{ a.start }}</p>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="card">
+                <div class="card-content">
+                    <p class="flow-text center-align services-title">
+                        Here you can see all your relations with specialists as customer.
+                    </p>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 {% endblock %}

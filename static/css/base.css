@@ -14,3 +14,9 @@
 nav {
     background-color: #37474f;
 }
+.unconfirmed {
+    background-color: #d50000
+}
+.confirmed {
+    background-color: #00c853
+}
