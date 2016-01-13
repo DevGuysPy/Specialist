@@ -16,10 +16,8 @@
             </li>
             {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('user_profile', user_id=current_user.id) }}">My Profile</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
             {% endif %}
-            <li><a href="#">Components</a></li>
-            <li><a href="#">Javascript</a></li>
-            <li><a href="#">Mobile</a></li>
         </ul>
         <ul class="side-nav" id="mobile-demo">
             <form>
@@ -29,10 +27,10 @@
                     <i class="material-icons">close</i>
                 </div>
             </form>
-            <li><a href="#">Sass</a></li>
-            <li><a href="#">Components</a></li>
-            <li><a href="#">Javascript</a></li>
-            <li><a href="#">Mobile</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('user_profile', user_id=current_user.id) }}">My Profile</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% endif %}
         </ul>
     </div>
     </div>

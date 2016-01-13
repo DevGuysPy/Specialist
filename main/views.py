@@ -6,7 +6,7 @@ from flask import render_template, url_for, flash, jsonify, redirect, request,\
 from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
-from flask.ext.login import login_user, current_user, login_required
+from flask.ext.login import login_user, current_user, login_required, logout_user
 
 from app import app, db
 
@@ -81,16 +81,20 @@ class UserProfile(TemplateView):
         self.user = None
 
     def get(self, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+        self.user = User.query.get(kwargs.get('user_id'))
+        if not self.user:
+            return page_not_found()
+        else:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(UserProfile, self).get_context_data()
-        context.update({'user': self.get_user(kwargs)})
+        context.update({'user': self.user})
         context.update({'current_user': current_user})
         context.update({'activity': self.get_activity(kwargs)})
         context.update({'session': session})
-        context.update({'form': self.get_service_activity_form() })
+        context.update({'form': self.get_service_activity_form()})
 
         return context
 
@@ -100,10 +104,6 @@ class UserProfile(TemplateView):
             form = AddServiceActivityForm.get_form(self.user.specialist)
 
         return form
-
-    def get_user(self, kwargs):
-        self.user = User.query.get(kwargs.get('user_id'))
-        return self.user
 
     def get_activity(self, kwargs):
         if self.user is not None:
@@ -481,3 +481,15 @@ app.add_url_rule(
     '/account/orders',
     view_func=AccountOrders.as_view('account_orders')
 )
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
+
+
+@app.errorhandler(404)
+def page_not_found():
+    return render_template('404.html'), 404
