@@ -25,7 +25,6 @@ mail.init_app(app)
 app_session = Session()
 app.config['SESSION_TYPE'] = 'filesystem'
 app_session.init_app(app)
-# basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 import main.models

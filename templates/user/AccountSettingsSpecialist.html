@@ -10,7 +10,10 @@
         <div class="row">
             {% if user.specialist %}
                 <div class="col m6">
-                    <div class="specialist-services" {% if user.specialist.services.all()|length == 0 %}style="display: none"{% endif %}>
+                    <div class="specialist-services"
+                             {% if user.specialist.services.all()|length == 0 %}
+                                style="display: none"
+                             {% endif %}>
                         <div class="card">
                             <div class="card_content">
                                 <p class="flow-text center-align services-title">Services you offer</p>
@@ -50,7 +53,10 @@
                                 <div id="selected_services">
                                 </div>
                             </div>
-                            <button id="search_service_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Add selected services</button>
+                            <button id="search_service_submit"
+                                    class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">
+                                Add selected services
+                            </button>
                         </div>
                     </div>
 

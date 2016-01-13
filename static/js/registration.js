@@ -18,7 +18,7 @@ function basicSignUpAjaxCall(URL){
             for (var i in data.errors) {
                 var errorDiv = card
                     .find('#error_sign_up_' + i);
-                errorDiv.html(data.errors[i]).css('color', '#f06292')
+                errorDiv.html(data.errors[i])
             }
         } else {
             window.location = '/login'

@@ -1,12 +1,11 @@
-from flask import abort, url_for, session, redirect, render_template, flash
+from flask import abort, url_for, session, redirect, flash, render_template
 from flask.ext.mail import Message
-from flask.ext.login import login_user
+from flask.ext.login import login_user, login_required, logout_user
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 
 from app import mail, app, login_manager, db
 from models import User, UserUserActivity
-import settings
 
 
 def generate_confirmation_token(confirmation_item):
@@ -74,11 +73,12 @@ def send_user_verification_email(user_id):
     token = generate_confirmation_token(user.id)
     confirm_url = url_for('confirm_user',
                           token=token, _external=True)
+    html = render_template("ConfirmUserEmail.html",
+                           full_name=user.full_name(),
+                           confirm_url=str(confirm_url))
     send_email(to=user.email,
                subject='Please confirm your account',
-               template=settings.CONFIRM_USER_HTML.format(
-                   full_name=user.full_name(),
-                   confirm_url=str(confirm_url)))
+               template=html)
 
     return 'ok'
 
@@ -120,3 +120,15 @@ def load_user(user_id):
 def call_after_request_callbacks(response):
     db.session.commit()
     return response
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
+
+
+@app.errorhandler(404)
+def page_not_found():
+    return render_template('404.html'), 404

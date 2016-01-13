@@ -1,46 +1,26 @@
 # -*- encoding: utf-8 -*-
 import json
 
-from flask import render_template, url_for, flash, jsonify, redirect, request,\
+from flask import render_template, url_for, jsonify, redirect, request,\
     session
 from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
-from flask.ext.login import login_user, current_user, login_required, logout_user
+from flask.ext.login import login_user, current_user, login_required
 
 from app import app, db
 
-import settings
 from models import Specialist, Service, UserUserActivity, Company, User,\
     SpecialistService
-from utils import generate_confirmation_token, confirm_token,\
-    send_email, get_model_column_values, send_user_verification_email
-from forms import SearchForm, AddServiceActivityForm, RegistrationForm,\
+from utils import generate_confirmation_token, send_email,\
+    get_model_column_values, send_user_verification_email, page_not_found
+from forms import AddServiceActivityForm, RegistrationForm,\
     SpecialistForm, ServiceForm, LoginForm
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    form = SearchForm()
-    if form.validate_on_submit():
-        service_name = form.query.data
-        specialists = Specialist.query \
-            .join(Specialist.services) \
-            .filter(Service.title == service_name)
-    else:
-        specialists = []
-
-    ctx = {
-        'form': form,
-        'specialists': specialists,
-    }
-    return render_template('search.html',
-                           **ctx)
 
 
 class CompanyProfile(TemplateView):
@@ -58,7 +38,6 @@ class CompanyProfile(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CompanyProfile, self).get_context_data()
         context.update({'company': self.get_company(kwargs)})
-        # context.update({'specialist': self.get_specialist(kwargs)})
 
         return context
 
@@ -84,36 +63,34 @@ class UserProfile(TemplateView):
         self.user = User.query.get(kwargs.get('user_id'))
         if not self.user:
             return page_not_found()
-        else:
-            context = self.get_context_data(**kwargs)
-            return self.render_to_response(context)
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(UserProfile, self).get_context_data()
         context.update({'user': self.user})
         context.update({'current_user': current_user})
-        context.update({'activity': self.get_activity(kwargs)})
+        # context.update({'activity': self.get_activity(kwargs)})
         context.update({'session': session})
         context.update({'form': self.get_service_activity_form()})
 
         return context
 
     def get_service_activity_form(self):
-        form = None
         if self.user.specialist:
-            form = AddServiceActivityForm.get_form(self.user.specialist)
+            return AddServiceActivityForm.get_form(self.user.specialist)
 
-        return form
-
-    def get_activity(self, kwargs):
-        if self.user is not None:
-            if self.user.specialist is not None:
-                self.activity = UserUserActivity.query.filter_by(
-                    from_user_id=kwargs.get('user_id')).all()
-            else:
-                self.activity = UserUserActivity.query.filter_by(
-                    to_user_id=kwargs.get('user_id')).all()
-            return self.activity
+    # commented for now(will be done soon)
+    # def get_activity(self, kwargs):
+    #     if self.user is not None:
+    #         if self.user.specialist is not None:
+    #             self.activity = UserUserActivity.query.filter_by(
+    #                 from_user_id=kwargs.get('user_id')).all()
+    #         else:
+    #             self.activity = UserUserActivity.query.filter_by(
+    #                 to_user_id=kwargs.get('user_id')).all()
+    #         return self.activity
 
 app.add_url_rule(
     '/account/<int:user_id>',
@@ -129,7 +106,7 @@ def add_service_activity(user_id):
     if not user or not user.specialist:
         return jsonify({
             'status': 'error',
-            'errors': 'User is not specialist'
+            'errors': 'User is not a specialist'
         })
     form = AddServiceActivityForm.get_form(user.specialist)
 
@@ -149,25 +126,27 @@ def add_service_activity(user_id):
             token = generate_confirmation_token(activity.id)
             confirm_url = url_for('confirm_specialist_activity',
                                   token=token, _external=True)
+            html = render_template(
+                "ConfirmActivityEmail.html",
+                service=form.service.data.title.encode('utf-8'),
+                start=form.start.data,
+                end=form.end.data or "Not specified",
+                description=form.description.data or "Not specified",
+                confirm_url=str(confirm_url))
 
             send_email(to=user.email,
                        subject='You have been invited by {}'.format(
                            current_user.full_name()),
-                       template=settings.CONFIRM_ACTIVITY_HTML.format(
-                           service=form.service.data.title.encode('utf-8'),
-                           start=form.start.data,
-                           end=form.end.data or "Not specified",
-                           description=form.description.data or "Not specified",
-                           confirm_url=str(confirm_url)))
+                       template=html)
 
         return jsonify({
             'status': 'ok'
         })
-    else:
-        return jsonify({
-            'status': 'error',
-            'errors': form.errors
-        })
+
+    return jsonify({
+        'status': 'error',
+        'errors': form.errors
+    })
 
 
 class SignUpView(TemplateView):
@@ -215,11 +194,11 @@ def sign_up_user():
             'status': 'ok',
             'user_id': user.id
         })
-    else:
-        return jsonify({
-            'status': 'error',
-            'errors': form.errors
-        })
+
+    return jsonify({
+        'status': 'error',
+        'errors': form.errors
+    })
 
 
 @app.route('/_get_services_sign_up')
@@ -312,11 +291,11 @@ def create_specialist():
         return jsonify({
             'status': 'ok'
         })
-    else:
-        return jsonify({
-            'status': 'error',
-            'errors': form.errors
-        })
+
+    return jsonify({
+        'status': 'error',
+        'errors': form.errors
+    })
 
 
 class LoginView(FormView):
@@ -399,7 +378,9 @@ class AccountSpecialist(TemplateView):
         context.update({'user': current_user})
         context.update({'spec_form': SpecialistForm()})
         context.update({'ser_form': ServiceForm()})
+
         return context
+
 
 app.add_url_rule(
     '/account/specialist',
@@ -481,15 +462,3 @@ app.add_url_rule(
     '/account/orders',
     view_func=AccountOrders.as_view('account_orders')
 )
-
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect('/')
-
-
-@app.errorhandler(404)
-def page_not_found():
-    return render_template('404.html'), 404

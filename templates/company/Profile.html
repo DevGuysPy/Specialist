@@ -16,8 +16,9 @@
                                          src="https://goo.gl/WrdnWG" alt="Face">
                                 </div>
                             {% else %}
-                                <div class="col s4"><img class="circle responsive-img profile-img z-depth-1"
-                                                         src="{{ url_for('static', filename='logos/') }}{{ company.logo }}" alt="Face">
+                                <div class="col s4">
+                                    <img class="circle responsive-img profile-img z-depth-1"
+                                         src="{{ url_for('static', filename='logos/') }}{{ company.logo }}" alt="Face">
                                 </div>
                             {% endif %}
                             <div class="col s6 offset-s2">
@@ -43,18 +44,18 @@
             <div class="col s12">
                 <ul class="collection">
                     {% for spec in specialist %}
-                    <li class="collection-item avatar">
-                        <img src="{{ url_for('static', filename='photos/') }}{{ spec.photo }}" alt="" class="circle">
-                        <a href="{{ url_for('specialist_profile', specialist_id=spec.id) }}">
-                            <span class="title">{{ spec.name }}</span>
-                        </a>
-                        <p>
-                        {% for s in spec.services %}
-                            {{ s.title }} <br>
-                        {% endfor %}
-                        </p>
-                        <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
-                    </li>
+                        <li class="collection-item avatar">
+                            <img src="{{ url_for('static', filename='photos/') }}{{ spec.photo }}" alt="" class="circle">
+                            <a href="{{ url_for('specialist_profile', specialist_id=spec.id) }}">
+                                <span class="title">{{ spec.name }}</span>
+                            </a>
+                            <p>
+                            {% for s in spec.services %}
+                                {{ s.title }} <br>
+                            {% endfor %}
+                            </p>
+                            <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>

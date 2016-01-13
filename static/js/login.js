@@ -17,14 +17,14 @@ function basicSignUpAjaxCall(URL){
             for (var i in data.errors) {
                 var errorDiv = card
                     .find('#error_login_' + i);
-                errorDiv.html(data.errors[i]).css('color', '#f06292')
+                errorDiv.html(data.errors[i])
             }
             if (data.send_confirmation_email_url){
                 var confErrorEl = card.find('#error_login_password');
                 confErrorEl.html(
                     'Confirm your email to log in<br>' +
                     '<a id="login_send_conf_email">Send email again</a>'
-                ).css('color', '#f06292');
+                );
                 $('#login_send_conf_email').on('click', function(){
                     $.ajax({
                         method: 'POST',
@@ -37,7 +37,7 @@ function basicSignUpAjaxCall(URL){
                 })
             }
         } else {
-            window.location = data.login_success_url
+            window.location = data.login_success_url;
         }
     });
 }

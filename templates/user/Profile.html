@@ -40,7 +40,7 @@
                 </h4>
                 <span>
                     {% if user.specialist%}
-                    <i class="material-icons">perm_identity</i>
+                        <i class="material-icons">perm_identity</i>
                         {% for s in user.specialist.services %}
                             {{ s.title }}
                         {% endfor %}
@@ -75,56 +75,56 @@
                href="#add_service_activity_modal">Order service</a></p>
         {% include "AddServiceActivityModal.html" %}
     {% endif %}
-    {% if activity|length > 0 %}
-    <p class="flow-text center-align">Activities</p>
-
-        <ul class="collapsible" data-collapsible="accordion">
-        {% for a in activity %}
-            <li>
-                <div class="collapsible-header">
-                    {% if user %}
-                        {% if a.confirmed == true %}
-                            <div class="chip right" style="background-color: #00c853">
-                                Confirmed
-                            </div>
-                        {% else %}
-                            <div class="chip right" style="background-color: #d50000">
-                                Unconfirmed
-                            </div>
-                        {% endif %}
-                        <p class="flow-text">
-                        Customer : <a href="{{ url_for('user_profile', user_id=a.to_user.id) }}">
-                        {{ a.to_user.full_name() }}
-                        </a>
-                        </p>
-                    {% else %}
-                        {% if a.confirmed == true %}
-                            <div class="chip right" style="background-color: #00c853">
-                                Confirmed
-                            </div>
-                        {% else %}
-                            <div class="chip right" style="background-color: #d50000">
-                                Unconfirmed
-                            </div>
-                        {% endif %}
-                        <p class="flow-text">Specialist : <a href="{{ url_for('user_profile', user_id=a.from_user_id) }}">
-                        {{ a.from_user.full_name() }}
-                        </a>
-                        </p>
-                    {% endif %}
-
-                </div>
-                <div class="collapsible-body">
-                    {% if a.end %}
-                    <p class="flow-text"><i class="material-icons">event</i> {{ a.start }} ||| {{ a.end }}</p>
-                    {% else %}
-                    <p class="flow-text"><i class="material-icons">event</i> {{ a.start }}</p>
-                    {% endif %}
-                </div>
-            </li>
-        {% endfor %}
-        </ul>
-    {% endif %}
+{#    {% if activity|length > 0 %}#}
+{#    <p class="flow-text center-align">Activities</p>#}
+{##}
+{#        <ul class="collapsible" data-collapsible="accordion">#}
+{#        {% for a in activity %}#}
+{#            <li>#}
+{#                <div class="collapsible-header">#}
+{#                    {% if user %}#}
+{#                        {% if a.confirmed == true %}#}
+{#                            <div class="chip right" style="background-color: #00c853">#}
+{#                                Confirmed#}
+{#                            </div>#}
+{#                        {% else %}#}
+{#                            <div class="chip right" style="background-color: #d50000">#}
+{#                                Unconfirmed#}
+{#                            </div>#}
+{#                        {% endif %}#}
+{#                        <p class="flow-text">#}
+{#                        Customer : <a href="{{ url_for('user_profile', user_id=a.to_user.id) }}">#}
+{#                        {{ a.to_user.full_name() }}#}
+{#                        </a>#}
+{#                        </p>#}
+{#                    {% else %}#}
+{#                        {% if a.confirmed == true %}#}
+{#                            <div class="chip right" style="background-color: #00c853">#}
+{#                                Confirmed#}
+{#                            </div>#}
+{#                        {% else %}#}
+{#                            <div class="chip right" style="background-color: #d50000">#}
+{#                                Unconfirmed#}
+{#                            </div>#}
+{#                        {% endif %}#}
+{#                        <p class="flow-text">Specialist : <a href="{{ url_for('user_profile', user_id=a.from_user_id) }}">#}
+{#                        {{ a.from_user.full_name() }}#}
+{#                        </a>#}
+{#                        </p>#}
+{#                    {% endif %}#}
+{##}
+{#                </div>#}
+{#                <div class="collapsible-body">#}
+{#                    {% if a.end %}#}
+{#                    <p class="flow-text"><i class="material-icons">event</i> {{ a.start }} ||| {{ a.end }}</p>#}
+{#                    {% else %}#}
+{#                    <p class="flow-text"><i class="material-icons">event</i> {{ a.start }}</p>#}
+{#                    {% endif %}#}
+{#                </div>#}
+{#            </li>#}
+{#        {% endfor %}#}
+{#        </ul>#}
+{#    {% endif %}#}
     </div>
 {% endblock %}
 

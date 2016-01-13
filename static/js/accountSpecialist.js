@@ -1,7 +1,7 @@
 function initServiceContent(getServicesURL,
-                        addCreatedServiceURL,
-                        addSearchedServicesURL,
-                        createSpecialistURL){
+                            addCreatedServiceURL,
+                            addSearchedServicesURL,
+                            createSpecialistURL){
     initServicesTypeahead(getServicesURL);
     addCreatedService(addCreatedServiceURL);
     addSearchedServices(addSearchedServicesURL);
@@ -89,7 +89,7 @@ function createSpecialist(URL){
                 for (var i in data.errors) {
                     var errorDiv = card
                         .find('#error_specialist_' + i);
-                    errorDiv.html(data.errors[i]).css('color', '#f06292')
+                    errorDiv.html(data.errors[i])
                 }
             } else {
                 window.location.reload()
@@ -115,7 +115,7 @@ function addCreatedService(addServiceURL){
                 for (var i in data.errors) {
                     var errorDiv = card
                         .find('#error_service_' + i);
-                    errorDiv.html(data.errors[i]).css('color', '#f06292')
+                    errorDiv.html(data.errors[i])
                 }
             } else {
                 addServiceToAccordion(data.service)
@@ -127,8 +127,8 @@ function addCreatedService(addServiceURL){
 function toggleAddSelectedServicesBtn(){
     var btn = $('#search_service_submit');
     var selectedServices = $('#selected_services');
-    selectedServices.find('input[id="selected_service_id"]').length > 0 ?
-        btn.prop("disabled", false) : btn.prop("disabled", true);
+    btn.prop("disabled", selectedServices
+            .find('input[id="selected_service_id"]').length <= 0 );
 }
 
 function addSearchedServices(addServiceURL){
