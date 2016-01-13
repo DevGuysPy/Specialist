@@ -2,9 +2,13 @@
 /*.twitter-typeahead .tt-hint {*/
 	/*margin-bottom: 0;*/
 /*}*/
+.tt-input {
+	width: 700px;
+}
+
 .tt-hint {
 	display: block;
-	width: 100%;
+	width: 700px;
 	height: 38px;
 	padding-bottom: 13px;
     padding-left: 2px;
@@ -22,6 +26,7 @@
 }
 .tt-menu {
 	min-width: 160px;
+	width: 700px;
 	margin-top: 2px;
 	padding: 5px 0;
 	background-color: #ffffff;

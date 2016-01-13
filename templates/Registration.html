@@ -1,0 +1,45 @@
+{% extends "Base.html" %}
+{% block css %}
+    <link href="{{ url_for('static', filename='css/registration.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/typeahead.css') }}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col offset-l4 l4 s12 offset-m3 m6 first-step-sign-up center">
+            <div class="card grey lighten-4">
+                <form id="basic_sign_up_form" method="POST">
+                    <div class="card-content grey-text text-darken-1">
+                        <span class="card-title">Please enter data below</span>
+                            {{ basic_form.csrf_token }}
+                            <div class="input-field">
+                                {{ basic_form.full_name(id="sign_up_full_name") }}
+                                <label for="sign_up_full_name">Enter your full name</label>
+                                <div id="error_sign_up_full_name" class="error"></div>
+                            </div>
+                            <div class="input-field">
+                                {{ basic_form.email(id="sign_up_email") }}
+                                <label for="sign_up_email">Enter your email</label>
+                                <div id="error_sign_up_email" class="error"></div>
+                            </div>
+                            <div class="input-field">
+                                {{ basic_form.password(id="sign_up_password", type="password") }}
+                                <label for="sign_up_password">Enter your password</label>
+                                <div id="error_sign_up_password" class="error"></div>
+                            </div>
+                    </div>
+                    <div class="card-action">
+                        <a id="sign_up_submit_basic" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Create basic account</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/typeahead.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/registration.js') }}"></script>
+    <script>
+        initSignUp("{{ url_for('sign_up_user') }}");
+    </script>
+{% endblock %}

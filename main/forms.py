@@ -1,10 +1,13 @@
 from sqlalchemy import exists
 from flask_wtf import Form
-from wtforms_alchemy import model_form_factory
-from wtforms import StringField, DateTimeField, ValidationError, IntegerField
-from wtforms.validators import DataRequired
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms_alchemy import model_form_factory, Unique
+from wtforms import StringField, DateTimeField, ValidationError, PasswordField
+from wtforms.validators import DataRequired, Length, Email
+from wtforms_components import PhoneNumberField
 
-from models import ServiceActivity, Specialist, Customer, Service, db
+from models import UserUserActivity, db, Service, User, \
+    Specialist
 
 
 BaseModelForm = model_form_factory(Form)
@@ -26,32 +29,74 @@ def validate_id_for(model):
                 exists().where(model.id == field.data)).scalar():
             raise ValidationError(
                 '{} with id {} does not exist'.format(
-                    field.label.text, field.data))
+                    model.__name__, field.data))
     return validate_id
 
 
 class AddServiceActivityForm(BaseModelForm):
     class Meta:
-        model = ServiceActivity
+        model = UserUserActivity
         only = ['description', 'end']
 
-    specialist_id = IntegerField('Specialist',
-                                 validators=[
-                                     DataRequired(),
-                                     validate_id_for(Specialist)
-                                 ])
-    customer_id = IntegerField('Customer',
-                               validators=[
-                                   DataRequired(),
-                                   validate_id_for(Customer)
-                               ])
-    service_id = IntegerField('Service',
-                              validators=[
-                                  DataRequired(),
-                                  validate_id_for(Service)
-                              ])
+    service = QuerySelectField(
+        query_factory=None,
+        get_pk=lambda a: a.id,
+        get_label=lambda a: a.title)
     start = DateTimeField('Start',
                           validators=[
                               DataRequired(),
                               validate_start_end
                           ])
+
+    @classmethod
+    def get_form(cls, specialist):
+        form = cls()
+        form.service.query = specialist.services.all()
+        return form
+
+
+def validate_full_name(form, field):
+    if len(field.data.split(' ')) <= 1:
+        raise ValidationError(
+            'Please enter a valid full name. Example: John Folstrom')
+
+
+class RegistrationForm(BaseModelForm):
+    class Meta:
+        model = User
+        only = ['email', 'password']
+
+    full_name = StringField('Full Name',
+                            validators=[
+                                DataRequired(),
+                                validate_full_name])
+    email = StringField('Email', validators=[DataRequired(),
+                                             Email(),
+                                             Unique(User.email)])
+    password = StringField('Password',
+                           validators=[
+                               DataRequired(),
+                               Length(min=4, max=64)])
+
+
+class SpecialistForm(BaseModelForm):
+    class Meta:
+        model = Specialist
+        only = ['experience', 'description']
+
+    phone = PhoneNumberField('Phone', country_code='UA',
+                             validators=[DataRequired()])
+
+
+class ServiceForm(BaseModelForm):
+    class Meta:
+        model = Service
+
+
+class LoginForm(Form):
+    email = StringField('Email',
+                        validators=[DataRequired(),
+                                    Email()])
+    password = PasswordField('Password',
+                             validators=[
+                                 DataRequired()])

@@ -1,0 +1,41 @@
+{% extends "Base.html" %}
+
+{% block css %}
+    <link href="{{ url_for('static', filename='css/registration.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col offset-l4 l4 s12 offset-m3 m6 center login-card">
+            <div class="card grey lighten-4">
+                <form id="login_form" method="POST">
+                    <div class="card-content grey-text text-darken-1">
+                        <span class="card-title">Login</span>
+                            {{ form.csrf_token }}
+                            <div class="input-field">
+                                {{ form.email(id="login_email") }}
+                                <label for="login_email">Enter your email</label>
+                                <div id="error_login_email" class="error"></div>
+                            </div>
+                            <div class="input-field">
+                                {{ form.password(id="login_password") }}
+                                <label for="login_password">Enter your password</label>
+                                <div id="error_login_password" class="error"></div>
+                            </div>
+                    </div>
+                    <div class="card-action">
+                        <a id="login_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Login</a><br>
+                        <a class="blue-text t" href="{{ url_for('sign_up') }}">Haven't account yet?</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script type="text/javascript">
+        initLogin("{{ url_for('login') }}")
+    </script>
+{% endblock %}
