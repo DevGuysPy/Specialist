@@ -13,7 +13,7 @@ from app import app, db
 from models import Specialist, Service, UserUserActivity, Company, User,\
     SpecialistService
 from utils import generate_confirmation_token, send_email,\
-    get_model_column_values, send_user_verification_email, page_not_found
+    get_model_column_values, send_user_verification_email, page_not_found, account_not_found
 from forms import AddServiceActivityForm, RegistrationForm,\
     SpecialistForm, ServiceForm, LoginForm
 
