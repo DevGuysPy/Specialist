@@ -94,7 +94,7 @@ def confirm_specialist_activity(token):
     else:
         activity.confirmed = True
         flash('You have confirmed your relationship with {}.'.format(
-            activity.to_user.username))
+            activity.to_user.full_name()))
 
     return redirect(url_for('user_profile', user_id=activity.to_user.id))
 
