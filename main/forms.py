@@ -1,5 +1,5 @@
 from sqlalchemy import exists
-from flask_wtf import Form
+from flask_wtf import Form, RecaptchaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique
 from wtforms import StringField, DateTimeField, ValidationError, PasswordField
@@ -77,6 +77,7 @@ class RegistrationForm(BaseModelForm):
                            validators=[
                                DataRequired(),
                                Length(min=4, max=64)])
+    recaptcha = RecaptchaField()
 
 
 class SpecialistForm(BaseModelForm):

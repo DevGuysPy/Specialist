@@ -4,6 +4,7 @@ from flask.ext.mail import Mail
 from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
+import os
 
 
 app = Flask(__name__, static_url_path='/static')
@@ -14,6 +15,10 @@ cache.init_app(app)
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
+
+app.config['RECAPTCHA_OPTIONS'] = {'theme': 'white'}
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.environ.get('RECAPTCHA_PRIVATE_KEY')
 
 app.debug = True
 app.config.from_object('settings')
