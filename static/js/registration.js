@@ -20,6 +20,7 @@ function basicSignUpAjaxCall(URL){
                     .find('#error_sign_up_' + i);
                 errorDiv.html(data.errors[i])
             }
+            grecaptcha.reset();
         } else {
             window.location = '/login'
         }

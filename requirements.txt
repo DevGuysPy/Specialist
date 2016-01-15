@@ -33,3 +33,4 @@ wheel==0.24.0
 WTForms==2.1
 WTForms-Alchemy==0.13.3
 WTForms-Components==0.9.8
+names==0.3.0

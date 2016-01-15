@@ -4,7 +4,8 @@
     {% block extra_css %}{% endblock %}
 {% endblock %}
 {% block body %}
-    <div class="container-fluid">
+
+    <div class="{% if user.specialist %}container-fluid{% else %}container{% endif %}">
             <div class="row">
                 {% if current_user == user %}
                     <div class="col m2">

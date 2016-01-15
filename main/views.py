@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 import json
+from datetime import date
 
 from flask import render_template, url_for, jsonify, redirect, request,\
     session
@@ -18,9 +19,38 @@ from forms import AddServiceActivityForm, RegistrationForm,\
     SpecialistForm, ServiceForm, LoginForm
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+class Home(TemplateView):
+    template_name = 'index.html'
+
+    def __init__(self):
+        super(Home, self).__init__()
+        self.stats = {}
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(Home, self).get_context_data()
+        context.update({'stats': self.get_stats()})
+
+        return context
+
+    def get_stats(self):
+        self.stats['activities'] = UserUserActivity.query.filter(UserUserActivity.created_time >= date.today()).count()
+        self.stats['specialists'] = len(Specialist.query.all())
+        # Coming soon
+        #  self.stats['online'] = User.query.filter()
+        self.stats['users'] = len(User.query.all())
+        self.stats['services'] = len(Service.query.all())
+
+        return self.stats
+
+
+app.add_url_rule(
+    '/',
+    view_func=Home.as_view('home')
+)
 
 
 class CompanyProfile(TemplateView):
@@ -430,6 +460,10 @@ class AccountOffers(TemplateView):
     template_name = 'user/AccountSettingsOffers.html'
     decorators = [login_required]
 
+    def __init__(self):
+        super(AccountOffers, self).__init__()
+        self.offers = None
+
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
@@ -445,7 +479,7 @@ class AccountOffers(TemplateView):
         self.offers = UserUserActivity.query.filter_by(
                 from_user_id=current_user.id).all()
 
-        return self.offers
+        return self.offers[::-1]
 
 app.add_url_rule(
     '/account/offers',
@@ -456,6 +490,10 @@ app.add_url_rule(
 class AccountOrders(TemplateView):
     template_name = 'user/AccountSettingsOrders.html'
     decorators = [login_required]
+
+    def __init__(self):
+        super(AccountOrders, self).__init__()
+        self.orders = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -472,7 +510,7 @@ class AccountOrders(TemplateView):
         self.orders = UserUserActivity.query.filter_by(
                 to_user_id=current_user.id).all()
 
-        return self.orders
+        return self.orders[::-1]
 
 app.add_url_rule(
     '/account/orders',

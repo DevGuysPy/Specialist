@@ -1,9 +1,9 @@
 {% extends "user/AccountSettings.html" %}
 
 {% block title %}{{ user.full_name() }} - Profile{% endblock %}
-
+{% block css %}<link href="{{ url_for('static', filename='css/datetimepicker.css') }}" rel="stylesheet">{% endblock %}
 {% block settings_content %}
-    <div class="s12">
+    <div class="col s12 {% if user.specialist is none or user.id == current_user.id %}l12{% else %}l6{% endif %}">
         <div class="card">
             <div class="card-content">
                 <div class="row">
@@ -68,13 +68,11 @@
         </div>
     </div>
 
-    <div class="col s12">
+    <div class="col s12 {% if user.specialist %}l6{% endif %}">
     {% if current_user.id == user.id %}
     {% elif user.specialist %}
             <p class="center-align">
-            <a class="waves-effect waves-light btn modal-trigger btn-def"
-               href="#add_service_activity_modal">Order service</a></p>
-        {% include "AddServiceActivityModal.html" %}
+        {% include "AddServiceActivity.html" %}
     {% endif %}
 {#    {% if activity|length > 0 %}#}
 {#    <p class="flow-text center-align">Activities</p>#}
@@ -132,7 +130,7 @@
 {% block script %}
     <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
     <script type="text/javascript">
-        initServiceActivityModal("{{ url_for('add_service_activity', user_id=user.id) }}")
+        initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}")
     </script>
 {% endblock %}
 

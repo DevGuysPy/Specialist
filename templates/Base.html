@@ -25,8 +25,11 @@
 {% endwith %}
 
 <body>
+<div class="page-wrap">
     {% include 'nav.html' %}
     {% block body %}{% endblock %}
+</div>
+    {% include 'footer.html' %}
 </body>
 
 
