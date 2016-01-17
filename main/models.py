@@ -3,6 +3,15 @@ from app import db
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 
+ACTIVITY_STATUS_TYPES = (
+    ('0', 'Done'),
+    ('1', 'Expired'),
+    ('2', 'Failed'),
+    ('3', 'In work'),
+    ('4', 'Canceled'),
+    ('5', 'Waiting for start')
+)
+
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -121,10 +130,22 @@ class Specialist(db.Model):
 
 class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
+
     title = db.Column(db.String(256), nullable=False, unique=True)
-    domain = db.Column(db.String(256), nullable=False)
+
+    category_id = db.Column(db.Integer, db.ForeignKey('service_category.id'),
+                            nullable=False)
+    category = db.relationship('ServiceCategory',  backref="services")
+
     description = db.Column(db.Text())
-    # specialists = db.relationship(Specialist)
+
+
+class ServiceCategory(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+
+    title = db.Column(db.String(256), nullable=False, unique=True)
+
+    description = db.Column(db.Text())
 
 
 class UserUserActivity(db.Model):
@@ -132,11 +153,13 @@ class UserUserActivity(db.Model):
 
     from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                              nullable=False)
-    from_user = db.relationship('User', foreign_keys=[from_user_id])
+    from_user = db.relationship('User', foreign_keys=[from_user_id],
+                                backref="from_activities_user")
 
     to_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                            nullable=False)
-    to_user = db.relationship('User', foreign_keys=[to_user_id])
+    to_user = db.relationship('User', foreign_keys=[to_user_id],
+                              backref="to_activities_user")
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
@@ -148,6 +171,8 @@ class UserUserActivity(db.Model):
 
     specialist_rating = db.Column(db.Integer())
     customer_rating = db.Column(db.Integer())
+
+    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
 
     confirmed = db.Column(db.Boolean(), default=False)
 
@@ -203,11 +228,13 @@ class UserOrgActivity(db.Model):
 
     org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
                        nullable=False)
-    org = db.relationship('Company', foreign_keys=[org_id])
+    org = db.relationship('Company', foreign_keys=[org_id],
+                          backref="from_activities_user_org")
 
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                         nullable=False)
-    user = db.relationship('User', foreign_keys=[user_id])
+    user = db.relationship('User', foreign_keys=[user_id],
+                           backref="to_activities_user_org")
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
@@ -219,6 +246,8 @@ class UserOrgActivity(db.Model):
     end = db.Column(db.DateTime())
     description = db.Column(db.Text())
 
+    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
+
     confirmed = db.Column(db.Boolean(), default=False)
 
     created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
@@ -229,19 +258,25 @@ class OrgOrgActivity(db.Model):
 
     from_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
                             nullable=False)
-    from_org = db.relationship('Company', foreign_keys=[from_org_id])
+    from_org = db.relationship('Company', foreign_keys=[from_org_id],
+                               backref="from_activities_org")
 
     to_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
                           nullable=False)
-    to_org = db.relationship('Company', foreign_keys=[to_org_id])
+    to_org = db.relationship('Company', foreign_keys=[to_org_id],
+                             backref="to_activities_org")
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
     service = db.relationship('Service')
 
     start = db.Column(db.DateTime())
+
     end = db.Column(db.DateTime())
+
     description = db.Column(db.Text())
+
+    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
 
     confirmed = db.Column(db.Boolean(), default=False)
 
