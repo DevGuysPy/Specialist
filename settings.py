@@ -1,6 +1,6 @@
 import os
 
-MAIL_SERVER = 'smtp.googlemail.com'
+MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 465
 MAIL_USE_TLS = False
 MAIL_USE_SSL = True
@@ -10,7 +10,7 @@ MAIL_USERNAME = os.environ.get('APP_MAIL_USERNAME')
 MAIL_PASSWORD = os.environ.get('APP_MAIL_PASSWORD')
 
 # mail accounts
-MAIL_DEFAULT_SENDER = 'natyahlyi@gmail.com'
+MAIL_DEFAULT_SENDER = 'oklahoma098@gmail.com'
 
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 

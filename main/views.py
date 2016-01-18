@@ -15,7 +15,7 @@ from models import Specialist, Service, UserUserActivity, Company, User,\
 from utils import generate_confirmation_token, send_email,\
     get_model_column_values, send_user_verification_email, page_not_found, account_not_found
 from forms import AddServiceActivityForm, RegistrationForm,\
-    SpecialistForm, ServiceForm, LoginForm
+    SpecialistForm, ServiceForm, LoginForm, SettingsForm
 
 
 @app.route('/')
@@ -418,11 +418,26 @@ class AccountConfiguration(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountConfiguration, self).get_context_data()
         context.update({'user': current_user})
+        context.update({'form': SettingsForm()})
         return context
+
+    def post(self):
+        form = SettingsForm(request.form)
+        if form.validate():
+            current_user.password = form.new_password.data
+            return jsonify({
+                'status': 'ok'
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'input_errors': form.errors
+            })
 
 app.add_url_rule(
     '/account/settings',
-    view_func=AccountConfiguration.as_view('account_settings')
+    view_func=AccountConfiguration.as_view('account_settings'),
+    methods=['GET', 'POST']
 )
 
 
@@ -462,3 +477,4 @@ app.add_url_rule(
     '/account/orders',
     view_func=AccountOrders.as_view('account_orders')
 )
+

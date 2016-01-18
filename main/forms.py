@@ -3,8 +3,9 @@ from flask_wtf import Form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique
 from wtforms import StringField, DateTimeField, ValidationError, PasswordField
-from wtforms.validators import DataRequired, Length, Email
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 from wtforms_components import PhoneNumberField
+from flask.ext.login import current_user
 
 from models import UserUserActivity, db, Service, User, \
     Specialist
@@ -100,3 +101,34 @@ class LoginForm(Form):
     password = PasswordField('Password',
                              validators=[
                                  DataRequired()])
+
+
+def check_on_equality(form, field):
+    if current_user.password == field.data:
+        raise ValidationError(u'This password is identical to yours one')
+
+
+def check_on_truthful_password(form, field):
+    if current_user.password != field.data:
+        raise ValidationError(u'Invalid password')
+
+
+class SettingsForm(Form):
+
+    current_password = PasswordField('Password',
+                                     validators=[
+                                        DataRequired(),
+                                        check_on_truthful_password])
+    new_password = PasswordField('new_password',
+                                 validators=[
+                                    DataRequired(),
+                                    EqualTo('new_password_again',
+                                            message='Passwords must match'),
+                                    check_on_equality,
+                                    Length(min=4, max=64)])
+    new_password_again = PasswordField('new_password_again',
+                                       validators=[
+                                            DataRequired(),
+                                            Length(min=4, max=64),
+                                            EqualTo('new_password',
+                                                    message='Passwords must match')])
