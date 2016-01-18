@@ -422,17 +422,16 @@ class AccountConfiguration(TemplateView):
         return context
 
     def post(self):
-        form = SettingsForm(request.form)
+        form = SettingsForm()
         if form.validate():
             current_user.password = form.new_password.data
             return jsonify({
                 'status': 'ok'
             })
-        else:
-            return jsonify({
-                'status': 'error',
-                'input_errors': form.errors
-            })
+        return jsonify({
+            'status': 'error',
+            'input_errors': form.errors
+        })
 
 app.add_url_rule(
     '/account/settings',

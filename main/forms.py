@@ -103,12 +103,12 @@ class LoginForm(Form):
                                  DataRequired()])
 
 
-def check_on_equality(form, field):
+def check_password_on_equality(form, field):
     if current_user.password == field.data:
         raise ValidationError(u'This password is identical to yours one')
 
 
-def check_on_truthful_password(form, field):
+def check_password(form, field):
     if current_user.password != field.data:
         raise ValidationError(u'Invalid password')
 
@@ -118,13 +118,13 @@ class SettingsForm(Form):
     current_password = PasswordField('Password',
                                      validators=[
                                         DataRequired(),
-                                        check_on_truthful_password])
+                                        check_password])
     new_password = PasswordField('new_password',
                                  validators=[
                                     DataRequired(),
                                     EqualTo('new_password_again',
                                             message='Passwords must match'),
-                                    check_on_equality,
+                                    check_password_on_equality,
                                     Length(min=4, max=64)])
     new_password_again = PasswordField('new_password_again',
                                        validators=[

@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="card-action">
-                        <a id="form-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Change password</a>
+                        <a id="form-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4" onclick="changePasswrord()">Change password</a>
                     </div>
                 </form>
             </div>
@@ -35,5 +35,8 @@
     </div>
 {% endblock %}
 {% block script %}
-    <script src="{{ url_for('static', filename='js/account_configuration.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/accountConfiguration.js') }}"></script>
+    <script>
+        initAccountSettings();
+    </script>
 {% endblock %}
