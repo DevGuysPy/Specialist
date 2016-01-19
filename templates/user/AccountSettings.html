@@ -7,9 +7,9 @@
     <div class="container-fluid">
             <div class="row">
                 {% if current_user == user %}
-                    <div class="col m2">
+                    <div class="col l2">
                         <div class="card">
-                            <div class="collection">
+                            <div class="collection profile-tabs">
                                 <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('user_profile', user_id=user.id) }}">Profile</a>
                                 <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_specialist') }}">Specialist</a>
                                 <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_company') }}">Company</a>

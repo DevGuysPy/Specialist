@@ -1,28 +1,138 @@
-<div class="col offset-l4 l4 s12 offset-m3 m6 center create-specialist-card" style="display: none">
-    <div class="card grey lighten-4">
+<div class="create-specialist-card" style="display: none">
+    <div class="row">
         <form id="specialist_form" method="POST">
-            <div class="card-content grey-text text-darken-1">
-                <span class="card-title">Enter data below to become a specialist. (DEMO)</span>
-                    {{ spec_form.csrf_token }}
-                    <div class="input-field">
-                        {{ spec_form.description(id="specialist_description", class="materialize-textarea") }}
-                        <label for="specialist_description">Introduce yourself to clients</label>
-                        <div id="error_specialist_description" class="error"></div>
+            {{ spec_form.csrf_token }}
+            <div class="col offset-l0 l8 s12 offset-m3 m6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title center">Select category and service in which your are working</div>
+                        <div class="row">
+                            <div class="col m6">
+                                <div class="input-field" id="category-selector">
+                                    <input type="text" id="show_category_dropdown"
+                                           style="cursor: pointer;" readonly
+                                           placeholder="Select category" class="form-input">
+                                    <div id="categories_card" style="display: none">
+                                        <div class="c-s-selector">
+                                            <div class="collection">
+                                                <div class="input-field">
+                                                    <input id="find_category" type="text" placeholder="Search for category of your service">
+                                                </div>
+                                                <div class="divider"></div>
+                                                <div id="categories_list" class="list"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col m6">
+                                <div class="input-field" id="service-selector">
+                                    <input type="text" id="show_service_dropdown"
+                                           style="cursor: pointer" readonly disabled
+                                           placeholder="Select service" class="form-input">
+                                    <div id="services_card" style="display: none">
+                                        <div class="c-s-selector">
+                                            <div class="collection">
+                                                <div class="input-field">
+                                                    <input id="find_service" type="text" placeholder="Search for your service">
+                                                </div>
+                                                <div class="divider"></div>
+                                                <div id="services_list" class="list"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{ spec_form.service_id(type="hidden", id="selected_service_id") }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-field">
-                        {{ spec_form.phone(id="specialist_phone") }}
-                        <label for="specialist_phone">Enter your work phone</label>
-                        <div id="error_specialist_phone" class="error"></div>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title center">Enter your experience in selected service</div>
+                            <div class="input-field">
+                                {{ spec_form.experience(id="specialist_experience") }}
+                                <label for="specialist_experience">Select your experience</label>
+                                <div id="error_specialist_experience" class="error"></div>
+                            </div>
                     </div>
-                    <div class="input-field">
-                        {{ spec_form.experience(id="specialist_experience") }}
-                        <label for="specialist_experience">Select your experience</label>
-                        <div id="error_specialist_experience" class="error"></div>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title center">Introduce yourself to clients</div>
+                            <div class="input-field">
+                                {{ spec_form.description(id="specialist_description", class="materialize-textarea", length="5000") }}
+                                <label for="specialist_description">Introduce yourself to clients</label>
+                                <div id="error_specialist_description" class="error"></div>
+                            </div>
                     </div>
-            </div>
-            <div class="card-action">
-                <a id="specialist_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Become a specialist</a><br>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title center">Enter your work phone to allow your customers communicate with you</div>
+                        <div class="input-field">
+                            {{ spec_form.phone(id="specialist_phone", class="form-input", length="13", value="+380") }}
+                            <label for="specialist_phone">Enter your work phone</label>
+                            <div id="error_specialist_phone" class="error"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-title center">Select your location. It helps us to find for you customers.</div>
+                        <div class="input-field">
+                            <input type="text" id="location_autocomplete">
+                            <label for="location_autocomplete">Select your location</label>
+                        </div>
+                    </div>
+                </div>
+                <div id="location_details">
+                    {{ spec_form.location.csrf_token }}
+                    {{ spec_form.location.country(type="hidden", location_attr='country') }}
+                    {{ spec_form.location.street(type="hidden", location_attr='route') }}
+                    {{ spec_form.location.building(type="hidden", location_attr='street_number') }}
+                    {{ spec_form.location.city(type="hidden", location_attr='locality') }}
+                    {{ spec_form.location.state(type="hidden", location_attr='administrative_area_level_1') }}
+                </div>
+
+                <div class="card-action center">
+                    <button id="specialist_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Become a specialist</button><br>
+                </div>
             </div>
         </form>
+        <div class="col l4 s12 align-right">
+            <div class="card">
+                <div class="card-title center"></div>
+                    <ul class="collection with-header">
+                        <li class="collection-header">
+                            <h5>We have more than 100500 companies in our system.</h5>
+                        </li>
+                        <li class="collection-item avatar">
+                            <img src="{{ url_for('static', filename='img/apple-logo.png') }}" alt="" class="circle">
+                            <span class="title">Apple</span><br>
+                            Offers - Web Development, Web Design and 15 more<br>
+                            <a>Learn more</a>
+                        </li>
+                        <li class="collection-item avatar">
+                            <img src="{{ url_for('static', filename='img/apple-logo.png') }}" alt="" class="circle">
+                            <span class="title">Apple</span><br>
+                            Offers - Web Development, Web Design and 15 more<br>
+                            <a>Learn more</a>
+                        </li>
+                        <li class="collection-item avatar">
+                            <img src="{{ url_for('static', filename='img/apple-logo.png') }}" alt="" class="circle">
+                            <span class="title">Apple</span><br>
+                            Offers - Web Development, Web Design and 15 more<br>
+                            <a>Learn more</a>
+                        </li>
+                    </ul>
+                </div>
+
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-title center">Do you work in a company? <a href="{{ url_for('account_company') }}">Find your company or add it.</a></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
