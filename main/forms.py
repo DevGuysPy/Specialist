@@ -1,13 +1,14 @@
 from sqlalchemy import exists
 from flask_wtf import Form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms_alchemy import model_form_factory, Unique
-from wtforms import StringField, DateTimeField, ValidationError, PasswordField
+from wtforms_alchemy import model_form_factory, Unique, ModelFormField
+from wtforms import StringField, DateTimeField, ValidationError, PasswordField,\
+    IntegerField
 from wtforms.validators import DataRequired, Length, Email
 from wtforms_components import PhoneNumberField
 
 from models import UserUserActivity, db, Service, User, \
-    Specialist
+    Specialist, Location, Company
 
 
 BaseModelForm = model_form_factory(Form)
@@ -79,6 +80,11 @@ class RegistrationForm(BaseModelForm):
                                Length(min=4, max=64)])
 
 
+class LocationForm(BaseModelForm):
+    class Meta:
+        model = Location
+
+
 class SpecialistForm(BaseModelForm):
     class Meta:
         model = Specialist
@@ -87,10 +93,19 @@ class SpecialistForm(BaseModelForm):
     phone = PhoneNumberField('Phone', country_code='UA',
                              validators=[DataRequired()])
 
+    service_id = IntegerField('Service', validators=[DataRequired()])
+
+    location = ModelFormField(LocationForm)
+
 
 class ServiceForm(BaseModelForm):
     class Meta:
         model = Service
+
+
+class CompanyForm(BaseModelForm):
+    class Meta:
+        model = Company
 
 
 class LoginForm(Form):
