@@ -10,9 +10,9 @@ function initServiceContent(getServicesURL,
     $('.become-specialist-btn').on('click', function(){
        createSpecialist(createSpecialistURL);
     });
-    callLocationAutocomplete();
+    initLocationAutocomplete();
     categorySelectorHandler(categories, services);
-    validateInputs();
+    addValidationHandlers();
 }
 
 
@@ -206,8 +206,6 @@ function closeTagHandler(){
 }
 
 function serviceSelectorHandler(services){
-    // function which handles service selector
-
     var card = $('#services_card');
     var body = $('body');
 
@@ -238,8 +236,6 @@ function serviceSelectorHandler(services){
 }
 
 function addServicesToList(services){
-    // function which handles adding services to list
-
     var servicesEl = $('#service-selector');
     var servicesList = servicesEl.find('#services_list');
 
@@ -294,8 +290,6 @@ function findMatches(q, strs){
 
 
 function categorySelectorHandler(categories, services){
-    // function which handles category selector
-
     var card = $('#categories_card');
     var body = $('body');
 
@@ -341,8 +335,6 @@ function categorySelectorHandler(categories, services){
 
 
 function addCategoriesToList(categories){
-    // function which handles adding categories to list
-
     var categoryEl = $('#category-selector');
 
     function addCategory(title, id){
@@ -381,9 +373,7 @@ function addCategoriesToList(categories){
 }
 
 
-function callLocationAutocomplete() {
-    // init location autocomplete
-
+function initLocationAutocomplete() {
     var autocompleteInput = $('#location_autocomplete');
     autocompleteInput.geocomplete({
         details: "#location_details",
@@ -392,9 +382,7 @@ function callLocationAutocomplete() {
     autocompleteInput.attr('placeholder', '')
 }
 
-function validateInputs(){
-    // validate form inputs
-
+function addValidationHandlers(){
     $('#specialist_phone').on('keyup', function(){
         $(this).val().length == 13 ?
             $(this).removeClass('invalid').addClass('valid') :

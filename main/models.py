@@ -4,12 +4,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 
 ACTIVITY_STATUS_TYPES = (
-    ('0', 'Done'),
-    ('1', 'Expired'),
-    ('2', 'Failed'),
-    ('3', 'In work'),
-    ('4', 'Canceled'),
-    ('5', 'Waiting for start')
+    ('0', 'Waiting for start'),
+    ('1', 'In work'),
+    ('2', 'Canceled'),
+    ('3', 'Failed'),
+    ('4', 'Done'),
+    ('5', 'Expired')
 )
 
 

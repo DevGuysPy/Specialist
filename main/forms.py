@@ -2,13 +2,13 @@ from sqlalchemy import exists
 from flask_wtf import Form
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique, ModelFormField
-from wtforms import StringField, DateTimeField, ValidationError, PasswordField,\
-    IntegerField
+from wtforms import (StringField, DateTimeField, ValidationError,
+                     PasswordField, IntegerField)
 from wtforms.validators import DataRequired, Length, Email
 from wtforms_components import PhoneNumberField
 
-from models import UserUserActivity, db, Service, User, \
-    Specialist, Location, Company
+from models import (UserUserActivity, db, Service, User,
+                    Specialist, Location, Company)
 
 
 BaseModelForm = model_form_factory(Form)

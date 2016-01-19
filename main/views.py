@@ -2,8 +2,8 @@
 import json
 
 from sqlalchemy import desc
-from flask import render_template, url_for, jsonify, redirect, request,\
-    session
+from flask import (render_template, url_for, jsonify, redirect, request,
+                   session)
 from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
@@ -11,12 +11,13 @@ from flask.ext.login import login_user, current_user, login_required
 
 from app import app, db, cache
 
-from models import Specialist, Service, UserUserActivity, Company, User,\
-    SpecialistService, ServiceCategory, Location
-from utils import generate_confirmation_token, send_email,\
-    get_model_column_values, send_user_verification_email, account_not_found
-from forms import AddServiceActivityForm, RegistrationForm,\
-    SpecialistForm, ServiceForm, LoginForm
+from models import (Specialist, Service, UserUserActivity, Company, User,
+                    SpecialistService, ServiceCategory, Location)
+from utils import (generate_confirmation_token, send_email,
+                   get_model_column_values, send_user_verification_email,
+                   account_not_found)
+from forms import (AddServiceActivityForm, RegistrationForm,
+                   SpecialistForm, ServiceForm, LoginForm)
 from schemas import ServiceSchema, ServiceCategorySchema
 
 
@@ -282,7 +283,6 @@ def add_searched_services():
 def create_specialist():
     """
     Func for Specialist creation
-    Calling by ajax
     :return:
     """
 
@@ -412,8 +412,8 @@ class AccountSpecialist(TemplateView):
         context.update({
             'latest_activities': self.get_latest_u_u_services_activities()
         })
-        context.update({'services_dict': self.get_services_dict()})
-        context.update({'categories_dict': self.get_categories_dict()})
+        context.update({'services_dict': self.get_services_json()})
+        context.update({'categories_dict': self.get_categories_json()})
 
         return context
 
@@ -441,7 +441,7 @@ class AccountSpecialist(TemplateView):
         return latest_activities
 
     @cache.cached(key_prefix='services_dict')
-    def get_services_dict(self):
+    def get_services_json(self):
         """
         Get all services for js.
         sample_of_return_json = [
@@ -460,10 +460,10 @@ class AccountSpecialist(TemplateView):
         """
 
         schema = ServiceSchema(many=True)
-        return json.dumps(schema.dump(Service.query.all())[0])
+        return json.dumps(schema.dump(Service.query.all()).data)
 
     @cache.cached(key_prefix='categories_dict')
-    def get_categories_dict(self):
+    def get_categories_json(self):
         """
         Get all categories for js.
         sample_of_return_json = [
@@ -480,7 +480,7 @@ class AccountSpecialist(TemplateView):
         """
 
         schema = ServiceCategorySchema(many=True)
-        return json.dumps(schema.dump(ServiceCategory.query.all())[0])
+        return json.dumps(schema.dump(ServiceCategory.query.all()).data)
 
 
 app.add_url_rule(
@@ -563,16 +563,3 @@ app.add_url_rule(
     '/account/orders',
     view_func=AccountOrders.as_view('account_orders')
 )
-
-# from elasticsearch import Elasticsearch
-
-#
-# def es_func():
-#     es = Elasticsearch(hosts=[{"host": "localhost", "port": 9200}])
-#
-#     doc = {
-#         'User': 'Andrey',
-#         'Skill': 'C++'
-#     }
-#     res = es.index(index="test-index", doc_type='tweet', id=1, body=doc)
-#     res = es.get(index="test-index", doc_type='tweet', id=1)
