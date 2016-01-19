@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 import json
 
+from sqlalchemy import desc
 from flask import render_template, url_for, jsonify, redirect, request,\
     session
 from flask_views.base import TemplateView
@@ -8,14 +9,15 @@ from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
 
-from app import app, db
+from app import app, db, cache
 
 from models import Specialist, Service, UserUserActivity, Company, User,\
-    SpecialistService
+    SpecialistService, ServiceCategory, Location
 from utils import generate_confirmation_token, send_email,\
-    get_model_column_values, send_user_verification_email, page_not_found, account_not_found
+    get_model_column_values, send_user_verification_email, account_not_found
 from forms import AddServiceActivityForm, RegistrationForm,\
     SpecialistForm, ServiceForm, LoginForm
+from schemas import ServiceSchema, ServiceCategorySchema
 
 
 @app.route('/')
@@ -278,15 +280,39 @@ def add_searched_services():
 @app.route('/create_specialist', methods=['POST'])
 @login_required
 def create_specialist():
+    """
+    Func for Specialist creation
+    Calling by ajax
+    :return:
+    """
+
     form = SpecialistForm()
     if form.validate():
-        current_user.phone_number = form.phone.data
         specialist = Specialist(
             user=current_user,
             description=form.description.data,
             experience=form.experience.data)
-
         db.session.add(specialist)
+
+        # updating DB with Specialist object to make it
+        # visible to other transactions
+        db.session.flush()
+
+        spec_service = SpecialistService(
+            service_id=form.service_id.data,
+            specialist_id=specialist.id)
+        db.session.add(spec_service)
+
+        location = Location(
+            country=form.location.country.data,
+            state=form.location.state.data,
+            city=form.location.city.data,
+            building=form.location.building.data)
+
+        db.session.add(location)
+
+        current_user.location = location
+        current_user.phone_number = form.phone.data
 
         return jsonify({
             'status': 'ok'
@@ -369,7 +395,12 @@ class AccountSpecialist(TemplateView):
     template_name = 'user/AccountSettingsSpecialist.html'
     decorators = [login_required]
 
+    def __init__(self):
+        super(AccountSpecialist, self).__init__()
+        self.user = None
+
     def get(self, *args, **kwargs):
+        self.user = current_user
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -378,8 +409,78 @@ class AccountSpecialist(TemplateView):
         context.update({'user': current_user})
         context.update({'spec_form': SpecialistForm()})
         context.update({'ser_form': ServiceForm()})
+        context.update({
+            'latest_activities': self.get_latest_u_u_services_activities()
+        })
+        context.update({'services_dict': self.get_services_dict()})
+        context.update({'categories_dict': self.get_categories_dict()})
 
         return context
+
+    def get_latest_u_u_services_activities(self):
+        """
+        Get latest UserUserActivity for all services offered by the user
+        sample_return_dict = {
+            'Service Title': UserUserActivity objects
+        }
+        :return:
+        """
+
+        if not self.user.specialist:
+            return
+
+        latest_activities = {}
+        for service in self.user.specialist.services.all():
+            rel = UserUserActivity.query\
+                .filter_by(service=service,
+                           from_user=self.user,
+                           confirmed=True)\
+                .order_by(desc(UserUserActivity.start)).first()
+            latest_activities[service.title] = rel
+
+        return latest_activities
+
+    @cache.cached(key_prefix='services_dict')
+    def get_services_dict(self):
+        """
+        Get all services for js.
+        sample_of_return_json = [
+            {
+                'title': 'Service',
+                'id': 1,
+                'category_id': 2
+            },
+            {
+                'title': 'Service2',
+                'id': 2,
+                'category_id': 3
+            }
+        ]
+        :return:
+        """
+
+        schema = ServiceSchema(many=True)
+        return json.dumps(schema.dump(Service.query.all())[0])
+
+    @cache.cached(key_prefix='categories_dict')
+    def get_categories_dict(self):
+        """
+        Get all categories for js.
+        sample_of_return_json = [
+            {
+                'title': 'Category',
+                'id': 1
+            },
+            {
+                'title': 'Category2',
+                'id': 2
+            },
+        ]
+        :return:
+        """
+
+        schema = ServiceCategorySchema(many=True)
+        return json.dumps(schema.dump(ServiceCategory.query.all())[0])
 
 
 app.add_url_rule(
@@ -462,3 +563,16 @@ app.add_url_rule(
     '/account/orders',
     view_func=AccountOrders.as_view('account_orders')
 )
+
+# from elasticsearch import Elasticsearch
+
+#
+# def es_func():
+#     es = Elasticsearch(hosts=[{"host": "localhost", "port": 9200}])
+#
+#     doc = {
+#         'User': 'Andrey',
+#         'Skill': 'C++'
+#     }
+#     res = es.index(index="test-index", doc_type='tweet', id=1, body=doc)
+#     res = es.get(index="test-index", doc_type='tweet', id=1)

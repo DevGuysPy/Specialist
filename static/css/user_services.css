@@ -13,3 +13,19 @@
     padding: 10px;
     margin: 0;
 }
+
+.chip-status-0 {
+    background-color: #66bb6a;
+}
+
+.chip-status-1, .chip-status-2, .chip-status-4 {
+    background-color: #ef5350;
+}
+
+.chip-status-3 {
+    background-color: #42a5f5;
+}
+
+.chip-status-5 {
+    background-color: #ede7f6;
+}

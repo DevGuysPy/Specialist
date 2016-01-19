@@ -286,6 +286,7 @@ class OrgOrgActivity(db.Model):
 class Location(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     country = db.Column(db.String(), nullable=False)
+    state = db.Column(db.String())
     city = db.Column(db.String())
     street = db.Column(db.String())
     building = db.Column(db.String())
