@@ -335,11 +335,11 @@ function categorySelectorHandler(categories, services){
 
 
 function addCategoriesToList(categories){
-    var categoryEl = $('#category-selector');
+    var categoriesList = $('#category-selector')
+        .find('#categories_list');
 
     function addCategory(title, id){
-        categoryEl
-            .find('#categories_list')
+        categoriesList
             .append(
             '<div class="category-div">' +
                 '<a class="collection-item blue-grey-text text-darken-1 ' +
@@ -356,7 +356,7 @@ function addCategoriesToList(categories){
 
     // Add categories which were found by regex to list
     $('#find_category').on('keyup', function(){
-        categoryEl.find('#categories_list').empty();
+        categoriesList.empty();
         var matches = findMatches($(this).val(), _.map(categories, 'title'));
         if (matches.length > 0){
             _.forEach(matches, function(category){
@@ -364,8 +364,7 @@ function addCategoriesToList(categories){
                 addCategory(categoryInfo.title, categoryInfo.id)
             });
         } else {
-            categoryEl
-                .find('#categories_list')
+            categoriesList
                 .append('<a class="collection-item blue-grey-text' +
                         ' text-darken-1">Cannot find category</a>')
         }
