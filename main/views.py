@@ -331,7 +331,7 @@ def create_specialist():
 class LoginView(FormView):
     form_class = LoginForm
     template_name = 'Login.html'
-    
+
     def get(self, *args, **kwargs):
         if current_user.is_authenticated:
             return redirect(url_for('user_profile', user_id=current_user.id))
@@ -462,7 +462,9 @@ class AccountOffers(TemplateView):
 
     def __init__(self):
         super(AccountOffers, self).__init__()
-        self.offers = None
+        self.orders = None
+        self.past_offers = None
+        self.active_offers = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -471,15 +473,24 @@ class AccountOffers(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOffers, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'offers': self.get_offers()})
+        context.update({'active_offers': self.get_active_offers()})
+        context.update({'past_offers': self.get_past_offers()})
 
         return context
 
-    def get_offers(self):
-        self.offers = UserUserActivity.query.filter_by(
-                from_user_id=current_user.id).all()
+    def get_active_offers(self):
+        self.active_offers = UserUserActivity.query.filter(
+                UserUserActivity.from_user_id == current_user.id,
+                UserUserActivity.start >= date.today()).all()
 
-        return self.offers[::-1]
+        return self.active_offers[::-1]
+
+    def get_past_offers(self):
+        self.past_offers = UserUserActivity.query.filter(
+                UserUserActivity.from_user_id == current_user.id,
+                UserUserActivity.start < date.today()).all()
+
+        return self.past_offers[::-1]
 
 app.add_url_rule(
     '/account/offers',
@@ -494,6 +505,8 @@ class AccountOrders(TemplateView):
     def __init__(self):
         super(AccountOrders, self).__init__()
         self.orders = None
+        self.past_orders = None
+        self.active_orders = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -502,17 +515,73 @@ class AccountOrders(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOrders, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'orders': self.get_orders()})
+        context.update({'active_orders': self.get_active_orders()})
+        context.update({'past_orders': self.get_past_orders()})
 
         return context
 
-    def get_orders(self):
-        self.orders = UserUserActivity.query.filter_by(
-                to_user_id=current_user.id).all()
+    def get_active_orders(self):
+        self.active_orders = UserUserActivity.query.filter(
+                UserUserActivity.to_user_id == current_user.id,
+                UserUserActivity.start >= date.today()).all()
 
-        return self.orders[::-1]
+        return self.active_orders[::-1]
+
+    def get_past_orders(self):
+        self.past_orders = UserUserActivity.query.filter(
+                UserUserActivity.to_user_id == current_user.id,
+                UserUserActivity.start < date.today()).all()
+
+        return self.past_orders[::-1]
 
 app.add_url_rule(
     '/account/orders',
     view_func=AccountOrders.as_view('account_orders')
+)
+
+
+class AccountOffer(TemplateView):
+    template_name = 'user/AccountOffer.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountOffer, self).get_context_data()
+        context.update({'user': current_user})
+        context.update({'activity': self.get_activity(kwargs)})
+        return context
+
+    def get_activity(self, kwargs):
+        self.activity = UserUserActivity.query.get(kwargs.get('id'))
+        return self.activity
+
+
+app.add_url_rule(
+    '/account/offer/<int:id>',
+    view_func=AccountOffer.as_view('offer')
+)
+
+
+class AccountOrder(TemplateView):
+    template_name = 'user/AccountOrder.html'
+    decorators = [login_required]
+
+    def get(self, *args, **kwargs):
+        self.activity = UserUserActivity.query.get(kwargs.get('id'))
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountOrder, self).get_context_data()
+        context.update({'user': current_user})
+        context.update({'activity': self.activity})
+        return context
+
+
+app.add_url_rule(
+    '/account/order/<int:id>',
+    view_func=AccountOrder.as_view('order')
 )

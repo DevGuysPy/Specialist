@@ -1,0 +1,24 @@
+{% extends "user/AccountSettings.html" %}
+
+{% block settings_content %}
+    <div class="card">
+        <div class="card-content">
+            {% if activity.confirmed == true %}
+                <div class="chip right confirmed">
+                    Confirmed
+                </div>
+            {% else %}
+                <div class="chip right unconfirmed">
+                    Unconfirmed
+                </div>
+            {% endif %}
+            <p class="flow-text center">Customer : <a href="{{ url_for('user_profile', user_id=activity.to_user_id) }}">
+                {{ activity.to_user.full_name() }}
+            </a>
+            </p>
+            <p class="flow-text center">Start at: {{ activity.start.strftime('%Y-%m-%d %H:%M') }}</p>
+            <blockquote>{{ activity.description }}</blockquote>
+            <p class="flow-text center">Status: </p>
+        </div>
+    </div>
+{% endblock %}
