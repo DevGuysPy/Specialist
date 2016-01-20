@@ -303,15 +303,17 @@ def create_specialist():
             specialist_id=specialist.id)
         db.session.add(spec_service)
 
-        location = Location(
-            country=form.location.country.data,
-            state=form.location.state.data,
-            city=form.location.city.data,
-            building=form.location.building.data)
+        # to add location user must select at least his country
+        if form.location.country.data:
+            location = Location(
+                country=form.location.country.data,
+                state=form.location.state.data,
+                city=form.location.city.data,
+                building=form.location.building.data)
 
-        db.session.add(location)
+            db.session.add(location)
+            current_user.location = location
 
-        current_user.location = location
         current_user.phone_number = form.phone.data
 
         return jsonify({

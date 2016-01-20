@@ -225,13 +225,15 @@ function serviceSelectorHandler(services){
     addServicesToList(services);
 
     // add service title to main input
-    body.find('.service-item').off('click').on('click', function() {
-        $('#show_service_dropdown')
-            .val($(this).text())
-            .addClass('valid');
-        $('#selected_service_id')
-            .val(_.find(services, {'title': $(this).text()}).id);
-        card.hide();
+    body
+        .off('click', '.service-item')
+        .on('click', '.service-item', function() {
+            $('#show_service_dropdown')
+                .val($(this).text())
+                .addClass('valid');
+            $('#selected_service_id')
+                .val(_.find(services, {'title': $(this).text()}).id);
+            card.hide();
     });
 }
 

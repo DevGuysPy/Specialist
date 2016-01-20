@@ -4,7 +4,7 @@ from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique, ModelFormField
 from wtforms import (StringField, DateTimeField, ValidationError,
                      PasswordField, IntegerField)
-from wtforms.validators import DataRequired, Length, Email
+from wtforms.validators import DataRequired, Length, Email, optional
 from wtforms_components import PhoneNumberField
 
 from models import (UserUserActivity, db, Service, User,
@@ -83,6 +83,7 @@ class RegistrationForm(BaseModelForm):
 class LocationForm(BaseModelForm):
     class Meta:
         model = Location
+        validators = [optional()]
 
 
 class SpecialistForm(BaseModelForm):
@@ -93,7 +94,12 @@ class SpecialistForm(BaseModelForm):
     phone = PhoneNumberField('Phone', country_code='UA',
                              validators=[DataRequired()])
 
-    service_id = IntegerField('Service', validators=[DataRequired()])
+    service_id = IntegerField('Service',
+                              validators=[
+                                  DataRequired(message='You must select '
+                                                       'at least one '
+                                                       'service you offer')
+                              ])
 
     location = ModelFormField(LocationForm)
 
