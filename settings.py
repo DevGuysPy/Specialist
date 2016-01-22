@@ -18,6 +18,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
 
+RECAPTCHA_OPTIONS = {'theme': 'white'}
+RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
+
 try:
     from local_settings import *
 except ImportError:
