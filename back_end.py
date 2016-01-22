@@ -1,5 +1,4 @@
 # -*- encoding: utf-8 -*-
-import random
 import names
 from datetime import datetime
 import logging
@@ -21,7 +20,7 @@ migrate = Migrate(app, db)
 
 # create users and activities
 @manager.command
-def create_all():
+def create_activities():
     for i in range(20):
         i = UserUserActivity(confirmed=True,
                              start=datetime.utcnow(),
@@ -33,19 +32,21 @@ def create_all():
         db.session.commit()
 
 
+# create "few" users
+@manager.command
 def create_users():
-    for i in range(100):
-        full_name = names.get_full_name()
-        i = User(first_name=full_name.split(' ')[0],
-                 last_name=' '.join(
-                         full_name.split(' ')[1:]),
+    for u in range(100):
+        name, surname = names.get_full_name().split(' ')
+        u = User(first_name=name,
+                 last_name=surname,
                  email='{}{}@gmail.com'.format(
-                         unicode(full_name.split(' ')[0]).lower(),
-                         unicode(full_name.split(' ')[1]).lower()),
+                         unicode(name).lower(),
+                         unicode(surname).lower()),
                  password='1111',
                  confirmed=True)
-        db.session.add(i)
-        db.session.commit()
+        db.session.add(u)
+    db.session.commit()
+
 
 @manager.command
 def rr():

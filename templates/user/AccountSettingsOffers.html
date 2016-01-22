@@ -4,31 +4,8 @@
     {% if active_offers|length > 0 %}
         <ul class="collection">
             <li class="collection-item"><h4 class="center-align">Active</h4></li>
-            {% for a in active_offers %}
-                <li class="collection-item avatar" onclick="location.href='{{ url_for('order', id=a.id) }}'"  style="cursor:pointer">
-                    <img src="https://goo.gl/WrdnWG" style="max-height: 42px" class="circle">
-                    <span class="title">Customer : <a href="{{ url_for('user_profile', user_id=a.to_user.id) }}">
-                        {{ a.to_user.full_name() }}</a></span>
-                    {% if a.end %}
-                        <p>
-                            <i class="material-icons tiny">event</i>
-                            {{ a.start.strftime('%Y-%m-%d %H:%M') }} ||| {{ a.end.strftime('%Y-%m-%d %H:%M') }}
-                        </p>
-                    {% else %}
-                        <p><i class="material-icons tiny">event</i> {{ a.start.strftime('%Y-%m-%d %H:%M') }}</p>
-                    {% endif %}
-                    <a class="secondary-content">
-                        {% if a.confirmed == true %}
-                            <div class="chip right confirmed">
-                                Confirmed
-                            </div>
-                        {% else %}
-                            <div class="chip right unconfirmed">
-                                Unconfirmed
-                            </div>
-                        {% endif %}
-                    </a>
-                </li>
+            {% for p in active_offers %}
+                {% include "activities/OffersCollection.html" %}
             {% endfor %}
         </ul>
     {% endif %}
@@ -36,30 +13,7 @@
         <ul class="collection">
             <li class="collection-item"><h4 class="center-align">Past</h4></li>
             {% for p in past_offers %}
-                <li class="collection-item avatar" onclick="location.href='{{ url_for('order', id=p.id) }}'"  style="cursor:pointer">
-                    <img src="https://goo.gl/WrdnWG" style="max-height: 42px" class="circle">
-                    <span class="title">Customer : <a href="{{ url_for('user_profile', user_id=p.to_user.id) }}">
-                        {{ p.to_user.full_name() }}</a></span>
-                    {% if p.end %}
-                        <p>
-                            <i class="material-icons tiny">event</i>
-                            {{ p.start.strftime('%Y-%m-%d %H:%M') }} ||| {{ p.end.strftime('%Y-%m-%d %H:%M') }}
-                        </p>
-                    {% else %}
-                        <p><i class="material-icons tiny">event</i> {{ p.start.strftime('%Y-%m-%d %H:%M') }}</p>
-                    {% endif %}
-                    <a class="secondary-content">
-                        {% if p.confirmed == true %}
-                            <div class="chip right confirmed">
-                                Confirmed
-                            </div>
-                        {% else %}
-                            <div class="chip right unconfirmed">
-                                Unconfirmed
-                            </div>
-                        {% endif %}
-                    </a>
-                </li>
+                {% include "activities/OffersCollection.html" %}
             {% endfor %}
         </ul>
     {% endif %}

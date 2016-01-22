@@ -565,9 +565,6 @@ class AccountOffers(TemplateView):
 
     def __init__(self):
         super(AccountOffers, self).__init__()
-        self.orders = None
-        self.past_offers = None
-        self.active_offers = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -582,18 +579,22 @@ class AccountOffers(TemplateView):
         return context
 
     def get_active_offers(self):
-        self.active_offers = UserUserActivity.query.filter(
+        active_offers = UserUserActivity.query\
+            .filter(
                 UserUserActivity.from_user_id == current_user.id,
-                UserUserActivity.start >= date.today()).all()
+                UserUserActivity.start >= date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
 
-        return self.active_offers[::-1]
+        return active_offers
 
     def get_past_offers(self):
-        self.past_offers = UserUserActivity.query.filter(
+        past_offers = UserUserActivity.query\
+            .filter(
                 UserUserActivity.from_user_id == current_user.id,
-                UserUserActivity.start < date.today()).all()
+                UserUserActivity.start < date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
 
-        return self.past_offers[::-1]
+        return past_offers
 
 app.add_url_rule(
     '/account/offers',
@@ -607,9 +608,6 @@ class AccountOrders(TemplateView):
 
     def __init__(self):
         super(AccountOrders, self).__init__()
-        self.orders = None
-        self.past_orders = None
-        self.active_orders = None
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -624,18 +622,21 @@ class AccountOrders(TemplateView):
         return context
 
     def get_active_orders(self):
-        self.active_orders = UserUserActivity.query.filter(
+        active_orders = UserUserActivity.query\
+            .filter(
                 UserUserActivity.to_user_id == current_user.id,
-                UserUserActivity.start >= date.today()).all()
+                UserUserActivity.start >= date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
 
-        return self.active_orders[::-1]
+        return active_orders
 
     def get_past_orders(self):
-        self.past_orders = UserUserActivity.query.filter(
+        past_orders = UserUserActivity.query\
+            .filter(
                 UserUserActivity.to_user_id == current_user.id,
-                UserUserActivity.start < date.today()).all()
-
-        return self.past_orders[::-1]
+                UserUserActivity.start < date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+        return past_orders
 
 app.add_url_rule(
     '/account/orders',
@@ -658,8 +659,8 @@ class AccountOffer(TemplateView):
         return context
 
     def get_activity(self, kwargs):
-        self.activity = UserUserActivity.query.get(kwargs.get('id'))
-        return self.activity
+        activity = UserUserActivity.query.get(kwargs.get('id'))
+        return activity
 
 
 app.add_url_rule(
@@ -673,15 +674,18 @@ class AccountOrder(TemplateView):
     decorators = [login_required]
 
     def get(self, *args, **kwargs):
-        self.activity = UserUserActivity.query.get(kwargs.get('id'))
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(AccountOrder, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'activity': self.activity})
+        context.update({'activity': self.get_activity(kwargs)})
         return context
+
+    def get_activity(self, kwargs):
+        activity = UserUserActivity.query.get(kwargs.get('id'))
+        return activity
 
 
 app.add_url_rule(

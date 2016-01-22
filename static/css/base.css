@@ -181,3 +181,6 @@ li > span {
 .with-header {
     margin-top: 0;
 }
+.cursor {
+    cursor:pointer;
+}

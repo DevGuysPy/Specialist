@@ -3,7 +3,7 @@
 {% block settings_content %}
     <div class="card">
         <div class="card-content">
-            {% if activity.confirmed == true %}
+            {% if activity.confirmed %}
                 <div class="chip right confirmed">
                     Confirmed
                 </div>
@@ -16,7 +16,7 @@
                 {{ activity.to_user.full_name() }}
             </a>
             </p>
-            <p class="flow-text center">Start at: {{ activity.start.strftime('%Y-%m-%d %H:%M') }}</p>
+            <p class="flow-text center">Start at: {{ activity.start | datetimefilter }}</p>
             <blockquote>{{ activity.description }}</blockquote>
             <p class="flow-text center">Status: </p>
         </div>
