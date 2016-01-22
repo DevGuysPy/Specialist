@@ -1,14 +1,10 @@
 function initServiceActivity(addServiceActivityURL) {
     var card = $('#add_service_activity');
-    var preloader = '<div class="preloader-wrapper small active">' +
-                        '<div class="spinner-layer spinner-green-only">' +
-                          '<div class="circle-clipper left">' +
-                            '<div class="circle"></div>' +
-                          '</div><div class="gap-patch">' +
-                            '<div class="circle"></div>' +
-                          '</div><div class="circle-clipper right">' +
-                            '<div class="circle"></div>' +
-                          '</div></div></div>';
+    var preloader = $('.preloader-wrapper');
+    $( document ).ready(function() {
+        preloader.hide()
+    });
+
     var done = '<p class="btn disabled">' +
         '<i class="material-icons left">done</i>Request successfully sent</p>'
 
@@ -20,8 +16,8 @@ function initServiceActivity(addServiceActivityURL) {
     });
 
     $('#service_activity_submit').on('click', function () {
-        $(this).hide()
-        .after(preloader);
+        $(this).hide();
+        preloader.show();
         var errors = card.find('.error');
         errors.empty();
         $.ajax({
@@ -33,9 +29,9 @@ function initServiceActivity(addServiceActivityURL) {
                 errors.empty();
                 $('.preloader-wrapper').hide();
                 $('#service_activity_submit').show().html('try again to Send request');
-                var Content = card.find('.card-content');
+                var content = card.find('.card-content');
                 for (var i in data.errors) {
-                    var errorDiv = Content
+                    var errorDiv = content
                         .find('#error_service_activity_' + i);
                     errorDiv.html(data.errors[i])
                 }

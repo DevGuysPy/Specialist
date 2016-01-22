@@ -1,7 +1,9 @@
 {% extends "user/AccountSettings.html" %}
 
 {% block title %}{{ user.full_name() }} - Profile{% endblock %}
-{% block css %}<link href="{{ url_for('static', filename='css/datetimepicker.css') }}" rel="stylesheet">{% endblock %}
+{% block css %}
+    <link href="{{ url_for('static', filename='css/datetimepicker.css') }}" rel="stylesheet">
+{% endblock %}
 {% block settings_content %}
     <div class="col s12 {% if user.specialist is none or user.id == current_user.id %}l12{% else %}l6{% endif %}">
         <div class="card">

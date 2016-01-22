@@ -40,7 +40,8 @@ class Home(TemplateView):
         return context
 
     def get_stats(self):
-        self.stats['activities'] = UserUserActivity.query.filter(UserUserActivity.created_time >= date.today()).count()
+        self.stats['activities'] = UserUserActivity.query\
+            .filter(UserUserActivity.created_time >= date.today()).count()
         self.stats['specialists'] = len(Specialist.query.all())
         # Coming soon
         #  self.stats['online'] = User.query.filter()
@@ -611,6 +612,7 @@ class AccountOrders(TemplateView):
 
     def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
@@ -649,18 +651,15 @@ class AccountOffer(TemplateView):
     decorators = [login_required]
 
     def get(self, *args, **kwargs):
+        self.activity = UserUserActivity.query.get(kwargs.get('id'))
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(AccountOffer, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'activity': self.get_activity(kwargs)})
+        context.update({'activity': self.activity})
         return context
-
-    def get_activity(self, kwargs):
-        activity = UserUserActivity.query.get(kwargs.get('id'))
-        return activity
 
 
 app.add_url_rule(
@@ -674,18 +673,15 @@ class AccountOrder(TemplateView):
     decorators = [login_required]
 
     def get(self, *args, **kwargs):
+        self.activity = UserUserActivity.query.get(kwargs.get('id'))
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(AccountOrder, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'activity': self.get_activity(kwargs)})
+        context.update({'activity': self.activity})
         return context
-
-    def get_activity(self, kwargs):
-        activity = UserUserActivity.query.get(kwargs.get('id'))
-        return activity
 
 
 app.add_url_rule(

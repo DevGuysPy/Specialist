@@ -28,12 +28,28 @@
         </div>
         {% if current_user.is_authenticated %}
             <div class="center-align">
-                <a id="service_activity_submit" class="waves-effect waves-light btn btn-def"><i class="material-icons left">send</i>Send request</a>
+                <a id="service_activity_submit" class="waves-effect waves-light btn btn-def">
+                    <i class="material-icons left">send</i>Send request
+                </a>
+                <div class="preloader-wrapper small active">
+                    <div class="spinner-layer spinner-green-only">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                        <div class="circle"></div>
+                    </div><div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                    </div>
+                </div>
             </div>
         {% else %}
-            <p class="center-align">You need
-                <a href="{{ url_for('login') }}" class="waves-effect waves-light btn btn-def">Log in</a> or
-                <a href="{{ url_for('sign_up') }}" class="waves-effect waves-light btn btn-def">Sign Up</a> to order services
+            <p class="center-align">
+                You need
+                <a href="{{ url_for('login') }}" class="waves-effect waves-light btn btn-def">Log in</a>
+                or
+                <a href="{{ url_for('sign_up') }}" class="waves-effect waves-light btn btn-def">Sign Up</a>
+                to order services
             </p>
         {% endif %}
     </form>

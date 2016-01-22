@@ -21,9 +21,10 @@ migrate = Migrate(app, db)
 # create users and activities
 @manager.command
 def create_activities():
+    time = datetime.utcnow()
     for i in range(20):
         i = UserUserActivity(confirmed=True,
-                             start=datetime.utcnow(),
+                             start=time,
                              from_user_id=1,
                              to_user_id=2,
                              service_id=1
