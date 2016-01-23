@@ -4,7 +4,6 @@ from flask.ext.mail import Mail
 from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
-import os
 
 
 app = Flask(__name__, static_url_path='/static')
@@ -16,6 +15,7 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
 app.debug = True
 app.config.from_object('settings')

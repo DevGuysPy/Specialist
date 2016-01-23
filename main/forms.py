@@ -3,7 +3,7 @@ from flask_wtf import Form, RecaptchaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique, ModelFormField
 from wtforms import (StringField, DateTimeField, ValidationError,
-                     PasswordField, IntegerField)
+                     PasswordField, IntegerField, DateField)
 from wtforms.validators import DataRequired, Length, Email, optional
 from wtforms_components import PhoneNumberField
 
@@ -52,7 +52,7 @@ class AddServiceActivityForm(BaseModelForm):
     @classmethod
     def get_form(cls, specialist):
         form = cls()
-        form.service.query = specialist.services.all()
+        form.service.query = specialist.services
         return form
 
 
@@ -78,13 +78,14 @@ class RegistrationForm(BaseModelForm):
                            validators=[
                                DataRequired(),
                                Length(min=4, max=64)])
+    birth_date = DateField("Birth Date", validators=[DataRequired()])
     recaptcha = RecaptchaField()
 
 
 class LocationForm(BaseModelForm):
     class Meta:
         model = Location
-        validators = [optional()]
+        validators = [DataRequired()]
 
 
 class SpecialistForm(BaseModelForm):

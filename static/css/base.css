@@ -181,6 +181,41 @@ li > span {
 .with-header {
     margin-top: 0;
 }
+
 .cursor {
-    cursor:pointer;
+    cursor: pointer;
+}
+
+.main-input-suggestions .collection-item {
+    color: #37474f !important;
+}
+
+.specialist-card .card-title {
+    cursor: pointer;
+}
+
+.specialist-card img {
+    width: 80px;
+    cursor: pointer;
+}
+
+.search-title {
+    font-size: 45px;
+}
+
+.divider {
+    margin: 3px;
+}
+
+.user-card-btn {
+    height: 33px;
+    width: 78px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: small;
+    margin-top: 5px;
+}
+
+a {
+    cursor: pointer;
 }

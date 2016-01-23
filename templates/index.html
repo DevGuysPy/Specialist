@@ -25,7 +25,7 @@
                             <div class="nav-wrapper">
                                 <form>
                                     <div class="input-field">
-                                        <input id="search" type="search">
+                                        <input id="main_search" type="search" placeholder="Search for specialist or service you want to order">
                                         <label for="search"><i class="material-icons">search</i></label>
                                         <a class="btn waves-effect waves-light hide-on-small-only search-btn">search</a>
                                     </div>
@@ -40,9 +40,12 @@
     <!-- SEARCH_END-->
 {% endblock %}
 {% block script %}
+    <script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script>
         $(document).ready(function(){
             $('.parallax').parallax();
         });
+        searchAutocomplete("{{ url_for('service_autocomplete') }}");
     </script>
 {% endblock %}

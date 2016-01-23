@@ -1,8 +1,9 @@
 # -*- encoding: utf-8 -*-
 import json
 from datetime import date
-
+from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import desc
+
 from flask import (render_template, url_for, jsonify, redirect, request,
                    session)
 from flask_views.base import TemplateView
@@ -16,10 +17,12 @@ from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
 from utils import (generate_confirmation_token, send_email,
                    get_model_column_values, send_user_verification_email,
-                   account_not_found)
+                   account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, ServiceForm, LoginForm)
 from schemas import ServiceSchema, ServiceCategorySchema
+
+current_user_location = None
 
 
 class Home(TemplateView):
@@ -215,7 +218,8 @@ def sign_up_user():
                     last_name=' '.join(
                         form.full_name.data.split(' ')[1:]),
                     email=form.email.data,
-                    password=form.password.data)
+                    password=form.password.data,
+                    birth_date=form.birth_date.data)
 
         db.session.add(user)
         db.session.flush()
@@ -688,3 +692,146 @@ app.add_url_rule(
     '/account/order/<int:id>',
     view_func=AccountOrder.as_view('order')
 )
+
+
+@app.route('/autocomplete/services')
+def service_autocomplete():
+    if 'query' not in request.args:
+        return page_not_found()
+
+    query = request.args['query']
+
+    search_string = query.strip()
+
+    try:
+        # db query which selects services which start with search string.
+        # Order by count of UserUserActivity entries.
+        services = db.session\
+            .query(Service,
+                   db.func.count(Service.user_user_activities)
+                   .label('total'))\
+            .filter(Service.title.startswith(search_string))\
+            .outerjoin(UserUserActivity)\
+            .group_by(Service.id)\
+            .order_by('total DESC')\
+            .limit(7)\
+            .all()
+
+        return jsonify({
+            'query': search_string,
+            'suggestions': [
+                {'value': s.title, 'data': s.id}
+                for s, act in services
+            ]
+        })
+
+    except NoResultFound:
+        return jsonify({
+            'query': search_string,
+            'suggestions': []
+        })
+
+
+class SearchSpecialist(TemplateView):
+    template_name = 'Search.html'
+
+    def __init__(self):
+        super(SearchSpecialist, self).__init__()
+        self.service = None
+
+    def get(self, service_id, *args, **kwargs):
+        self.service = Service.query.get(service_id)
+
+        return self.render_to_response(self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchSpecialist, self).get_context_data(**kwargs)
+        context.update({'current_service': self.service})
+        context.update({'specialists': self.get_specialists()})
+        context.update({'similar_services': self.get_similar_services()})
+
+        return context
+
+    def get_specialists(self):
+        """
+        Return all specialists of selected service.
+        If user allowed usage of his current location specialists would
+        be sorted by proximity
+        """
+
+        if not current_user_location:
+            return self.service.specialists.all()
+
+        specialist_info = [
+            {
+                'specialist': s,
+                'distance': get_distance(s.user.location.longitude,
+                                         s.user.location.latitude,
+                                         current_user_location['longitude'],
+                                         current_user_location['latitude'])
+            }
+            for s in self.service.specialists.all()
+        ]
+
+        return [
+            item['specialist']
+            for item in sorted(specialist_info, key=lambda d: d['distance'])
+        ]
+
+    def get_similar_services(self):
+        # db query which selects services which have the
+        # same category as selected service and have at least one
+        # Specialist entry.
+        # Order by count of UserUserActivity entries.
+        similar_services = db.session\
+            .query(Service, db.func.count(Service.user_user_activities)
+                   .label('total'))\
+            .filter(Service.category == self.service.category,
+                    Service.id != self.service.id)\
+            .join(SpecialistService)\
+            .group_by(Service.id)\
+            .having(db.func.count(SpecialistService.specialist_id) > 0)\
+            .outerjoin(UserUserActivity)\
+            .order_by('total DESC')\
+            .limit(3)\
+            .all()
+
+        return [s for s, count in similar_services]
+
+app.add_url_rule(
+    '/service/<int:service_id>',
+    view_func=SearchSpecialist.as_view('search_specialist')
+)
+
+
+def get_distance(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    km = 6367 * c
+
+    return km
+
+
+@app.route('/set_current_location', methods=['POST'])
+def set_current_location():
+    """
+    Func which receives current user location
+    and sets it to global variable
+    :return:
+    """
+
+    data = json.loads(request.data)
+    global current_user_location
+    current_user_location = data
+    return jsonify({
+        'status': 'ok'
+    })

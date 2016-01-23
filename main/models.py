@@ -35,6 +35,8 @@ class User(db.Model):
 
     photo = db.Column(db.String(), unique=True)
 
+    birth_date = db.Column(db.Date(), nullable=False)
+
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
                             nullable=True)
     location = db.relationship('Location')
@@ -61,6 +63,9 @@ class User(db.Model):
 
     def get_id(self):
         return unicode(self.id)
+
+    def get_age(self):
+        return datetime.date.today().year - self.birth_date.year
 
     def __repr__(self):
         return '<User %r>' % (self.full_name())
@@ -119,7 +124,7 @@ class Specialist(db.Model):
 
     services = db.relationship('Service',
                                secondary="specialist_service",
-                               lazy='dynamic')
+                               backref=db.backref("specialists", lazy='dynamic'))
 
     org_id = db.Column(db.Integer, db.ForeignKey('company.id'),
                        nullable=True)
@@ -135,7 +140,8 @@ class Service(db.Model):
 
     category_id = db.Column(db.Integer, db.ForeignKey('service_category.id'),
                             nullable=False)
-    category = db.relationship('ServiceCategory',  backref="services")
+    category = db.relationship('ServiceCategory',
+                               backref=db.backref("services", lazy='dynamic'))
 
     description = db.Column(db.Text())
 
@@ -163,7 +169,7 @@ class UserUserActivity(db.Model):
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
-    service = db.relationship('Service')
+    service = db.relationship('Service', backref="user_user_activities")
 
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
@@ -291,6 +297,8 @@ class Location(db.Model):
     street = db.Column(db.String())
     building = db.Column(db.String())
     apartment = db.Column(db.Integer())
+    longitude = db.Column(db.Float(), nullable=False)
+    latitude = db.Column(db.Float(), nullable=False)
 
 
 class OrgCategory(db.Model):

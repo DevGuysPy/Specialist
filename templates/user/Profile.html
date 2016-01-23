@@ -27,7 +27,7 @@
                         </span>
                         <p class="medium-small grey-text">
                             {% if user.specialist %}
-                                {% for s in user.specialist.services.all() %}
+                                {% for s in user.specialist.services %}
                                     {{ s.title }} <br>
                                 {% endfor %}
                             {% endif %}
