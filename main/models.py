@@ -300,6 +300,25 @@ class Location(db.Model):
     longitude = db.Column(db.Float(), nullable=False)
     latitude = db.Column(db.Float(), nullable=False)
 
+    def get_location_name(self):
+        location_parts = []
+        if self.street:
+            street = 'street ' + self.street
+            if self.building:
+                street += ' ' + self.building
+                if self.apartment:
+                    street += '/' + self.apartment
+            location_parts.append(street)
+
+        if self.city:
+            location_parts.append(self.city)
+
+        if self.state:
+            location_parts.append(self.state)
+
+        location_parts.append(self.country)
+
+        return ', '.join(location_parts)
 
 class OrgCategory(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
