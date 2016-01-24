@@ -219,3 +219,17 @@ li > span {
 a {
     cursor: pointer;
 }
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+}
+
+.page-numbers {
+    display: inline;
+}
+
+.page-numbers li {
+    margin-left: 5px;
+    margin-right: 5px;
+}

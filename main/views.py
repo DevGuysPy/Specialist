@@ -738,29 +738,42 @@ class SearchSpecialist(TemplateView):
     def __init__(self):
         super(SearchSpecialist, self).__init__()
         self.service = None
+        self.page = None
 
     def get(self, service_id, *args, **kwargs):
         self.service = Service.query.get(service_id)
+        try:
+            self.page = int(request.args.get('page', 1))
+            if self.page < 1:
+                return redirect(
+                    url_for(
+                        'search_specialist',
+                        service_id=self.service.id) + '?page=1')
+        except ValueError:
+            return redirect(
+                url_for(
+                    'search_specialist',
+                    service_id=self.service.id) + '?page=1')
 
-        return self.render_to_response(self.get_context_data())
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(SearchSpecialist, self).get_context_data(**kwargs)
         context.update({'current_service': self.service})
+        context.update({'specialists_count': len(self.service.specialists.all())})
         context.update({'specialists': self.get_specialists()})
         context.update({'similar_services': self.get_similar_services()})
+        context.update({'current_page': self.page})
 
         return context
 
-    def get_specialists(self):
+    def get_specialists_with_distance(self):
         """
-        Return all specialists of selected service.
-        If user allowed usage of his current location specialists would
-        be sorted by proximity
+        Return dict which contains specialist and distance between him and
+        current user.
+        Sorted by proximity
         """
-
-        if not current_user_location:
-            return self.service.specialists.all()
 
         specialist_info = [
             {
@@ -772,10 +785,24 @@ class SearchSpecialist(TemplateView):
             }
             for s in self.service.specialists.all()
         ]
+        return sorted(specialist_info, key=lambda d: d['distance'])
+
+    def get_specialists(self):
+        """
+        Return specialists of selected service sliced according to current page.
+        If user allowed usage of his current location specialists would
+        be sorted by proximity
+        """
+        from_user_number = (self.page - 1) * 12
+        to_user_number = self.page * 12
+        if not current_user_location:
+            return self.service.specialists\
+                .slice(from_user_number, to_user_number).all()
 
         return [
-            item['specialist']
-            for item in sorted(specialist_info, key=lambda d: d['distance'])
+            s['specialist']
+            for s in self.get_specialists_with_distance()
+            [from_user_number:to_user_number]
         ]
 
     def get_similar_services(self):
