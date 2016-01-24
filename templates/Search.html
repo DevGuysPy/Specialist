@@ -5,7 +5,7 @@
         <p class="flow-text search-title center">
             All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
         </p>
-        <p class="flow-text center">Found {{ specialists|length }} specialists.</p>
+        <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
         <div class="row">
             {% for specialist in specialists %}
                 <div class="col m4">
@@ -93,6 +93,21 @@
                 </div>
             {% endfor %}
         </div>
+        <ul class="pagination center">
+            <li class="waves-effect" id="previous_page">
+                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page - 1 }}">
+                    <i class="material-icons">chevron_left</i>
+                </a>
+            </li>
+            <div class="page-numbers">
+            </div>
+            <li class="waves-effect" id="next_page">
+                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page + 1 }}">
+                    <i class="material-icons">chevron_right</i>
+                </a>
+            </li>
+        </ul>
+
         <div class="row">
             <p class="flow-text center">Similar services</p>
             {% for service in similar_services %}
@@ -115,6 +130,9 @@
 {% block script %}
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script>
-        initSearchPage();
+        initSearchPage(
+                {{ current_service.id }},
+                {{ specialists_count }},
+                {{ current_page }});
     </script>
 {% endblock %}

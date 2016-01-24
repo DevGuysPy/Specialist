@@ -432,8 +432,22 @@ html, body {height: 100%;}
 }
 
 footer {
-  position: relative;
-  margin-top: -50px; /* negative value of footer height */
-  height: 50px;
-  clear:both;
+    position: relative;
+    margin-top: -50px; /* negative value of footer height */
+    height: 50px;
+    clear: both;
+}
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+}
+
+.page-numbers {
+    display: inline;
+}
+
+.page-numbers li {
+    margin-left: 5px;
+    margin-right: 5px;
 }
