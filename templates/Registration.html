@@ -5,7 +5,7 @@
 {% endblock %}
 {% block body %}
     <div class="row">
-        <div class="col offset-l4 l4 s12 offset-m3 m6 first-step-sign-up center">
+        <div class="col offset-l4 l4 s12 offset-m2 m8 first-step-sign-up center">
             <div class="card grey lighten-4">
                 <form id="basic_sign_up_form" method="POST">
                     <div class="card-content grey-text text-darken-1">
@@ -22,10 +22,16 @@
                                 <div id="error_sign_up_email" class="error"></div>
                             </div>
                             <div class="input-field">
+                                {{ basic_form.birth_date(id="sign_up_birth_date", class="datepicker") }}
+                                <label for="sign_up_birth_date">Select your birth date</label>
+                                <div id="error_sign_up_birth_date" class="error"></div>
+                            </div>
+                            <div class="input-field">
                                 {{ basic_form.password(id="sign_up_password", type="password") }}
                                 <label for="sign_up_password">Enter your password</label>
                                 <div id="error_sign_up_password" class="error"></div>
                             </div>
+                            {{ basic_form.recaptcha }}
                     </div>
                     <div class="card-action">
                         <a id="sign_up_submit_basic" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Create basic account</a>

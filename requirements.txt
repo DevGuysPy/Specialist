@@ -1,3 +1,4 @@
+names
 alembic==0.8.4
 bash==0.4
 blinker==1.4
@@ -33,3 +34,4 @@ wheel==0.24.0
 WTForms==2.1
 WTForms-Alchemy==0.13.3
 WTForms-Components==0.9.8
+marshmallow==2.4.2

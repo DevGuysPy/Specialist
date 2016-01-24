@@ -1,0 +1,24 @@
+<li class="collection-item avatar cursor" onclick="location.href='{{ url_for('order', id=a.id) }}'">
+    <img src="https://goo.gl/WrdnWG" style="max-height: 42px" class="circle">
+                    <span class="title">Specialist : <a href="{{ url_for('user_profile', user_id=a.from_user.id) }}">
+                        {{ a.from_user.full_name() }}</a></span>
+    {% if a.end %}
+        <p>
+            <i class="material-icons tiny">event</i>
+            {{ a.start | datetimefilter }} ||| {{ a.end | datetimefilter }}
+        </p>
+    {% else %}
+        <p><i class="material-icons tiny">event</i> {{ a.start | datetimefilter }}</p>
+    {% endif %}
+    <a class="secondary-content">
+        {% if a.confirmed %}
+            <div class="chip right confirmed">
+                Confirmed
+            </div>
+        {% else %}
+            <div class="chip right unconfirmed">
+                Unconfirmed
+            </div>
+        {% endif %}
+    </a>
+</li>

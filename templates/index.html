@@ -1,6 +1,51 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "Base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+    <!-- PARALLAX_START -->
+    <div class="parallax-container">
+        <div class="row container center-align">
+            <a href="{{ url_for('sign_up') }}" class="btn-large btn-def get-started">Get Started</a>
+        </div>
+        <div class="parallax">
+            <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=%20%20%20%20%20%20Today's%20activities:%20{{ stats.activities }}
+    %20%20%20%20%20%20%20Number%20of%20users:%20{{ stats.users }}
+            %20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Number%20of%20specialists:%20{{ stats.specialists }}
+    %20%20%20%20%20%20Different%20%20services:%20{{ stats.services }}&w=1920&h=400">
+        </div>
+    </div>
+    <!-- PARALLAX_END -->
 
-</body>
-</html>
+    <!-- SEARCH_START -->
+    <div class="container">
+        <div class="row">
+            <form method="POST">
+                <div class="col offset-l1 l10 s12 white">
+                    <div class="card-panel search-pos">
+                        <nav>
+                            <div class="nav-wrapper">
+                                <form>
+                                    <div class="input-field">
+                                        <input id="main_search" type="search" placeholder="Search for specialist or service you want to order">
+                                        <label for="search"><i class="material-icons">search</i></label>
+                                        <a class="btn waves-effect waves-light hide-on-small-only search-btn">search</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- SEARCH_END-->
+{% endblock %}
+{% block script %}
+    <script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+            $('.parallax').parallax();
+        });
+        searchAutocomplete("{{ url_for('service_autocomplete') }}");
+    </script>
+{% endblock %}

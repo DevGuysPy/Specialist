@@ -1,13 +1,18 @@
 function initServiceContent(getServicesURL,
                             addCreatedServiceURL,
                             addSearchedServicesURL,
-                            createSpecialistURL){
+                            createSpecialistURL,
+                            categories,
+                            services){
     initServicesTypeahead(getServicesURL);
     addCreatedService(addCreatedServiceURL);
     addSearchedServices(addSearchedServicesURL);
     $('.become-specialist-btn').on('click', function(){
        createSpecialist(createSpecialistURL);
     });
+    initLocationAutocomplete();
+    categorySelectorHandler(categories, services);
+    addValidationHandlers();
 }
 
 
@@ -139,7 +144,9 @@ function addSearchedServices(addServiceURL){
         var data = {};
 
         var services = [];
-        $('#selected_services').find('input[id="selected_service_id"]').each(function(){
+        $('#selected_services')
+            .find('input[id="selected_service_id"]')
+            .each(function(){
             services.push($(this).val())
         });
         data['selected_service_ids'] = services;
@@ -195,5 +202,205 @@ function closeTagHandler(){
     $('.close-tag').on('click', function(){
         $(this).closest('.selected-service').remove();
         toggleAddSelectedServicesBtn();
+    });
+}
+
+function serviceSelectorHandler(services){
+    var card = $('#services_card');
+    var body = $('body');
+
+    $('#show_service_dropdown').on('click', function(){
+        card.show()
+    });
+    // hide service selector when user click on body
+    $(document).mouseup(function (e) {
+        var container = $("#service-selector");
+
+        if (!container.is(e.target)
+            && container.has(e.target).length === 0) {
+            card.hide();
+        }
+    });
+
+    addServicesToList(services);
+
+    // add service title to main input
+    body
+        .off('click', '.service-item')
+        .on('click', '.service-item', function() {
+            $('#show_service_dropdown')
+                .val($(this).text())
+                .addClass('valid');
+            $('#selected_service_id')
+                .val(_.find(services, {'title': $(this).text()}).id);
+            card.hide();
+    });
+}
+
+function addServicesToList(services){
+    var servicesEl = $('#service-selector');
+    var servicesList = servicesEl.find('#services_list');
+
+    function addService(title){
+        servicesList
+            .append(
+                '<div class="service-div">' +
+                    '<a class="collection-item blue-grey-text text-darken-1 ' +
+                        'service-item">' + title + '</a>' +
+                '</div>'
+        );
+    }
+
+    servicesList.empty();
+
+    //Add all services of selected category to list
+    _.forEach(services, function(item){
+        addService(item.title)
+    });
+
+    // Add services which were found by regex to list
+    $('#find_service').on('keyup', function(){
+        servicesList.empty();
+        var matches = findMatches($(this).val(),
+            _.map(services, 'title'));
+        if (matches.length > 0){
+            _.forEach(matches, function(service){
+                addService(service)
+            });
+        } else {
+            servicesList
+                .append('<a class="collection-item blue-grey-text' +
+                        ' text-darken-1">Cannot find service</a>')
+        }
+    });
+}
+
+function findMatches(q, strs){
+    // Regex for first letters match
+
+    var regexStartWith = new RegExp("^" + q, 'i');
+
+    var matches = [];
+    _.forEach(strs, function(str){
+        if (regexStartWith.test(str)) {
+            matches.push(str);
+        }
+    });
+
+    return matches
+}
+
+
+function categorySelectorHandler(categories, services){
+    var card = $('#categories_card');
+    var body = $('body');
+
+    $('#show_category_dropdown').on('click', function(){
+        card.show()
+    });
+
+    // hide service selector when user click on body
+    $(document).mouseup(function (e) {
+        var container = $("#category-selector");
+
+        if (!container.is(e.target)
+            && container.has(e.target).length === 0) {
+            card.hide();
+        }
+    });
+
+    addCategoriesToList(categories);
+
+    // add category name to main input
+    body.on('click', '.category-item', function() {
+        $('#show_category_dropdown')
+            .val($(this).text())
+            .addClass('valid');
+        $('#show_service_dropdown')
+            .val('')
+            .prop('disabled', false)
+            .removeClass('valid');
+
+        $('#selected_service_id').val('');
+
+        card.hide();
+        var categoryId = parseInt(
+            $(this)
+                .closest('.category-div')
+                .find('input[class="category-id"]')
+                .val()
+        );
+        // call service selector handler with services for selected category
+        serviceSelectorHandler(_.filter(services, {'category_id': categoryId}))
+    })
+}
+
+
+function addCategoriesToList(categories){
+    var categoriesList = $('#category-selector')
+        .find('#categories_list');
+
+    function addCategory(title, id){
+        categoriesList
+            .append(
+            '<div class="category-div">' +
+                '<a class="collection-item blue-grey-text text-darken-1 ' +
+                    'category-item">' + title + '</a>' +
+                '<input type="hidden" class="category-id" value=' + id + '>' +
+            '</div>'
+        );
+    }
+
+    // Add all categories to list
+    _.forEach(categories, function(item){
+        addCategory(item.title, item.id)
+    });
+
+    // Add categories which were found by regex to list
+    $('#find_category').on('keyup', function(){
+        categoriesList.empty();
+        var matches = findMatches($(this).val(), _.map(categories, 'title'));
+        if (matches.length > 0){
+            _.forEach(matches, function(category){
+                var categoryInfo = _.find(categories, {'title': category});
+                addCategory(categoryInfo.title, categoryInfo.id)
+            });
+        } else {
+            categoriesList
+                .append('<a class="collection-item blue-grey-text' +
+                        ' text-darken-1">Cannot find category</a>')
+        }
+    })
+}
+
+
+function initLocationAutocomplete() {
+    var autocompleteInput = $('#location_autocomplete');
+    autocompleteInput.geocomplete({
+        details: "#location_details",
+        detailsAttribute: "location_attr"
+    });
+    autocompleteInput.attr('placeholder', '')
+}
+
+function addValidationHandlers(){
+    $('#specialist_phone').on('keyup', function(){
+        $(this).val().length == 13 ?
+            $(this).removeClass('invalid').addClass('valid') :
+            $(this).removeClass('valid').addClass('invalid')
+    });
+    $('.materialize-textarea').on('keyup', function(){
+        $(this).val().length < 5000 ?
+            $(this).removeClass('invalid').addClass('valid') :
+            $(this).removeClass('valid').addClass('invalid')
+    });
+    $('#location_autocomplete').change(function(){
+        $(this).addClass('valid');
+    });
+    $('#specialist_experience').change(function(){
+        $(this)
+            .closest('.select-wrapper')
+            .find('input[type="text"]')
+            .addClass('valid');
     });
 }
