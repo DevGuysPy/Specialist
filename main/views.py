@@ -55,10 +55,11 @@ class Home(TemplateView):
         self.stats['categories'] = len(ServiceCategory.query.all())
         self.stats['news_users'] = User.query \
             .filter(func.date(User.registration_time) == date.today()).count()
-        self.stats['news_users_in_percents'] = \
-            self.stats['news_users'] / User.query\
-            .filter(func.date(User.registration_time) == date
-                    .today() - timedelta(1)).count() * 100
+        if self.stats['news_users']:
+            self.stats['news_users_in_percents'] = \
+                self.stats['news_users'] / User.query\
+                .filter(func.date(User.registration_time) == date
+                        .today() - timedelta(1)).count() * 100
         return self.stats
 
 
