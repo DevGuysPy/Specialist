@@ -115,24 +115,26 @@
                 {% endif %}
                 <!-- Profile About  -->
                 <!-- Map Card -->
-                <div class="map-card">
-                    <div class="card">
-                        <div class="card-image waves-effect waves-block waves-light">
-                            <div id="map-canvas" data-lat="{{ user.location.latitude }}" data-lng="{{ user.location.longitude }}"></div>
-                        </div>
-                        <div class="card-content">
-                            <a class="btn-floating activator btn-move-up waves-effect waves-light darken-2 right">
-                                <i class="mdi-maps-pin-drop"></i>
-                            </a>
+                {% if user.location %}
+                    <div class="map-card">
+                        <div class="card">
+                            <div class="card-image waves-effect waves-block waves-light">
+                                <div id="map-canvas" data-lat="{{ user.location.latitude }}" data-lng="{{ user.location.longitude }}"></div>
+                            </div>
+                            <div class="card-content">
+                                <a class="btn-floating activator btn-move-up waves-effect waves-light darken-2 right">
+                                    <i class="mdi-maps-pin-drop"></i>
+                                </a>
 
-                            <p class="blog-post-content">Some more information.</p>
-                        </div>
-                        <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4">{{ user.location.country }},
-                                {{ user.location.city }}<i class="mdi-navigation-close right"></i></span>
+                                <p class="blog-post-content">Some more information.</p>
+                            </div>
+                            <div class="card-reveal">
+                                <span class="card-title grey-text text-darken-4">{{ user.location.country }},
+                                    {{ user.location.city }}<i class="mdi-navigation-close right"></i></span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
                 <!-- Map Card -->
 
             </div>
@@ -205,7 +207,9 @@
     <script src="{{ url_for('static', filename='js/mapCard.js') }}"></script>
     <script type="text/javascript">
         initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}");
-        initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}")
+        {% if user.location %}
+            initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}")
+        {% endif %}
     </script>
 
 {% endblock %}
