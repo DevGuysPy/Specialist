@@ -67,6 +67,12 @@ class User(db.Model):
     def get_age(self):
         return datetime.date.today().year - self.birth_date.year
 
+    def get_orders(self):
+        orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id).all()
+        return orders
+
     def __repr__(self):
         return '<User %r>' % (self.full_name())
 
@@ -108,7 +114,7 @@ class Company(db.Model):
 def get_experience_types():
     types = [('0', 'Less than 1 year')]
     types.extend(('{}'.format(i), '{} years'.format(i)) for i in range(1, 11))
-    types.append(('11', 'More than 10 years'))
+    types.append(('11', '10+ years'))
     return types
 
 
@@ -300,7 +306,7 @@ class Location(db.Model):
     longitude = db.Column(db.Float(), nullable=False)
     latitude = db.Column(db.Float(), nullable=False)
 
-    def get_location_name(self):
+    def get_name(self):
         location_parts = []
         if self.street:
             street = 'street ' + self.street
@@ -319,6 +325,7 @@ class Location(db.Model):
         location_parts.append(self.country)
 
         return ', '.join(location_parts)
+
 
 class OrgCategory(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

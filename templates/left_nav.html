@@ -1,0 +1,66 @@
+<!-- START LEFT SIDEBAR NAV -->
+<aside id="left-sidebar-nav">
+    <ul id="slide-out" class="side-nav fixed leftside-navigation">
+        <li class="user-details cyan darken-2">
+            <div class="row">
+                <div class="col col s4 m4 l4">
+                    <img src="{{ url_for('static', filename='img/profile.png') }}"
+                         alt="U" class="circle responsive-img valign profile-image">
+                </div>
+                <div class="col col s8 m8 l8">
+                    <a class="btn-flat dropdown-button waves-effect waves-light white-text profile-btn"
+                       href="{{ url_for('user_profile', user_id=current_user.id) }}" data-activates="profile-dropdown">
+                        {{ current_user.full_name() }}
+                    </a>
+                </div>
+            </div>
+        </li>
+        <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+                <li>
+                    <a href="{{ url_for('user_profile', user_id=current_user.id) }}">
+                        <i class="material-icons">account_circle</i>
+                        Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_specialist') }}">
+                        <i class="material-icons">assignment_ind</i>
+                        Specialist
+                    </a>
+                </li>
+                <li><a href="{{ url_for('account_company') }}">
+                    <i class="material-icons">account_balance</i>
+                    Company
+                </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_offers') }}">
+                        <i class="material-icons">comment</i>
+                        Offers
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_orders') }}">
+                        <i class="material-icons">shopping_cart</i>
+                        Orders
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_settings') }}">
+                        <i class="material-icons">settings</i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="li-hover"><div class="divider"></div></li>
+        <li><a href="{{ url_for('logout') }}"><i class="mdi-hardware-keyboard-tab"></i>Logout</a></li>
+
+    </ul>
+    <a href="#" data-activates="slide-out"
+       class="sidebar-collapse btn-floating btn-medium waves-effect waves-light hide-on-large-only cyan">
+        <i class="mdi-navigation-menu"></i>
+    </a>
+</aside>
+<!-- END LEFT SIDEBAR NAV -->

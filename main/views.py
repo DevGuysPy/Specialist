@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 import json
-from datetime import date
+from datetime import date, timedelta
 from math import radians, cos, sin, asin, sqrt
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from flask import (render_template, url_for, jsonify, redirect, request,
                    session)
@@ -45,12 +45,20 @@ class Home(TemplateView):
     def get_stats(self):
         self.stats['activities'] = UserUserActivity.query\
             .filter(UserUserActivity.created_time >= date.today()).count()
+        self.stats['total_activities'] = len(UserUserActivity.query.all())
         self.stats['specialists'] = len(Specialist.query.all())
+        self.stats['specialists_online'] = "1"
         # Coming soon
         #  self.stats['online'] = User.query.filter()
         self.stats['users'] = len(User.query.all())
         self.stats['services'] = len(Service.query.all())
-
+        self.stats['categories'] = len(ServiceCategory.query.all())
+        self.stats['news_users'] = User.query \
+            .filter(func.date(User.registration_time) == date.today()).count()
+        self.stats['news_users_in_percents'] = \
+            self.stats['news_users'] / User.query\
+            .filter(func.date(User.registration_time) == date
+                    .today() - timedelta(1)).count() * 100
         return self.stats
 
 
@@ -117,6 +125,7 @@ class UserProfile(TemplateView):
     def get_service_activity_form(self):
         if self.user.specialist:
             return AddServiceActivityForm.get_form(self.user.specialist)
+
 
     # commented for now(will be done soon)
     # def get_activity(self, kwargs):
@@ -344,7 +353,9 @@ def create_specialist():
                 country=form.location.country.data,
                 state=form.location.state.data,
                 city=form.location.city.data,
-                building=form.location.building.data)
+                building=form.location.building.data,
+                latitude=form.location.latitude.data,
+                longitude=form.location.longitude.data)
 
             db.session.add(location)
             current_user.location = location
@@ -467,7 +478,7 @@ class AccountSpecialist(TemplateView):
             return
 
         latest_activities = {}
-        for service in self.user.specialist.services.all():
+        for service in self.user.specialist.services:
             rel = UserUserActivity.query\
                 .filter_by(service=service,
                            from_user=self.user,

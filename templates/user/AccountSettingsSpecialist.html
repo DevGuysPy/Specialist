@@ -11,7 +11,7 @@
             {% if user.specialist %}
                 <div class="col m6">
                     <div class="specialist-services"
-                             {% if user.specialist.services.all()|length == 0 %}
+                             {% if user.specialist.services|length == 0 %}
                                 style="display: none"
                              {% endif %}>
                         <div class="card">
@@ -20,7 +20,7 @@
                             </div>
                         </div>
                         <ul class="collapsible" data-collapsible="accordion" id="services_accordion">
-                            {% for s in user.specialist.services.all() %}
+                            {% for s in user.specialist.services %}
                                 <li>
                                     <div class="collapsible-header service-accordion">
                                         {{ s.title }}
@@ -55,7 +55,7 @@
                             {% endfor %}
                         </ul>
                     </div>
-                    {% if user.specialist.services.all()|length == 0 %}
+                    {% if user.specialist.services|length == 0 %}
                         <div class="card no-services-services">
                             <div class="card_content">
                                 <p class="flow-text center-align services-title">

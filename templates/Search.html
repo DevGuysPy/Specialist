@@ -97,7 +97,7 @@
             <p class="flow-text center">Similar services</p>
             {% for service in similar_services %}
                 <div class="col m4">
-                     <div class="card hoverable"
+                     <div class="card hoverable cursor"
                           onclick="location.href='{{ url_for('search_specialist', service_id=service.id) }}'">
                         <div class="card-content">
                             <div class="card-title center">

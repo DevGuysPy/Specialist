@@ -1,9 +1,10 @@
 # -*- encoding: utf-8 -*-
 import names
 import random
+
 from loremipsum import get_sentences
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from flask.ext.script import Manager
@@ -63,7 +64,7 @@ def create_users():
     orgs = Company.query.all()
     services = Service.query.all()
 
-    for i in range(3000):
+    for i in range(1000):
         city_item = random.choice(countries_and_cities)
 
         location_name = city_item['city'].split(', ')
