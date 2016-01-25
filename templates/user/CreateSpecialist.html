@@ -10,37 +10,16 @@
                             <div class="col m6">
                                 <div class="input-field" id="category-selector">
                                     <input type="text" id="show_category_dropdown"
-                                           style="cursor: pointer;" readonly
-                                           placeholder="Select category" class="form-input">
-                                    <div id="categories_card" style="display: none">
-                                        <div class="c-s-selector">
-                                            <div class="collection">
-                                                <div class="input-field">
-                                                    <input id="find_category" type="text" placeholder="Search for category of your service">
-                                                </div>
-                                                <div class="divider"></div>
-                                                <div id="categories_list" class="list"></div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                           placeholder="Select category"
+                                           class="form-input">
                                 </div>
                             </div>
                             <div class="col m6">
                                 <div class="input-field" id="service-selector">
                                     <input type="text" id="show_service_dropdown"
-                                           style="cursor: pointer" readonly disabled
-                                           placeholder="Select service" class="form-input">
-                                    <div id="services_card" style="display: none">
-                                        <div class="c-s-selector">
-                                            <div class="collection">
-                                                <div class="input-field">
-                                                    <input id="find_service" type="text" placeholder="Search for your service">
-                                                </div>
-                                                <div class="divider"></div>
-                                                <div id="services_list" class="list"></div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                           disabled
+                                           placeholder="Select service"
+                                           class="form-input">
                                     {{ spec_form.service_id(type="hidden", id="selected_service_id") }}
                                 </div>
                             </div>

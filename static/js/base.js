@@ -14,3 +14,13 @@ $(document).ready(function() {
         })
     });
 });
+
+function initInputAutocomplete(input, apiUrl, params, onSelectFunc){
+    input.autocomplete({
+        serviceUrl: apiUrl,
+        params: params,
+        onSelect: function (suggestion) {
+            onSelectFunc(suggestion);
+        }
+    })
+}

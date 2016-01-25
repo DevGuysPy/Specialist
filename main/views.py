@@ -5,24 +5,21 @@ from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import desc, func
 
 from flask import (render_template, url_for, jsonify, redirect, request,
-                   session)
-
+                   session, abort)
 from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
 
-from app import app, db, cache
+from app import app, db
 
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
 from utils import (generate_confirmation_token, send_email,
-                   get_model_column_values, send_user_verification_email,
+                   send_user_verification_email,
                    account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, ServiceForm, LoginForm)
-
-from schemas import ServiceSchema, ServiceCategorySchema
 
 current_user_location = None
 
@@ -251,55 +248,9 @@ def sign_up_user():
     })
 
 
-@app.route('/_get_services_sign_up')
-def get_services_data():
-    services = get_model_column_values(
-        Service,
-        columns=[
-            {
-                'dict_key': 'name', 'column': 'title'
-            },
-            {
-                'dict_key': 'id', 'column': 'id'
-            }
-        ])
-    return jsonify({
-        'services': services
-    })
-
-
-@app.route('/add_service', methods=['POST'])
+@app.route('/account/add_services', methods=['POST'])
 @login_required
-def add_service():
-    form = ServiceForm()
-    if form.validate():
-        service = Service(
-            title=form.title.data,
-            domain=form.domain.data,
-            description=form.description.data)
-        db.session.add(service)
-        db.session.flush()
-        spec_service = SpecialistService(
-            specialist_id=current_user.specialist.id,
-            service_id=service.id)
-        db.session.add(spec_service)
-        return jsonify({
-            'status': 'ok',
-            'service': {
-                'name': service.title,
-                'id': service.id
-            }
-        })
-
-    return jsonify({
-        'status': 'error',
-        'errors': form.errors
-    })
-
-
-@app.route('/add_specialist_service', methods=['POST'])
-@login_required
-def add_searched_services():
+def add_services_to_specialist():
     services = []
     for service_id in json.loads(request.data).get('selected_service_ids', []):
         service = Service.query.filter_by(id=service_id).first()
@@ -308,7 +259,7 @@ def add_searched_services():
                 'status': 'error',
             })
 
-        if service not in current_user.specialist.services.all():
+        if service not in current_user.specialist.services:
             services.append({
                 'name': service.title,
                 'id': service_id
@@ -463,8 +414,6 @@ class AccountSpecialist(TemplateView):
         context.update({
             'latest_activities': self.get_latest_u_u_services_activities()
         })
-        context.update({'services_dict': self.get_services_json()})
-        context.update({'categories_dict': self.get_categories_json()})
 
         return context
 
@@ -490,50 +439,6 @@ class AccountSpecialist(TemplateView):
             latest_activities[service.title] = rel
 
         return latest_activities
-
-    @cache.cached(key_prefix='services_dict')
-
-    def get_services_json(self):
-
-        """
-        Get all services for js.
-        sample_of_return_json = [
-            {
-                'title': 'Service',
-                'id': 1,
-                'category_id': 2
-            },
-            {
-                'title': 'Service2',
-                'id': 2,
-                'category_id': 3
-            }
-        ]
-        :return:
-        """
-
-        schema = ServiceSchema(many=True)
-        return json.dumps(schema.dump(Service.query.all()).data)
-
-    @cache.cached(key_prefix='categories_dict')
-    def get_categories_json(self):
-        """
-        Get all categories for js.
-        sample_of_return_json = [
-            {
-                'title': 'Category',
-                'id': 1
-            },
-            {
-                'title': 'Category2',
-                'id': 2
-            },
-        ]
-        :return:
-        """
-
-        schema = ServiceCategorySchema(many=True)
-        return json.dumps(schema.dump(ServiceCategory.query.all()).data)
 
 
 app.add_url_rule(
@@ -719,6 +624,16 @@ def service_autocomplete():
 
     search_string = query.strip()
 
+    q = (Service.title.startswith(search_string), )
+    if 'category' in request.args:
+        try:
+            category = ServiceCategory.query.filter(
+                ServiceCategory.id == request.args['category']).one()
+        except NoResultFound:
+            return abort(404)
+
+        q += (Service.category == category, )
+
     try:
         # db query which selects services which start with search string.
         # Order by count of UserUserActivity entries.
@@ -726,7 +641,7 @@ def service_autocomplete():
             .query(Service,
                    db.func.count(Service.user_user_activities)
                    .label('total'))\
-            .filter(Service.title.startswith(search_string))\
+            .filter(*q)\
             .outerjoin(UserUserActivity)\
             .group_by(Service.id)\
             .order_by('total DESC')\
@@ -738,6 +653,44 @@ def service_autocomplete():
             'suggestions': [
                 {'value': s.title, 'data': s.id}
                 for s, act in services
+            ]
+        })
+
+    except NoResultFound:
+        return jsonify({
+            'query': search_string,
+            'suggestions': []
+        })
+
+
+@app.route('/autocomplete/categories')
+def category_autocomplete():
+    if 'query' not in request.args:
+        return page_not_found()
+
+    query = request.args['query']
+
+    search_string = query.strip()
+
+    try:
+        # db query which selects services which start with search string.
+        # Order by count of UserUserActivity entries.
+        categories = db.session\
+            .query(ServiceCategory,
+                   db.func.count(ServiceCategory.services)
+                   .label('total'))\
+            .filter(ServiceCategory.title.startswith(search_string))\
+            .outerjoin(Service)\
+            .group_by(ServiceCategory.id)\
+            .order_by('total DESC')\
+            .limit(7)\
+            .all()
+
+        return jsonify({
+            'query': search_string,
+            'suggestions': [
+                {'value': s.title, 'data': s.id}
+                for s, act in categories
             ]
         })
 
@@ -822,10 +775,12 @@ class SearchSpecialist(TemplateView):
         ]
 
     def get_similar_services(self):
-        # db query which selects services which have the
-        # same category as selected service and have at least one
-        # Specialist entry.
-        # Order by count of UserUserActivity entries.
+        """
+        db query which selects services which have the
+        same category as selected service and have at least one
+        Specialist entry.
+        Order by count of UserUserActivity entries.
+        """
         similar_services = db.session\
             .query(Service, db.func.count(Service.user_user_activities)
                    .label('total'))\

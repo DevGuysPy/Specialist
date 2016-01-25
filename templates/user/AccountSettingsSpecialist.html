@@ -69,15 +69,15 @@
                         <div class="card-content">
                             <h5>Feel free to add services you offer</h5>
                             <div class="input-field">
-                                <input type="text" id="sign_up_service_selector" class="typeahead">
-                                <div id="error_sign_up_service_selector" class="error"></div>
+                                <input type="text" id="add_specialist_services">
+                                <label for="add_specialist_services">Select services you offer</label>
                             </div>
                             <div class="row">
                                 <div id="selected_services">
                                 </div>
                             </div>
                             <button id="search_service_submit"
-                                    class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">
+                                    class="add-services-btn waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">
                                 Add selected services
                             </button>
                         </div>
@@ -127,16 +127,13 @@
 
 {% block script %}
     <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/typeahead.js') }}"></script>
     <script src="{{ url_for('static', filename='js/accountSpecialist.js') }}"></script>
     <script>
         initServiceContent(
-                "{{ url_for('get_services_data') }}",
-                "{{ url_for('add_service') }}",
-                "{{ url_for('add_searched_services') }}",
+                "{{ url_for('add_services_to_specialist') }}",
                 "{{ url_for('create_specialist') }}",
-                {{ categories_dict|safe }},
-                {{ services_dict|safe }}
+                "{{ url_for('category_autocomplete') }}",
+                "{{ url_for('service_autocomplete') }}"
         );
     </script>
 {% endblock %}
