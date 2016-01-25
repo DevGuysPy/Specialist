@@ -2,86 +2,84 @@
 
 {% block extra_css %}
     <link href="{{ url_for('static', filename='css/user_services.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/typeahead.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block settings_content %}
     <div id="specialist_settings_content">
         <div class="row">
-            {% if user.specialist %}
-                <div class="col m6">
-                    <div class="specialist-services"
-                             {% if user.specialist.services.all()|length == 0 %}
-                                style="display: none"
-                             {% endif %}>
-                        <div class="card">
-                            <div class="card_content">
-                                <p class="flow-text center-align services-title">Services you offer</p>
-                            </div>
+            <div class="col m6">
+                <div class="specialist-services"
+                         {% if user.specialist.services|length == 0 %}
+                            style="display: none"
+                         {% endif %}>
+                    <div class="card">
+                        <div class="card_content">
+                            <p class="flow-text center-align services-title">Services you offer</p>
                         </div>
-                        <ul class="collapsible" data-collapsible="accordion" id="services_accordion">
-                            {% for s in user.specialist.services.all() %}
-                                <li>
-                                    <div class="collapsible-header service-accordion">
-                                        {{ s.title }}
-                                    </div>
-                                    <div class="collapsible-body service-accordion">
-                                        {% set latest_activity = latest_activities[s.title] %}
-                                        <ul class="collection with-header">
-                                            {% if latest_activity %}
-                                                <li class="collection-header">
-                                                    <h5>Your latest activity</h5>
-                                                </li>
-                                                <li class="collection-item avatar">
-                                                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
-                                                    <span class="title">{{ latest_activity.to_user.full_name() }}</span>
-                                                    <div class="chip right chip-status-{{ latest_activity.status.code }}">
-                                                        {{ latest_activity.status }}
-                                                    </div>
-                                                    <br>
-                                                    Start - {{ latest_activity.start }}<br>
-                                                    Location - we are working on this
-                                                </li>
-                                            {% else %}
-                                                <li class="collection-header">
-                                                    <h5>You haven't orders on this service</h5>
-                                                </li>
-                                            {% endif %}
-                                        </ul>
-
-
-                                    </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
                     </div>
-                    {% if user.specialist.services.all()|length == 0 %}
-                        <div class="card no-services-services">
-                            <div class="card_content">
-                                <p class="flow-text center-align services-title">
-                                    You don`t offer any services. You can easily add them.</p>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="col m6">
-                    <div class="card" id="search_service_card">
-                        <div class="card-content">
-                            <h5>Feel free to add services you offer</h5>
-                            <div class="input-field">
-                                <input type="text" id="sign_up_service_selector" class="typeahead">
-                                <div id="error_sign_up_service_selector" class="error"></div>
-                            </div>
-                            <div class="row">
-                                <div id="selected_services">
+                    <ul class="collapsible" data-collapsible="accordion" id="services_accordion">
+                        {% for s in user.specialist.services %}
+                            <li>
+                                <div class="collapsible-header service-accordion">
+                                    {{ s.title }}
                                 </div>
-                            </div>
-                            <button id="search_service_submit"
-                                    class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">
-                                Add selected services
-                            </button>
+                                <div class="collapsible-body service-accordion">
+                                    {% set latest_activity = latest_activities[s.title] %}
+                                    <ul class="collection with-header">
+                                        {% if latest_activity %}
+                                            <li class="collection-header">
+                                                <h5>Your latest activity</h5>
+                                            </li>
+                                            <li class="collection-item avatar">
+                                                <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
+                                                <span class="title">{{ latest_activity.to_user.full_name() }}</span>
+                                                <div class="chip right chip-status-{{ latest_activity.status.code }}">
+                                                    {{ latest_activity.status }}
+                                                </div>
+                                                <br>
+                                                Start - {{ latest_activity.start }}<br>
+                                                Location - we are working on this
+                                            </li>
+                                        {% else %}
+                                            <li class="collection-header">
+                                                <h5>You haven't orders on this service</h5>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+
+
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if user.specialist.services|length == 0 %}
+                    <div class="card no-services-services">
+                        <div class="card_content">
+                            <p class="flow-text center-align services-title">
+                                You don`t offer any services. You can easily add them.</p>
                         </div>
                     </div>
+                {% endif %}
+            </div>
+            <div class="col m6">
+                <div class="card" id="search_service_card">
+                    <div class="card-content">
+                        <h5>Feel free to add services you offer</h5>
+                        <div class="input-field">
+                            <input type="text" id="add_specialist_services">
+                            <label for="add_specialist_services">Select services you offer</label>
+                        </div>
+                        <div class="row">
+                            <div id="selected_services">
+                            </div>
+                        </div>
+                        <button id="search_service_submit"
+                                class="add-services-btn waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">
+                            Add selected services
+                        </button>
+                    </div>
+                </div>
 {#                      Commented for now. Will be done soon  #}
 {#                    <div class="card" id="add_service_card">#}
 {#                        <div class="card-content">#}
@@ -107,36 +105,17 @@
 {#                            </form>#}
 {#                        </div>#}
 {#                    </div>#}
-                </div>
-            {% else %}
-                <div class="col m12 become-specialist-card">
-                    <div class="card">
-                        <div class="card_content">
-                            <p class="flow-text center-align services-title">
-                                You cannot offer services until you become a specialist.
-                                You can easily <a class="become-specialist-btn">become a specialist.</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% include "user/CreateSpecialist.html" %}
-            {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block script %}
-    <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/typeahead.js') }}"></script>
     <script src="{{ url_for('static', filename='js/accountSpecialist.js') }}"></script>
     <script>
         initServiceContent(
-                "{{ url_for('get_services_data') }}",
-                "{{ url_for('add_service') }}",
-                "{{ url_for('add_searched_services') }}",
-                "{{ url_for('create_specialist') }}",
-                {{ categories_dict|safe }},
-                {{ services_dict|safe }}
+                "{{ url_for('add_services_to_specialist') }}",
+                "{{ url_for('service_autocomplete') }}"
         );
     </script>
 {% endblock %}

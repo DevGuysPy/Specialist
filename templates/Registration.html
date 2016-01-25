@@ -22,6 +22,11 @@
                                 <div id="error_sign_up_email" class="error"></div>
                             </div>
                             <div class="input-field">
+                                {{ basic_form.birth_date(id="sign_up_birth_date", class="datepicker") }}
+                                <label for="sign_up_birth_date">Select your birth date</label>
+                                <div id="error_sign_up_birth_date" class="error"></div>
+                            </div>
+                            <div class="input-field">
                                 {{ basic_form.password(id="sign_up_password", type="password") }}
                                 <label for="sign_up_password">Enter your password</label>
                                 <div id="error_sign_up_password" class="error"></div>
