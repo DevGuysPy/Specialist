@@ -394,15 +394,18 @@ app.add_url_rule(
 
 
 class AccountSpecialist(TemplateView):
-    template_name = 'user/AccountSettingsSpecialist.html'
     decorators = [login_required]
 
     def __init__(self):
         super(AccountSpecialist, self).__init__()
         self.user = None
 
-    def get(self, *args, **kwargs):
+    def dispatch_request(self, *args, **kwargs):
         self.user = current_user
+        self.set_template_name()
+        return super(AccountSpecialist, self).dispatch_request(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -410,7 +413,6 @@ class AccountSpecialist(TemplateView):
         context = super(AccountSpecialist, self).get_context_data()
         context.update({'user': current_user})
         context.update({'spec_form': SpecialistForm()})
-        context.update({'ser_form': ServiceForm()})
         context.update({
             'latest_activities': self.get_latest_u_u_services_activities()
         })
@@ -439,6 +441,12 @@ class AccountSpecialist(TemplateView):
             latest_activities[service.title] = rel
 
         return latest_activities
+
+    def set_template_name(self):
+        if self.user.specialist:
+            self.template_name = 'user/AccountSettingsSpecialist.html'
+        else:
+            self.template_name = 'user/CreateSpecialist.html'
 
 
 app.add_url_rule(

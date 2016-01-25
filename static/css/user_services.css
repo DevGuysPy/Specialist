@@ -1,7 +1,8 @@
 .collapsible-header {
     padding: 22px;
     height: 90px;
-    font-size: large;
+    font-size: 30px;
+    font-weight: 300;
 }
 
 .selected-service {
