@@ -23,14 +23,15 @@ migrate = Migrate(app, db)
 def create_activities():
     time = datetime.utcnow()
     for i in range(20):
-        i = UserUserActivity(confirmed=True,
-                             start=time,
-                             from_user_id=1,
-                             to_user_id=2,
-                             service_id=1
-                             )
-        db.session.add(i)
-        db.session.commit()
+        print i
+        user = UserUserActivity(confirmed=True,
+                                start=time,
+                                from_user_id=1,
+                                to_user_id=2,
+                                service_id=1
+                                )
+        db.session.add(user)
+    db.session.commit()
 
 
 # create "few" users
