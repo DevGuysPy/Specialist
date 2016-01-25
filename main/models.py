@@ -4,12 +4,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 
 ACTIVITY_STATUS_TYPES = (
-    ('0', 'Done'),
-    ('1', 'Expired'),
-    ('2', 'Failed'),
-    ('3', 'In work'),
-    ('4', 'Canceled'),
-    ('5', 'Waiting for start')
+    ('0', 'Waiting for start'),
+    ('1', 'In work'),
+    ('2', 'Canceled'),
+    ('3', 'Failed'),
+    ('4', 'Done'),
+    ('5', 'Expired')
 )
 
 
@@ -34,6 +34,8 @@ class User(db.Model):
     email = db.Column(db.String(), nullable=False, unique=True)
 
     photo = db.Column(db.String(), unique=True)
+
+    birth_date = db.Column(db.Date(), nullable=False)
 
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
                             nullable=True)
@@ -61,6 +63,15 @@ class User(db.Model):
 
     def get_id(self):
         return unicode(self.id)
+
+    def get_age(self):
+        return datetime.date.today().year - self.birth_date.year
+
+    def get_orders(self):
+        orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id).all()
+        return orders
 
     def __repr__(self):
         return '<User %r>' % (self.full_name())
@@ -103,7 +114,7 @@ class Company(db.Model):
 def get_experience_types():
     types = [('0', 'Less than 1 year')]
     types.extend(('{}'.format(i), '{} years'.format(i)) for i in range(1, 11))
-    types.append(('11', 'More than 10 years'))
+    types.append(('11', '10+ years'))
     return types
 
 
@@ -119,7 +130,7 @@ class Specialist(db.Model):
 
     services = db.relationship('Service',
                                secondary="specialist_service",
-                               lazy='dynamic')
+                               backref=db.backref("specialists", lazy='dynamic'))
 
     org_id = db.Column(db.Integer, db.ForeignKey('company.id'),
                        nullable=True)
@@ -135,7 +146,8 @@ class Service(db.Model):
 
     category_id = db.Column(db.Integer, db.ForeignKey('service_category.id'),
                             nullable=False)
-    category = db.relationship('ServiceCategory',  backref="services")
+    category = db.relationship('ServiceCategory',
+                               backref=db.backref("services", lazy='dynamic'))
 
     description = db.Column(db.Text())
 
@@ -163,7 +175,7 @@ class UserUserActivity(db.Model):
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
-    service = db.relationship('Service')
+    service = db.relationship('Service', backref="user_user_activities")
 
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
@@ -291,6 +303,28 @@ class Location(db.Model):
     street = db.Column(db.String())
     building = db.Column(db.String())
     apartment = db.Column(db.Integer())
+    longitude = db.Column(db.Float(), nullable=False)
+    latitude = db.Column(db.Float(), nullable=False)
+
+    def get_name(self):
+        location_parts = []
+        if self.street:
+            street = 'street ' + self.street
+            if self.building:
+                street += ' ' + self.building
+                if self.apartment:
+                    street += '/' + self.apartment
+            location_parts.append(street)
+
+        if self.city:
+            location_parts.append(self.city)
+
+        if self.state:
+            location_parts.append(self.state)
+
+        location_parts.append(self.country)
+
+        return ', '.join(location_parts)
 
 
 class OrgCategory(db.Model):

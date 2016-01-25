@@ -45,6 +45,7 @@
                                 </div>
                             </div>
                         </div>
+                    <div id="error_specialist_service_id" class="error center"></div>
                     </div>
                 </div>
                 <div class="card">
@@ -53,7 +54,7 @@
                             <div class="input-field">
                                 {{ spec_form.experience(id="specialist_experience") }}
                                 <label for="specialist_experience">Select your experience</label>
-                                <div id="error_specialist_experience" class="error"></div>
+                                <div id="error_specialist_experience" class="error center"></div>
                             </div>
                     </div>
                 </div>
@@ -63,7 +64,7 @@
                             <div class="input-field">
                                 {{ spec_form.description(id="specialist_description", class="materialize-textarea", length="5000") }}
                                 <label for="specialist_description">Introduce yourself to clients</label>
-                                <div id="error_specialist_description" class="error"></div>
+                                <div id="error_specialist_description" class="error center"></div>
                             </div>
                     </div>
                 </div>
@@ -73,7 +74,7 @@
                         <div class="input-field">
                             {{ spec_form.phone(id="specialist_phone", class="form-input", length="13", value="+380") }}
                             <label for="specialist_phone">Enter your work phone</label>
-                            <div id="error_specialist_phone" class="error"></div>
+                            <div id="error_specialist_phone" class="error center"></div>
                         </div>
                     </div>
                 </div>
@@ -93,10 +94,12 @@
                     {{ spec_form.location.building(type="hidden", location_attr='street_number') }}
                     {{ spec_form.location.city(type="hidden", location_attr='locality') }}
                     {{ spec_form.location.state(type="hidden", location_attr='administrative_area_level_1') }}
+                    {{ spec_form.location.latitude(type="hidden", location_attr='lat') }}
+                    {{ spec_form.location.longitude(type="hidden", location_attr='lng') }}
                 </div>
 
                 <div class="card-action center">
-                    <button id="specialist_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Become a specialist</button><br>
+                    <a href="#" id="specialist_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Become a specialist</a><br>
                 </div>
             </div>
         </form>
@@ -130,7 +133,7 @@
 
             <div class="card">
                 <div class="card-content">
-                    <div class="card-title center">Do you work in company? <a href="{{ url_for('account_company') }}">Find your company or add it.</a></div>
+                    <div class="card-title center">Do you work in a company? <a href="{{ url_for('account_company') }}">Find your company or add it.</a></div>
                 </div>
             </div>
         </div>

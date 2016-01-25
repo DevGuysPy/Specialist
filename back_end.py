@@ -1,10 +1,20 @@
 # -*- encoding: utf-8 -*-
+import names
+import random
+
+from loremipsum import get_sentences
+
+from datetime import datetime, timedelta
 import logging
+
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import app, db
-from main.models import Service, ServiceCategory
+from default_db_data import services_data, nouns, countries_and_cities
+from main.models import (Service, ServiceCategory, User, UserUserActivity,
+                         Specialist, SpecialistService, Company, OrgCategory,
+                         Location)
 
 logging.basicConfig()
 logger = logging.getLogger()
@@ -15,6 +25,135 @@ manager.add_command('db', MigrateCommand)
 migrate = Migrate(app, db)
 
 
+# create users and activities
+@manager.command
+def create_activities():
+    time = datetime.utcnow()
+    for i in range(20):
+        i = UserUserActivity(confirmed=True,
+                             start=time,
+                             from_user_id=1,
+                             to_user_id=2,
+                             service_id=1
+                             )
+        db.session.add(i)
+        db.session.commit()
+
+
+@manager.command
+def create_all(srv=False, comp=False, usr=False):
+    if srv:
+        add_services_to_database()
+    if comp:
+        create_companies()
+    if usr:
+        create_users()
+
+
+def get_random_date(from_year, to_year):
+    year = random.choice(range(from_year, to_year))
+    month = random.choice(range(1, 13))
+    day = random.choice(range(1, 29))
+    birth_date = datetime(year, month, day)
+
+    return birth_date
+
+
+@manager.command
+def create_users():
+    orgs = Company.query.all()
+    services = Service.query.all()
+
+    for i in range(1000):
+        city_item = random.choice(countries_and_cities)
+
+        location_name = city_item['city'].split(', ')
+        if len(location_name) == 2:
+            city, country = location_name
+            state = None
+        elif len(location_name) == 3:
+            city, state, country = location_name
+        else:
+            continue
+
+        latitude, longitude = city_item['ll'].split(',')
+
+        loc = Location(country=country,
+                       state=state,
+                       city=city,
+                       latitude=latitude,
+                       longitude=longitude)
+
+        db.session.add(loc)
+        db.session.flush()
+
+        first_name, last_name = names.get_full_name().split()
+        user = User(first_name=first_name,
+                    last_name=last_name,
+                    email='{}{}@gmail.com'.format(
+                        unicode(first_name.lower()),
+                        unicode(last_name.lower()) + str(
+                            random.randint(0, 10000))),
+                    password='1111',
+                    confirmed=True,
+                    location=loc,
+                    birth_date=get_random_date(1950, 1996),
+                    phone_number='+380' + str(
+                        random.randint(100000000, 999999999)))
+
+        db.session.add(user)
+        db.session.flush()
+
+        spec = Specialist(user=user,
+                          org=random.choice(orgs),
+                          experience=str(random.randint(0, 11)),
+                          confirmed=True,
+                          description=' '.join(
+                              get_sentences(random.randint(4, 7))))
+        db.session.add(spec)
+        db.session.flush()
+
+        service_ids = [random.choice(services).id for x in range(20)]
+        for ser_id in set(service_ids):
+            spec_ser = SpecialistService(
+                specialist_id=spec.id, service_id=ser_id)
+            db.session.add(spec_ser)
+
+        logger.info('Added user {} {}'.format(i, user.full_name()))
+
+    db.session.commit()
+
+
+@manager.command
+def create_companies():
+    def get_name(cls):
+        com_name = random.choice(nouns).title()
+        if cls.query.filter_by(name=com_name).first():
+            return get_name(cls)
+        return com_name
+
+    for c_index in range(20):
+        cat_name = get_name(OrgCategory)
+        cat = OrgCategory(name=cat_name)
+        db.session.add(cat)
+        logger.info('Added org category {}'.format(cat_name))
+
+    db.session.commit()
+
+    categories = OrgCategory.query.all()
+    for index in range(150):
+        name = get_name(Company)
+        com = Company(name=name, category=random.choice(categories))
+        db.session.add(com)
+        logger.info('Added company {}'.format(name))
+
+    db.session.commit()
+
+@manager.command
+def custom():
+    services = Service.query.all()
+    ser_id = random.choice(services).id
+
 @manager.command
 def rr():
     db.drop_all()
@@ -23,69 +162,6 @@ def rr():
 
 @manager.command
 def add_services_to_database():
-    services_data = {
-        'Web, Mobile, Software Dev': [
-            'Desktop Software Development', 'Ecommerce Development',
-            'Game Development', 'Mobile Development', 'Product Management',
-            'Testing', 'Scripts', 'Utilities', 'Web Development',
-            'Web Mobile Design', 'Other - Software Development&quot'
-        ],
-        'IT Networking': [
-            'Database Administration', 'ERP/CRM Software',
-            'Information Security', 'Network System Administration',
-            'Other - IT Networking'
-        ],
-        'Data Science, Analytics': [
-            'Data Testing', 'Data Visualization', 'Data Extraction',
-            'Data Mining Management', 'Machine Learning',
-            'Quantitative Analysis', 'Other - Data Science Analytics'
-        ],
-        'Engineering, Architecture': [
-            'Modeling', 'Architecture', 'Chemical Engineering',
-            'Civil Structural Engineering', 'Contract Manufacturing',
-            'Electrical Engineering', 'Interior Design', 'Mechanical Engineering',
-            'Product Design', 'Other - Engineering Architecture'
-
-        ],
-        'Design, Creative': [
-            'Animation', 'Audio Production', 'Graphic Design', 'Illustration',
-            'Logo Design', 'Branding', 'Photography', 'Presentations',
-            'Video Production', 'Voice Talent', 'Other - Design Creative'
-        ],
-        'Writing': [
-            'Academic Writing', 'Research', 'Article, Blog Writing',
-            'Copywriting', 'Creative Writing', 'Editing Proofreading',
-            'Grant Writing', 'Resumes, Cover Letters', 'Technical Writing',
-            'Web Content&quot', 'Other - Writing'
-        ],
-        'Translation': [
-            'General Translation', 'Legal Translation', 'Medical Translation',
-            'Technical Translation'
-        ],
-        'Legal': [
-            'Contract Law', 'Corporate Law', 'Criminal Law', 'Family Law',
-            'Intellectual Property Law', 'Paralegal Services', 'Other - Legal'
-        ],
-        'Admin Support': [
-            'Data Entry', 'Personal/Virtual Assistant', 'Project Management',
-            'Transcription', 'Web Research', 'Other - Admin Support'
-        ],
-        'Customer Service': [
-            'Customer Service', 'Technical Support', 'Other - Customer Service'
-        ],
-        'Sales, Marketing': [
-            'Display Advertising', 'Email Marketing Automation', 'Lead Generation',
-            'Market Customer Research', 'Marketing Strategy', 'Public Relations',
-            'SEM - Search Engine Marketing', 'SEO - Search Engine Optimization',
-            'SMM - Social Media Marketing', 'Telemarketing/Telesales',
-            'Other - Sales/Marketing'
-        ],
-        'Accounting, Consulting': [
-            'Accounting', 'Financial Planning', 'Human Resources',
-            'Management Consulting', 'Other - Accounting/Consulting'
-        ]
-    }
-
     for category_name, services in services_data.iteritems():
         category = ServiceCategory(title=category_name)
         db.session.add(category)

@@ -1,14 +1,15 @@
 from sqlalchemy import exists
-from flask_wtf import Form
+from flask_wtf import Form, RecaptchaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique, ModelFormField
-from wtforms import StringField, DateTimeField, ValidationError, PasswordField,\
-    IntegerField
+
+from wtforms import (StringField, DateTimeField, ValidationError,
+                     PasswordField, IntegerField, DateField)
 from wtforms.validators import DataRequired, Length, Email
 from wtforms_components import PhoneNumberField
 
-from models import UserUserActivity, db, Service, User, \
-    Specialist, Location, Company
+from models import (UserUserActivity, db, Service, User,
+                    Specialist, Location, Company)
 
 
 BaseModelForm = model_form_factory(Form)
@@ -52,7 +53,7 @@ class AddServiceActivityForm(BaseModelForm):
     @classmethod
     def get_form(cls, specialist):
         form = cls()
-        form.service.query = specialist.services.all()
+        form.service.query = specialist.services
         return form
 
 
@@ -78,6 +79,14 @@ class RegistrationForm(BaseModelForm):
                            validators=[
                                DataRequired(),
                                Length(min=4, max=64)])
+    birth_date = DateField("Birth Date", validators=[DataRequired()])
+    recaptcha = RecaptchaField()
+
+
+class LocationForm(BaseModelForm):
+    class Meta:
+        model = Location
+        validators = [DataRequired()]
 
 
 class LocationForm(BaseModelForm):
@@ -93,7 +102,12 @@ class SpecialistForm(BaseModelForm):
     phone = PhoneNumberField('Phone', country_code='UA',
                              validators=[DataRequired()])
 
-    service_id = IntegerField('Service', validators=[DataRequired()])
+    service_id = IntegerField('Service',
+                              validators=[
+                                  DataRequired(message='You must select '
+                                                       'at least one '
+                                                       'service you offer')
+                              ])
 
     location = ModelFormField(LocationForm)
 

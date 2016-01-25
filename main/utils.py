@@ -136,3 +136,10 @@ def page_not_found(e):
 
 def account_not_found():
     return render_template('404.html')
+
+
+@app.template_filter()
+def datetimefilter(value, format='%Y/%m/%d %H:%M'):
+    return value.strftime(format)
+
+app.jinja_env.filters['datetimefilter'] = datetimefilter

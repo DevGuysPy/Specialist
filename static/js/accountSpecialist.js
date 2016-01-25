@@ -10,9 +10,9 @@ function initServiceContent(getServicesURL,
     $('.become-specialist-btn').on('click', function(){
        createSpecialist(createSpecialistURL);
     });
-    callLocationAutocomplete();
+    initLocationAutocomplete();
     categorySelectorHandler(categories, services);
-    validateInputs();
+    addValidationHandlers();
 }
 
 
@@ -206,8 +206,6 @@ function closeTagHandler(){
 }
 
 function serviceSelectorHandler(services){
-    // function which handles service selector
-
     var card = $('#services_card');
     var body = $('body');
 
@@ -227,19 +225,19 @@ function serviceSelectorHandler(services){
     addServicesToList(services);
 
     // add service title to main input
-    body.find('.service-item').off('click').on('click', function() {
-        $('#show_service_dropdown')
-            .val($(this).text())
-            .addClass('valid');
-        $('#selected_service_id')
-            .val(_.find(services, {'title': $(this).text()}).id);
-        card.hide();
+    body
+        .off('click', '.service-item')
+        .on('click', '.service-item', function() {
+            $('#show_service_dropdown')
+                .val($(this).text())
+                .addClass('valid');
+            $('#selected_service_id')
+                .val(_.find(services, {'title': $(this).text()}).id);
+            card.hide();
     });
 }
 
 function addServicesToList(services){
-    // function which handles adding services to list
-
     var servicesEl = $('#service-selector');
     var servicesList = servicesEl.find('#services_list');
 
@@ -294,8 +292,6 @@ function findMatches(q, strs){
 
 
 function categorySelectorHandler(categories, services){
-    // function which handles category selector
-
     var card = $('#categories_card');
     var body = $('body');
 
@@ -341,13 +337,11 @@ function categorySelectorHandler(categories, services){
 
 
 function addCategoriesToList(categories){
-    // function which handles adding categories to list
-
-    var categoryEl = $('#category-selector');
+    var categoriesList = $('#category-selector')
+        .find('#categories_list');
 
     function addCategory(title, id){
-        categoryEl
-            .find('#categories_list')
+        categoriesList
             .append(
             '<div class="category-div">' +
                 '<a class="collection-item blue-grey-text text-darken-1 ' +
@@ -364,7 +358,7 @@ function addCategoriesToList(categories){
 
     // Add categories which were found by regex to list
     $('#find_category').on('keyup', function(){
-        categoryEl.find('#categories_list').empty();
+        categoriesList.empty();
         var matches = findMatches($(this).val(), _.map(categories, 'title'));
         if (matches.length > 0){
             _.forEach(matches, function(category){
@@ -372,8 +366,7 @@ function addCategoriesToList(categories){
                 addCategory(categoryInfo.title, categoryInfo.id)
             });
         } else {
-            categoryEl
-                .find('#categories_list')
+            categoriesList
                 .append('<a class="collection-item blue-grey-text' +
                         ' text-darken-1">Cannot find category</a>')
         }
@@ -381,9 +374,7 @@ function addCategoriesToList(categories){
 }
 
 
-function callLocationAutocomplete() {
-    // init location autocomplete
-
+function initLocationAutocomplete() {
     var autocompleteInput = $('#location_autocomplete');
     autocompleteInput.geocomplete({
         details: "#location_details",
@@ -392,9 +383,7 @@ function callLocationAutocomplete() {
     autocompleteInput.attr('placeholder', '')
 }
 
-function validateInputs(){
-    // validate form inputs
-
+function addValidationHandlers(){
     $('#specialist_phone').on('keyup', function(){
         $(this).val().length == 13 ?
             $(this).removeClass('invalid').addClass('valid') :
