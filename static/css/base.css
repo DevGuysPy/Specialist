@@ -20,10 +20,10 @@ nav {
 }
 
 .unconfirmed {
-    background-color: #d50000
+    color: #f44336;
 }
 .confirmed {
-    background-color: #00c853
+    color: #00c853
 }
 .g-recaptcha div { margin: auto}
 
@@ -423,13 +423,12 @@ a {
     max-height: 42px !important;
 }
 
-* {margin:0;padding:0;}
 html, body {height: 100%;}
 .main {min-height: 100%;}
 
 #wrapper {
-  overflow:auto;
-  padding-bottom: 50px; /* must be same height as the footer */
+    overflow:auto;
+    padding-bottom: 50px; /* must be same height as the footer */
 }
 
 footer {
@@ -451,5 +450,30 @@ a.disabled {
 .page-numbers li {
     margin-left: 5px;
     margin-right: 5px;
->>>>>>> f436f14e0177e6d7eaf9c322212a67604bba1e44
+
+}
+.activity-cat {
+    margin-left: 0 !important;
+    padding: 0 !important;
+}
+.profile-trigger {
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+.card-reveal {
+    height: 101% !important;
+    border-radius: 2px !important;
+}
+.stars {
+    margin-top: -144px !important;
+    margin-bottom: 105px !important;
+    text-align: right;
+}
+
+.product ul.card-action-buttons li{
+  display: inline-block;
+  padding-left: 5px;
+}
+.stars-bg {
+    background-color: #5A8FFB;
 }

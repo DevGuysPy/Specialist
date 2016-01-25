@@ -5,10 +5,14 @@
 {% endblock %}
 {% block body %}
     <div class="{% if current_user.is_authenticated %}container-fluid{% else %}container{% endif %}">
-        <div class="row">
+        <div class="row section">
             <div class="col s12" id="settings_content">
                 {% block settings_content %}{% endblock %}
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/collections.js') }}"></script>
 {% endblock %}

@@ -20,6 +20,8 @@ footer {
   line-height: 20px;
   margin-top: 11px;
 }
+span.badge.new:after{content:" today" !important; background-color: #37474f;}
+span.badge.new{background-color: #37474f;}
 
 #content .container .row {
   margin-bottom: 0;
@@ -510,7 +512,7 @@ ul.side-nav .collapsible-header {
 .sidebar-collapse {
   position: absolute;
   left: -170px;
-  top: -45px;
+  top: -50px;
 }
 
 ul.side-nav.leftside-navigation {
@@ -1663,7 +1665,7 @@ tr.group:hover {
   margin:0px;
 }
 .product ul.card-action-buttons{
-  margin: -26px 10px 0px 0px;
+  margin: -18px 10px 0px 0px;
   text-align: right;
 }
 .product ul.card-action-buttons li{
@@ -1680,28 +1682,26 @@ tr.group:hover {
   font-weight: 400;
 }
 .product .card .btn-price{
-  width: 65px;
-  height: 65px;
+  width: 80px;
+  height: 80px;
   font-weight: 600;
-  font-size: 1.0rem;
   line-height: 65px;
   margin: 10px;
   position: absolute;
   top: 0px;
-  letter-spacing: 0px;
 }
 /* eCommers product page media queries */
 @media screen and (max-width: 2200px) {
-  .product-sizer { width: 20%; }
-  .product { width: 20%; }
-}
-@media screen and (max-width: 1800px) {
-  .product-sizer { width: 30%; }
-  .product { width: 30%; }
-}
-@media screen and (max-width: 1600px) {
   .product-sizer { width: 25%; }
   .product { width: 25%; }
+}
+@media screen and (max-width: 1920px) {
+  .product-sizer { width: 25%; }
+  .product { width: 25%; }
+}
+@media screen and (max-width: 1600px) {
+  .product-sizer { width: 33.333%; }
+  .product { width: 33.333%; }
 }
 @media screen and (max-width: 1224px) {
   .product-sizer { width: 33.33%; }
@@ -1712,8 +1712,8 @@ tr.group:hover {
   .product { width: 50%; }
 }
 @media screen and (max-width: 720px) {
-  .product-sizer { width: 50%; }
-  .product { width: 50%; }
+  .product-sizer { width: 100%; }
+  .product { width: 100%; }
 }
 
 @media screen and (max-width: 480px) {

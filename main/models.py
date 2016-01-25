@@ -73,6 +73,40 @@ class User(db.Model):
                 UserUserActivity.to_user_id == self.id).all()
         return orders
 
+    def get_active_orders(self):
+        active_orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id,
+                UserUserActivity.start >= datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+        return active_orders
+
+    def get_past_orders(self):
+        past_offers = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id,
+                UserUserActivity.start < datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+
+        return past_offers
+
+    def get_active_offers(self):
+        active_orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.from_user_id == self.id,
+                UserUserActivity.start >= datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+        return active_orders
+
+    def get_past_offers(self):
+        past_offers = UserUserActivity.query\
+            .filter(
+                UserUserActivity.from_user_id == self.id,
+                UserUserActivity.start < datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+
+        return past_offers
+
     def __repr__(self):
         return '<User %r>' % (self.full_name())
 

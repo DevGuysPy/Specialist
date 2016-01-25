@@ -18,36 +18,40 @@
         <li class="no-padding">
             <ul class="collapsible collapsible-accordion">
                 <li>
-                    <a href="{{ url_for('user_profile', user_id=current_user.id) }}">
+                    <a href="{{ url_for('user_profile', user_id=current_user.id) }}" class="waves-effect">
                         <i class="material-icons">account_circle</i>
                         Profile
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('account_specialist') }}">
+                    <a href="{{ url_for('account_specialist') }}" class="waves-effect">
                         <i class="material-icons">assignment_ind</i>
                         Specialist
                     </a>
                 </li>
-                <li><a href="{{ url_for('account_company') }}">
+                <li><a href="{{ url_for('account_company') }}" class="waves-effect">
                     <i class="material-icons">account_balance</i>
                     Company
                 </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('account_offers') }}">
-                        <i class="material-icons">comment</i>
-                        Offers
+                    <a href="{{ url_for('account_offers') }}" class="waves-effect">
+                        <i class="material-icons">repeat</i>Offers
+                        {% if current_user.get_active_offers()|length > 0 %}
+                            <span class="badge new ">{{ current_user.get_active_offers()|length }}</span></a>
+                        {% endif %}
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('account_orders') }}">
-                        <i class="material-icons">shopping_cart</i>
-                        Orders
+                    <a href="{{ url_for('account_orders') }}" class="waves-effect">
+                        <i class="material-icons">shopping_cart</i>Orders
+                        {% if current_user.get_active_orders()|length > 0 %}
+                            <span class="badge new">{{ current_user.get_active_orders()|length }}</span></a>
+                        {% endif %}
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url_for('account_settings') }}">
+                    <a href="{{ url_for('account_settings') }}" class="waves-effect">
                         <i class="material-icons">settings</i>
                         Settings
                     </a>
@@ -55,7 +59,11 @@
             </ul>
         </li>
         <li class="li-hover"><div class="divider"></div></li>
-        <li><a href="{{ url_for('logout') }}"><i class="mdi-hardware-keyboard-tab"></i>Logout</a></li>
+        <li>
+            <a href="{{ url_for('logout') }}" class="waves-effect">
+                <i class="mdi-hardware-keyboard-tab"></i>Logout
+            </a>
+        </li>
 
     </ul>
     <a href="#" data-activates="slide-out"

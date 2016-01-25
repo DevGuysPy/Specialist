@@ -5,7 +5,7 @@ function initSearchPage(currentServiceId, specialistsCount, currentPage){
 
 function specialistCardHandler(){
     var cards = $('.specialist-card');
-    cards.find('img, .card-title').on('click', function(){
+    cards.find('.btn-price, .profile-trigger').on('click', function(){
         window.location = '/account/' + $(this)
                 .closest('.specialist-card')
                 .find('input[class="specialist-id"]')

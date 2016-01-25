@@ -1,44 +1,83 @@
 {% extends "Base.html" %}
 
 {% block body %}
-    <div class="container">
-        <p class="flow-text search-title center">
-            All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
-        </p>
-        <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
-        <div class="row">
+
+    <p class="flow-text search-title center">
+        All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
+    </p>
+    <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
+    <div class="section">
+        <div id="products" class="row">
+            <div class="product-sizer"></div>
             {% for specialist in specialists %}
-                <div class="col m4">
+                <div class="product">
                     <div class="card specialist-card hoverable">
                         <input type="hidden" class="specialist-id" value={{ specialist.user.id }}>
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img src="{{ url_for('static', filename='img/profile.png') }}" class="btn-price waves-effect waves-light">
+                            <img src="http://goo.gl/hkIcuu" alt="product-img" style="max-height: 150px">
+                        </div>
+                        <ul class="card-action-buttons stars">
+                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star</i></a>
+                            </li>
+                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star</i></a>
+                            </li>
+                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star</i></a>
+                            </li>
+                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star_half</i></a>
+                            </li>
+                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star_border</i></a>
+                            </li>
+                        </ul>
+                        <ul class="card-action-buttons">
+                            <li><a class="btn-floating waves-effect waves-light green accent-4"><i class="mdi-av-repeat tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order"></i></a>
+                            </li>
+                            <li><a class="btn-floating waves-effect waves-light red accent-2"><i class="mdi-action-favorite"></i></a>
+                            </li>
+                            <li><a class="btn-floating waves-effect waves-light light-blue"><i class="mdi-action-info activator"></i></a>
+                            </li>
+                        </ul>
+                        <div class="center"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
                         <div class="card-content">
-                            <div class="card-title center">
-                                {{ specialist.user.full_name()}}
-                            </div>
                             <div class="row">
-                                <div class="col m3">
-                                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
+                                <div class="col m6">
+                                    <p><i class="material-icons tiny">location_on</i><strong> {{ specialist.user.location.get_name() }}</strong></p>
                                 </div>
-                                <div class="col m9">
-                                    <p>Experience: {{ specialist.experience.value }}</p>
-                                    <div class="divider"></div>
-                                    <p>Location: {{ specialist.user.location.country }},
-                                        {{ specialist.user.location.city }}
-                                    </p>
-                                    <div class="divider"></div>
-                                    <p>Age: {{ specialist.user.get_age() }}
-                                    </p>
-                                    <div class="divider"></div>
-                                    <p>Success jobs: 70%</p>
-                                    <div class="progress">
-                                        <div class="determinate" style="width: 70%"></div>
-                                    </div>
-                                    <div class="divider"></div>
-                                    <p>Total mark: 4/10</p>
+                                <div class="col m6">
+                                    <p><strong>Experience: {{ specialist.experience.value }}</strong></p>
                                 </div>
                             </div>
-
-{#                          Display all user services except selected service #}
+                            <div class="divider"></div>
+                            <div class="row">
+                                <p class="center">Success jobs: 70%</p>
+                                <div class="progress">
+                                    <div class="determinate" style="width: 70%"></div>
+                                </div>
+                                <div class="col s6">
+                                    <div class="specialist-phone">
+                                        <i class="material-icons tiny">contact_phone</i>
+                                        <p class="phone" style="display: none"> Phone: <strong>{{ specialist.user.phone_number }}</strong></p>
+                                        <a class="show-phone"> Show phone</a>
+                                    </div>
+                                </div>
+                                <div class="col s6">
+                                    {% if specialist.org %}
+                                        <p>Works in <a href="#">{{ specialist.org.name }}</a></p>
+                                    {% else %}
+                                        <p>{{ specialist.user.first_name }} doesn't work in company.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-reveal">
+                            <span class="card-title grey-text text-darken-4"><i class="mdi-navigation-close right"></i></span>
+                            {% if specialist.description %}
+                                <div class="description">
+                                    <p class="center">About {{ specialist.user.first_name }}</p>
+                                    <p class="description-text">{{ specialist.description }}</p>
+                                    <div class="divider"></div>
+                                </div>
+                            {% endif %}
                             {% if specialist.services|length > 1 %}
                                 <p>Also offer:
                                     {% set services_added = 0 %}
@@ -60,34 +99,11 @@
                                     {% endfor %}
                                 </p>
                                 <div class="divider"></div>
-                            {% endif %}
-
-                            {% if specialist.org %}
-                                <p>Works in <a href="#">{{ specialist.org.name }}</a></p>
+                                <p><i class="mdi-social-cake text-darken-2"></i>Age {{ specialist.user.get_age() }}</p>
                                 <div class="divider"></div>
-                            {% else %}
-                                <p>{{ specialist.user.first_name }} doesn't work in company.</p>
-                                <div class="divider"></div>
+                                <p><i class="mdi-communication-email text-darken-2"></i> {{ specialist.user.email }}</p>
+
                             {% endif %}
-
-                            <div class="specialist-phone">
-                                <p class="phone" style="display: none">Phone : {{ specialist.user.phone_number }}</p>
-                                <a class="show-phone">Show phone</a>
-                                <div class="divider"></div>
-                            </div>
-
-                            {% if specialist.description %}
-                                <div class="description">
-                                    <p class="center">About {{ specialist.user.first_name }}</p>
-                                    <p class="description-text">{{ specialist.description }}</p>
-                                    <div class="divider"></div>
-                                </div>
-                            {% endif %}
-
-                            <div class="center">
-                                <a id="order_service"
-                                   class="user-card-btn waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Order</a>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -107,24 +123,25 @@
                 </a>
             </li>
         </ul>
-
-        <div class="row">
-            <p class="flow-text center">Similar services</p>
-            {% for service in similar_services %}
-                <div class="col m4">
-                     <div class="card hoverable cursor"
-                          onclick="location.href='{{ url_for('search_specialist', service_id=service.id) }}'">
-                        <div class="card-content">
-                            <div class="card-title center">
-                                {{ service.title|capitalize }}
-                            </div>
-                            <p>{{ service.specialists.all()|length }} specialists offer this service.</p>
-                        </div>
-                     </div>
-                </div>
-            {% endfor %}
-        </div>
     </div>
+
+    <div class="row">
+        <p class="flow-text center">Similar services</p>
+        {% for service in similar_services %}
+            <div class="col m4">
+                <div class="card hoverable cursor"
+                     onclick="location.href='{{ url_for('search_specialist', service_id=service.id) }}'">
+                    <div class="card-content">
+                        <div class="card-title center">
+                            {{ service.title|capitalize }}
+                        </div>
+                        <p>{{ service.specialists.all()|length }} specialists offer this service.</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
 {% endblock %}
 
 {% block script %}
@@ -135,4 +152,17 @@
                 {{ specialists_count }},
                 {{ current_page }});
     </script>
+    <script type="text/javascript">
+        /*
+         * Masonry container for eCommerce page
+         */
+        var $containerProducts = $("#products");
+        $containerProducts.imagesLoaded(function() {
+            $containerProducts.masonry({
+                itemSelector: ".product",
+                columnWidth: ".product-sizer",
+            });
+        });
+    </script>
+
 {% endblock %}

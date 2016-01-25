@@ -7,7 +7,7 @@
             <ul class="left">
                 <li>
                     <h1 class="logo-wrapper">
-                        <a href="" class="brand-logo darken-1" style="max-height: 64px;">
+                        <a href="{{ url_for('home') }}" class="brand-logo darken-1" style="max-height: 64px;">
                             <img class="responsive-img" src="https://goo.gl/WrFvQo" alt="materialize logo">
                         </a>
                     </h1>
@@ -17,7 +17,7 @@
                 <i class="mdi-action-search"></i>
                 <input class="search-input header-search-input z-depth-2" type="search" placeholder="Search for specialist or service you want to order">
             </div>
-            <ul class="right hide-on-med-and-down">
+            <ul class="right">
                 {% if current_user.is_authenticated %}
                 {% else %}
                 <li><a href="{{ url_for('login') }}" class="waves-effect waves-block waves-light">Login</a>

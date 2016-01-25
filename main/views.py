@@ -44,21 +44,23 @@ class Home(TemplateView):
     def get_stats(self):
         self.stats['activities'] = UserUserActivity.query\
             .filter(UserUserActivity.created_time >= date.today()).count()
-        self.stats['total_activities'] = len(UserUserActivity.query.all())
+        self.stats['total_activities'] = UserUserActivity.query.count()
         self.stats['specialists'] = len(Specialist.query.all())
         self.stats['specialists_online'] = "1"
         # Coming soon
         #  self.stats['online'] = User.query.filter()
-        self.stats['users'] = len(User.query.all())
-        self.stats['services'] = len(Service.query.all())
-        self.stats['categories'] = len(ServiceCategory.query.all())
-        self.stats['news_users'] = User.query \
+        self.stats['users'] = User.query.count()
+        self.stats['services'] = Service.query.count()
+        self.stats['categories'] = ServiceCategory.query.count()
+        self.stats['new_users'] = User.query \
             .filter(func.date(User.registration_time) == date.today()).count()
-        if self.stats['news_users']:
-            self.stats['news_users_in_percents'] = \
-                self.stats['news_users'] / User.query\
+
+        if self.stats['new_users']:
+            self.stats['new_users_in_percents'] = \
+                self.stats['new_users'] / User.query\
                 .filter(func.date(User.registration_time) == date
                         .today() - timedelta(1)).count() * 100
+
         return self.stats
 
 
@@ -507,28 +509,8 @@ class AccountOffers(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOffers, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'active_offers': self.get_active_offers()})
-        context.update({'past_offers': self.get_past_offers()})
 
         return context
-
-    def get_active_offers(self):
-        active_offers = UserUserActivity.query\
-            .filter(
-                UserUserActivity.from_user_id == current_user.id,
-                UserUserActivity.start >= date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-
-        return active_offers
-
-    def get_past_offers(self):
-        past_offers = UserUserActivity.query\
-            .filter(
-                UserUserActivity.from_user_id == current_user.id,
-                UserUserActivity.start < date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-
-        return past_offers
 
 app.add_url_rule(
     '/account/offers',
@@ -551,27 +533,8 @@ class AccountOrders(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOrders, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'active_orders': self.get_active_orders()})
-        context.update({'past_orders': self.get_past_orders()})
-
         return context
 
-    def get_active_orders(self):
-        active_orders = UserUserActivity.query\
-            .filter(
-                UserUserActivity.to_user_id == current_user.id,
-                UserUserActivity.start >= date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-
-        return active_orders
-
-    def get_past_orders(self):
-        past_orders = UserUserActivity.query\
-            .filter(
-                UserUserActivity.to_user_id == current_user.id,
-                UserUserActivity.start < date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-        return past_orders
 
 app.add_url_rule(
     '/account/orders',

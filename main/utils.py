@@ -1,3 +1,4 @@
+import datetime
 from flask import abort, url_for, session, redirect, flash, render_template
 from flask.ext.mail import Message
 from flask.ext.login import login_user, login_required, logout_user
@@ -19,9 +20,9 @@ def confirm_token(token, expiration=3600):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         item = serializer.loads(
-            token,
-            salt=app.config['SECURITY_PASSWORD_SALT'],
-            max_age=expiration
+                token,
+                salt=app.config['SECURITY_PASSWORD_SALT'],
+                max_age=expiration
         )
     except BadSignature:
         return
@@ -30,10 +31,10 @@ def confirm_token(token, expiration=3600):
 
 def send_email(to, subject, template, sender=None):
     msg = Message(
-        subject,
-        recipients=[to],
-        html=template,
-        sender=sender or app.config['MAIL_DEFAULT_SENDER']
+            subject,
+            recipients=[to],
+            html=template,
+            sender=sender or app.config['MAIL_DEFAULT_SENDER']
     )
     mail.send(msg)
 
@@ -87,14 +88,14 @@ def send_user_verification_email(user_id):
 def confirm_specialist_activity(token):
     activity_id = confirm_token(token)
     activity = UserUserActivity.query.filter_by(
-        id=activity_id).first_or_404()
+            id=activity_id).first_or_404()
 
     if activity.confirmed:
         flash('Activity already confirmed.')
     else:
         activity.confirmed = True
         flash('You have confirmed your relationship with {}.'.format(
-            activity.to_user.full_name()))
+                activity.to_user.full_name()))
 
     return redirect(url_for('user_profile', user_id=activity.to_user.id))
 
@@ -142,4 +143,27 @@ def account_not_found():
 def datetimefilter(value, format='%Y/%m/%d %H:%M'):
     return value.strftime(format)
 
-app.jinja_env.filters['datetimefilter'] = datetimefilter
+
+app.jinja_env.filters['datetime'] = datetimefilter
+
+
+@app.template_filter()
+def datefilter(value, format='%Y/%m/%d'):
+    return value.strftime(format)
+
+
+app.jinja_env.filters['date'] = datefilter
+
+
+@app.template_filter()
+def timefilter(value, format='%H:%M'):
+    return value.strftime(format)
+
+
+app.jinja_env.filters['time'] = timefilter
+
+
+@app.context_processor
+def current_time():
+    current_time = datetime.datetime.now()
+    return dict(current_time=current_time)
