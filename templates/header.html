@@ -1,0 +1,39 @@
+
+<!-- start header nav-->
+<div class="navbar-fixed">
+    <nav>
+        <div class="nav-wrapper">
+
+            <ul class="left">
+                <li>
+                    <h1 class="logo-wrapper">
+                        <a href="" class="brand-logo darken-1" style="max-height: 64px;">
+                            <img class="responsive-img" src="https://goo.gl/WrFvQo" alt="materialize logo">
+                        </a>
+                    </h1>
+                </li>
+            </ul>
+            <div class="header-search-wrapper hide-on-med-and-down">
+                <i class="mdi-action-search"></i>
+                <input class="search-input header-search-input z-depth-2" type="search" placeholder="Search for specialist or service you want to order">
+            </div>
+            <ul class="right hide-on-med-and-down">
+                {% if current_user.is_authenticated %}
+                {% else %}
+                <li><a href="{{ url_for('login') }}" class="waves-effect waves-block waves-light">Login</a>
+                </li>
+                <li><a href="{{ url_for('sign_up') }}" class="waves-effect waves-block waves-light">SignUp</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</div>
+<!-- end header nav-->
+
+
+
+
+<body>
+
+

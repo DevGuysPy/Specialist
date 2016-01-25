@@ -3,6 +3,15 @@ from app import db
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 
+ACTIVITY_STATUS_TYPES = (
+    ('0', 'Waiting for start'),
+    ('1', 'In work'),
+    ('2', 'Canceled'),
+    ('3', 'Failed'),
+    ('4', 'Done'),
+    ('5', 'Expired')
+)
+
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -25,6 +34,8 @@ class User(db.Model):
     email = db.Column(db.String(), nullable=False, unique=True)
 
     photo = db.Column(db.String(), unique=True)
+
+    birth_date = db.Column(db.Date(), nullable=False)
 
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
                             nullable=True)
@@ -52,6 +63,15 @@ class User(db.Model):
 
     def get_id(self):
         return unicode(self.id)
+
+    def get_age(self):
+        return datetime.date.today().year - self.birth_date.year
+
+    def get_orders(self):
+        orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id).all()
+        return orders
 
     def __repr__(self):
         return '<User %r>' % (self.full_name())
@@ -94,7 +114,7 @@ class Company(db.Model):
 def get_experience_types():
     types = [('0', 'Less than 1 year')]
     types.extend(('{}'.format(i), '{} years'.format(i)) for i in range(1, 11))
-    types.append(('11', 'More than 10 years'))
+    types.append(('11', '10+ years'))
     return types
 
 
@@ -110,7 +130,7 @@ class Specialist(db.Model):
 
     services = db.relationship('Service',
                                secondary="specialist_service",
-                               lazy='dynamic')
+                               backref=db.backref("specialists", lazy='dynamic'))
 
     org_id = db.Column(db.Integer, db.ForeignKey('company.id'),
                        nullable=True)
@@ -121,10 +141,23 @@ class Specialist(db.Model):
 
 class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
+
     title = db.Column(db.String(256), nullable=False, unique=True)
-    domain = db.Column(db.String(256), nullable=False)
+
+    category_id = db.Column(db.Integer, db.ForeignKey('service_category.id'),
+                            nullable=False)
+    category = db.relationship('ServiceCategory',
+                               backref=db.backref("services", lazy='dynamic'))
+
     description = db.Column(db.Text())
-    # specialists = db.relationship(Specialist)
+
+
+class ServiceCategory(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+
+    title = db.Column(db.String(256), nullable=False, unique=True)
+
+    description = db.Column(db.Text())
 
 
 class UserUserActivity(db.Model):
@@ -132,15 +165,17 @@ class UserUserActivity(db.Model):
 
     from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                              nullable=False)
-    from_user = db.relationship('User', foreign_keys=[from_user_id])
+    from_user = db.relationship('User', foreign_keys=[from_user_id],
+                                backref="from_activities_user")
 
     to_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                            nullable=False)
-    to_user = db.relationship('User', foreign_keys=[to_user_id])
+    to_user = db.relationship('User', foreign_keys=[to_user_id],
+                              backref="to_activities_user")
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
-    service = db.relationship('Service')
+    service = db.relationship('Service', backref="user_user_activities")
 
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
@@ -148,6 +183,8 @@ class UserUserActivity(db.Model):
 
     specialist_rating = db.Column(db.Integer())
     customer_rating = db.Column(db.Integer())
+
+    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
 
     confirmed = db.Column(db.Boolean(), default=False)
 
@@ -203,11 +240,13 @@ class UserOrgActivity(db.Model):
 
     org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
                        nullable=False)
-    org = db.relationship('Company', foreign_keys=[org_id])
+    org = db.relationship('Company', foreign_keys=[org_id],
+                          backref="from_activities_user_org")
 
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
                         nullable=False)
-    user = db.relationship('User', foreign_keys=[user_id])
+    user = db.relationship('User', foreign_keys=[user_id],
+                           backref="to_activities_user_org")
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
@@ -219,6 +258,8 @@ class UserOrgActivity(db.Model):
     end = db.Column(db.DateTime())
     description = db.Column(db.Text())
 
+    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
+
     confirmed = db.Column(db.Boolean(), default=False)
 
     created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
@@ -229,19 +270,25 @@ class OrgOrgActivity(db.Model):
 
     from_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
                             nullable=False)
-    from_org = db.relationship('Company', foreign_keys=[from_org_id])
+    from_org = db.relationship('Company', foreign_keys=[from_org_id],
+                               backref="from_activities_org")
 
     to_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
                           nullable=False)
-    to_org = db.relationship('Company', foreign_keys=[to_org_id])
+    to_org = db.relationship('Company', foreign_keys=[to_org_id],
+                             backref="to_activities_org")
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)
     service = db.relationship('Service')
 
     start = db.Column(db.DateTime())
+
     end = db.Column(db.DateTime())
+
     description = db.Column(db.Text())
+
+    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
 
     confirmed = db.Column(db.Boolean(), default=False)
 
@@ -251,10 +298,33 @@ class OrgOrgActivity(db.Model):
 class Location(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     country = db.Column(db.String(), nullable=False)
+    state = db.Column(db.String())
     city = db.Column(db.String())
     street = db.Column(db.String())
     building = db.Column(db.String())
     apartment = db.Column(db.Integer())
+    longitude = db.Column(db.Float(), nullable=False)
+    latitude = db.Column(db.Float(), nullable=False)
+
+    def get_name(self):
+        location_parts = []
+        if self.street:
+            street = 'street ' + self.street
+            if self.building:
+                street += ' ' + self.building
+                if self.apartment:
+                    street += '/' + self.apartment
+            location_parts.append(street)
+
+        if self.city:
+            location_parts.append(self.city)
+
+        if self.state:
+            location_parts.append(self.state)
+
+        location_parts.append(self.country)
+
+        return ', '.join(location_parts)
 
 
 class OrgCategory(db.Model):

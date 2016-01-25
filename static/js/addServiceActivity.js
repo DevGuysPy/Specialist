@@ -1,7 +1,12 @@
-function initServiceActivityModal(addServiceActivityURL) {
-    var modal = $('#add_service_activity_modal');
+function initServiceActivity(addServiceActivityURL) {
+    var card = $('#add_service_activity');
+    var preloader = $('.preloader-wrapper');
+    $( document ).ready(function() {
+        preloader.hide()
+    });
 
-    $('.modal-trigger').leanModal();
+    var done = '<p class="btn disabled">' +
+        '<i class="material-icons left">done</i>Request successfully sent</p>'
 
     $('#service_activity_start').datetimepicker({
       format: 'Y-m-d H:i:00'
@@ -11,8 +16,9 @@ function initServiceActivityModal(addServiceActivityURL) {
     });
 
     $('#service_activity_submit').on('click', function () {
-        $(this).html("Working...");
-        var errors = modal.find('.error');
+        $(this).hide();
+        preloader.show();
+        var errors = card.find('.error');
         errors.empty();
         $.ajax({
             method: 'POST',
@@ -21,15 +27,18 @@ function initServiceActivityModal(addServiceActivityURL) {
         }).done(function (data) {
             if (data.status == 'error') {
                 errors.empty();
-                $('#service_activity_submit').html('Add');
-                var modalContent = modal.find('.modal-content');
+                $('.preloader-wrapper').hide();
+                $('#service_activity_submit').show().html('try again to Send request');
+                var content = card.find('.card-content');
                 for (var i in data.errors) {
-                    var errorDiv = modalContent
+                    var errorDiv = content
                         .find('#error_service_activity_' + i);
                     errorDiv.html(data.errors[i])
                 }
-            } else {
-                modal.closeModal();
+            } else if (data.status == 'ok') {
+                $('.preloader-wrapper').hide();
+                $('#service_activity_submit')
+                    .replaceWith(done)
             }
         });
     });

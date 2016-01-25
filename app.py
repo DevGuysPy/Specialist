@@ -15,6 +15,8 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
+
 app.debug = True
 app.config.from_object('settings')
 db = SQLAlchemy(app)

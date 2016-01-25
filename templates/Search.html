@@ -1,0 +1,138 @@
+{% extends "Base.html" %}
+
+{% block body %}
+    <div class="container">
+        <p class="flow-text search-title center">
+            All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
+        </p>
+        <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
+        <div class="row">
+            {% for specialist in specialists %}
+                <div class="col m4">
+                    <div class="card specialist-card hoverable">
+                        <input type="hidden" class="specialist-id" value={{ specialist.user.id }}>
+                        <div class="card-content">
+                            <div class="card-title center">
+                                {{ specialist.user.full_name()}}
+                            </div>
+                            <div class="row">
+                                <div class="col m3">
+                                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
+                                </div>
+                                <div class="col m9">
+                                    <p>Experience: {{ specialist.experience.value }}</p>
+                                    <div class="divider"></div>
+                                    <p>Location: {{ specialist.user.location.country }},
+                                        {{ specialist.user.location.city }}
+                                    </p>
+                                    <div class="divider"></div>
+                                    <p>Age: {{ specialist.user.get_age() }}
+                                    </p>
+                                    <div class="divider"></div>
+                                    <p>Success jobs: 70%</p>
+                                    <div class="progress">
+                                        <div class="determinate" style="width: 70%"></div>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <p>Total mark: 4/10</p>
+                                </div>
+                            </div>
+
+{#                          Display all user services except selected service #}
+                            {% if specialist.services|length > 1 %}
+                                <p>Also offer:
+                                    {% set services_added = 0 %}
+                                    {%  for s in specialist.services %}
+                                        {% if s != current_service %}
+                                            {% set services_added = services_added + 1 %}
+                                            {{ s.title }}
+
+                                            {% if loop.last %}
+                                                .
+                                            {% elif services_added == 2 %}
+                                                and {{ specialist.services|length - 3 }} more.
+                                                {% break %}
+                                            {% else %}
+                                                ,
+                                            {% endif %}
+                                        {% endif %}
+
+                                    {% endfor %}
+                                </p>
+                                <div class="divider"></div>
+                            {% endif %}
+
+                            {% if specialist.org %}
+                                <p>Works in <a href="#">{{ specialist.org.name }}</a></p>
+                                <div class="divider"></div>
+                            {% else %}
+                                <p>{{ specialist.user.first_name }} doesn't work in company.</p>
+                                <div class="divider"></div>
+                            {% endif %}
+
+                            <div class="specialist-phone">
+                                <p class="phone" style="display: none">Phone : {{ specialist.user.phone_number }}</p>
+                                <a class="show-phone">Show phone</a>
+                                <div class="divider"></div>
+                            </div>
+
+                            {% if specialist.description %}
+                                <div class="description">
+                                    <p class="center">About {{ specialist.user.first_name }}</p>
+                                    <p class="description-text">{{ specialist.description }}</p>
+                                    <div class="divider"></div>
+                                </div>
+                            {% endif %}
+
+                            <div class="center">
+                                <a id="order_service"
+                                   class="user-card-btn waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Order</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <ul class="pagination center">
+            <li class="waves-effect" id="previous_page">
+                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page - 1 }}">
+                    <i class="material-icons">chevron_left</i>
+                </a>
+            </li>
+            <div class="page-numbers">
+            </div>
+            <li class="waves-effect" id="next_page">
+                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page + 1 }}">
+                    <i class="material-icons">chevron_right</i>
+                </a>
+            </li>
+        </ul>
+
+        <div class="row">
+            <p class="flow-text center">Similar services</p>
+            {% for service in similar_services %}
+                <div class="col m4">
+                     <div class="card hoverable cursor"
+                          onclick="location.href='{{ url_for('search_specialist', service_id=service.id) }}'">
+                        <div class="card-content">
+                            <div class="card-title center">
+                                {{ service.title|capitalize }}
+                            </div>
+                            <p>{{ service.specialists.all()|length }} specialists offer this service.</p>
+                        </div>
+                     </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
+    <script>
+        initSearchPage(
+                {{ current_service.id }},
+                {{ specialists_count }},
+                {{ current_page }});
+    </script>
+{% endblock %}
