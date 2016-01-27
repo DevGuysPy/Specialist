@@ -41,7 +41,7 @@
                     {{ user.full_name() }}<i class="mdi-navigation-close right"></i>
                 </h4>
                 <span>
-                    {% if user.specialist%}
+                    {% if user.specialist %}
                         <i class="material-icons">perm_identity</i>
                         {% for s in user.specialist.services %}
                             {{ s.title }}
@@ -51,6 +51,11 @@
                 </p>
 
                 <p class="flow-text"><i class="material-icons">email</i> {{ user.email}}</p>
+                {% if user.get_phone().confirmed %}
+                    <p class="flow-text"><i class="material-icons">contact_phone</i>Phone number: <a href="tel:{{ user.get_phone().number }}"> {{ user.get_phone().number }}</a></p>
+                {% else %}
+                    <p class="flow-text"><i class="material-icons">contact_phone</i>User has not added a phone number</p>
+                {% endif %}
 
                 {% if user.specialist %}
                     {% if user.specialist.description %}
@@ -59,16 +64,11 @@
                         </p>
                     {% endif %}
                 {% endif %}
-
-                {% if user.specialist %}
-                    <p class="flow-text">
-                        <i class="material-icons">contact_phone</i>
-                        <a href="tel:{{ user.phone_number }}"> {{ user.phone_number }}</a>
-                    </p>
-                {% endif %}
             </div>
         </div>
     </div>
+
+
 
     <div class="col s12 {% if user.specialist %}l6{% endif %}">
     {% if current_user.id == user.id %}

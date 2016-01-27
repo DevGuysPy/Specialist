@@ -1,42 +1,119 @@
 {% extends "user/AccountSettings.html" %}
-
 {% block settings_content %}
 
-    <div id="company_settings_content">
+    <div id="user_account_settings_content">
         <div class="card">
             <div class="card-content">
                 <p class="flow-text center-align services-title">
                     Here you can change password and so on.
                 </p>
-                <form method="POST">
-                    {{ form.csrf_token }}
+                <form method="POST" id="change_password_form">
+                    {{ change_password_form.csrf_token }}
                     <div class="input-field">
-                        {{ form.current_password(id="current_password") }}
+                        {{ change_password_form.current_password(id="current_password") }}
                         <label for="current_password">Current password</label>
-                        <div id="error_current_password" class="error"></div>
+                        <div id="error_current_password" class="change_password_error"></div>
                     </div>
                     <div class="input-field">
-                        {{ form.new_password(id="new_password") }}
+                        {{ change_password_form.new_password(id="new_password") }}
                         <label for="new_password">New password</label>
-                        <div id="error_new_password" class="error"></div>
+                        <div id="error_new_password" class="change_password_error"></div>
                     </div>
                     <div class="input-field">
-                        {{ form.new_password_again(id="new_password_again", type="password") }}
+                        {{ change_password_form.new_password_again(id="new_password_again", type="password") }}
                         <label for="new_password_again">New password again</label>
-                        <div id="error_new_password_again" class="error"></div>
+                        <div id="error_new_password_again" class="change_password_error"></div>
                     </div>
 
                     <div class="card-action">
-                        <a id="form-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4" onclick="changePasswrord()">Change password</a>
+
+                        <a id="change-password-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Change password</a>
                     </div>
                 </form>
+                {% if not current_user.get_phone() %}
+                    <form method="POST" id="set_phone_form">
+                        {{ set_phone_form.csrf_token }}
+                        <div class="input-field">
+                            {{ set_phone_form.set_number(id="set_number") }}
+                            <label for="set_number">New phone number</label>
+                            <div id="error_set_number" class="set_phone_error"></div>
+                        </div>
+                        <div class="card-action">
+                            <a id="set-phone-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Set phone number</a>
+                        </div>
+                    </form>
+                {% endif %}
+                {% if current_user.get_phone() %}
+                <form method="POST" id="change_phone_number_form">
+                    {{ change_phone_number_form.csrf_token }}
+                    <div class="input-field">
+                        {{ change_phone_number_form.change_number(id="change_number") }}
+                        <label for="change_number">Change phone number</label>
+                        <div id="error_change_number" class="change_phone_error"></div>
+                    </div>
+                    <div class="card-action">
+                      <a id="change-phone-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Change phone number</a>
+                    </div>
+                </form>
+                {% endif %}
+                {% if not current_user.get_phone(reserve=True) %}
+                    <form method="POST" id="set_reserve_phone_form">
+                        {{ set_reserve_phone_form.csrf_token }}
+                        <div class="input-field">
+                            {{ set_reserve_phone_form.set_reserve_number(id="set_reserve_number") }}
+                            <label for="set_reserve_phone-number">New reserve phone number</label>
+                            <div id="error_set_reserve_number" class="set_reserve_phone_error"></div>
+                        </div>
+                        <div class="card-action">
+                            <a id="set-reserve-phone-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Set reserve phone number</a>
+                        </div>
+                    </form>
+                {% endif %}
+                {% if current_user.get_phone(reserve=True) %}
+                    <form method="POST" id="set_reserve_phone_form">
+                        {{ set_reserve_phone_form.csrf_token }}
+                        <div class="input-field">
+                            {{ set_reserve_phone_form.set_reserve_number(id="set_reserve_number") }}
+                            <label for="set_reserve_number">New reserve phone number</label>
+                            <div id="error_set_reserve_number" class="set_reserve_phone_error"></div>
+                        </div>
+                        <div class="card-action">
+                            <a id="set-reserve-phone-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Set reserve phone number</a>
+                        </div>
+                    </form>
+
+                    <form method="POST" id="change_reserve_phone_form">
+                        {{ change_reserve_phone_form.csrf_token }}
+                        <div class="input-field">
+                            {{ change_reserve_phone_form.old_reserve_number(id="old_reserve_number", placeholder='Click on number you want to change', readonly=True) }}
+                            <div id="error_old_reserve_number" class="change_reserve_phone_error"></div>
+                        </div>
+                        <div class="input-field">
+                            {{ change_reserve_phone_form.new_reserve_number(id="new_reserve_number") }}
+                            <label for="new_reserve_number">Change reserve phone number</label>
+                            <div id="error_new_reserve_number" class="change_reserve_phone_error"></div>
+                        </div>
+                        <div class="card-action">
+                            <a id="change-reserve-phone-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Change reserve phone number</a>
+                        </div>
+                    </form>
+                {% endif %}
+                {% if current_user.get_phone(reserve=True) or current_user.get_phone() %}
+                    {% include "includes/AccountConfigurations/Phones.html" %}
+                {% endif %}
             </div>
         </div>
     </div>
+
 {% endblock %}
 {% block script %}
     <script src="{{ url_for('static', filename='js/accountConfiguration.js') }}"></script>
     <script>
-        initAccountSettings();
+        initAccountSettings(
+                '{{ url_for('change_password') }}',
+                '{{ url_for('change_phone_number') }}',
+                '{{ url_for('set_phone_number') }}',
+                '{{ url_for('set_reserve_phone_number') }}',
+                '{{ url_for('change_reserve_phone_number') }}');
     </script>
 {% endblock %}

@@ -13,15 +13,17 @@ from flask.ext.login import login_user, current_user, login_required
 
 from app import app, db, cache
 
-
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
 from utils import (generate_confirmation_token, send_email,
                    get_model_column_values, send_user_verification_email,
                    account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
-                   SpecialistForm, ServiceForm, LoginForm)
+                   SpecialistForm, ServiceForm, LoginForm, ChangePasswordForm,
+                   ChangePhoneForm, SetPhoneForm,
+                   SetReservePhoneForm, ChangeReservePhoneForm)
 from schemas import ServiceSchema, ServiceCategorySchema
+
 
 current_user_location = None
 
@@ -297,7 +299,7 @@ def add_searched_services():
                 'status': 'error',
             })
 
-        if service not in current_user.specialist.services.all():
+        if service not in current_user.specialist.services:
             services.append({
                 'name': service.title,
                 'id': service_id
@@ -395,7 +397,7 @@ class LoginView(FormView):
                 'status': 'error',
                 'errors': {
                     'password':
-                        'User with entered email and password does not exist'
+                        'Either email or password is wrong'
                 }
             })
 
@@ -468,7 +470,7 @@ class AccountSpecialist(TemplateView):
             return
 
         latest_activities = {}
-        for service in self.user.specialist.services.all():
+        for service in self.user.specialist.services:
             rel = UserUserActivity.query\
                 .filter_by(service=service,
                            from_user=self.user,
@@ -556,7 +558,19 @@ class AccountConfiguration(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AccountConfiguration, self).get_context_data()
-        context.update({'user': current_user})
+        context.update({
+            'user': current_user,
+            'change_password_form':
+                ChangePasswordForm(current_user, prefix='change_password'),
+            'change_phone_number_form':
+                ChangePhoneForm(current_user, prefix='change_phone'),
+            'set_phone_form': SetPhoneForm(current_user, prefix='set_phone'),
+            'set_reserve_phone_form': SetReservePhoneForm(
+                current_user, prefix='set_reserve_phone'),
+            'change_reserve_phone_form': ChangeReservePhoneForm(
+                current_user,
+                prefix='change_reserve_phone')
+        })
         return context
 
 app.add_url_rule(

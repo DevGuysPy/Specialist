@@ -1,4 +1,13 @@
 import os
+# Sending an sms verification(demo)
+from twilio.rest import TwilioRestClient
+
+ACCOUNT_NUMBER = '+12018957908'
+ACCOUNT_SID = "xxx"
+AUTH_TOKEN = "yyy"
+
+client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+
 
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 465

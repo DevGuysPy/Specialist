@@ -1,0 +1,28 @@
+<ul class="collection">
+    {% if current_user.get_phone() %}
+        <li class="collection-item avatar">
+        <i class="material-icons circle">folder</i>
+        <span class="title">Main</span>
+        <p>{{ current_user.get_phone().number }}</p>
+        {% if current_user.get_phone().confirmed %}
+            <p>Status: confirmed<br>
+        {% else %}
+            <p>Status: unconfirmed<br>
+        {% endif %}
+    </li>
+    {% endif %}
+    {% if current_user.get_phone(reserve=True) %}
+        <li class="collection-item avatar">
+            <i class="material-icons circle">folder</i>
+            <span class="title">Reserve</span>
+            {% for reserve_phone in current_user.get_phone(reserve=True) %}
+                <div class="reserve_phone">{{ reserve_phone.number }}</div>
+                {% if reserve_phone.confirmed %}
+                    <p>Status: confirmed<br>
+                {% else %}
+                    <p>Status: unconfirmed<br>
+                {% endif %}
+            {% endfor %}
+    {% endif %}
+    </li>
+  </ul>

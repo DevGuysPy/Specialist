@@ -29,8 +29,6 @@ class User(db.Model):
         deprecated=['md5_crypt']
     ), nullable=False)
 
-    phone_number = db.Column(PhoneNumberType())
-
     email = db.Column(db.String(), nullable=False, unique=True)
 
     photo = db.Column(db.String(), unique=True)
@@ -67,9 +65,38 @@ class User(db.Model):
     def get_age(self):
         return datetime.date.today().year - self.birth_date.year
 
+    def get_phone(self, number=False, reserve=False):
+        if reserve:
+            if number:
+                status = 1
+                return self.phones.filter(PhoneNumber.status == str(status),
+                                          PhoneNumber.number == number).first()
+            status = 1
+            return self.phones.filter(PhoneNumber.status == str(status)).all()
+        else:
+            status = 0
+            return self.phones.filter(PhoneNumber.status == str(status)).first()
+
     def __repr__(self):
         return '<User %r>' % (self.full_name())
 
+
+class PhoneNumber(db.Model):
+    PHONE_STATUS_TYPES = (
+        ('0', 'Main'),
+        ('1', 'Reserve')
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship("User", backref=db.backref("phones", lazy='dynamic'))
+
+    number = db.Column(PhoneNumberType(unique=True))
+
+    status = db.Column(ChoiceType(PHONE_STATUS_TYPES), default='0')
+
+    confirmed = db.Column(db.Boolean(), default=False)
 
 class SpecialistService(db.Model):
     __tablename__ = 'specialist_service'
@@ -119,6 +146,8 @@ class Specialist(db.Model):
     user = db.relationship("User", back_populates="specialist")
 
     experience = db.Column(ChoiceType(get_experience_types()), default='0')
+
+    phone_number = db.Column(PhoneNumberType())
 
     description = db.Column(db.Text())
 

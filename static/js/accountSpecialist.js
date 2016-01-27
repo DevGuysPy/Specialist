@@ -404,3 +404,16 @@ function addValidationHandlers(){
             .addClass('valid');
     });
 }
+
+function setPhone(phoneInput) {
+    phoneInput.removeAttr('value', 'current_user.reserve_phone_number');
+    var phoneNumber = $('input[name="phone"]:checked').val();
+    phoneInput.attr('value', phoneNumber);
+}
+
+function setReservePhone(phoneInput){
+    phoneInput.removeAttr('value', 'current_user.phone_number');
+    var phoneNumber = $('input[name="phone"]:checked').val();
+    phoneInput.attr('value', phoneNumber);
+}
+
