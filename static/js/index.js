@@ -1,5 +1,5 @@
 function searchAutocomplete(apiURL){
-    $('#main_search').autocomplete({
+    $('.search-input').autocomplete({
         serviceUrl: apiURL,
         onSelect: function (suggestion) {
             window.location = '/service/' + suggestion.data;

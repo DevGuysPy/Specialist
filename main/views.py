@@ -1,28 +1,28 @@
 # -*- encoding: utf-8 -*-
 import json
-from datetime import date
+from datetime import date, timedelta
 from math import radians, cos, sin, asin, sqrt
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 from flask import (render_template, url_for, jsonify, redirect, request,
-                   session)
+                   session, abort)
 from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
 
-from app import app, db, cache
+from app import app, db
 
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
 from utils import (generate_confirmation_token, send_email,
-                   get_model_column_values, send_user_verification_email,
+                   send_user_verification_email,
                    account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, ServiceForm, LoginForm, ChangePasswordForm,
                    ChangePhoneForm, SetPhoneForm,
                    SetReservePhoneForm, ChangeReservePhoneForm)
-from schemas import ServiceSchema, ServiceCategorySchema
+
 
 
 current_user_location = None
@@ -48,11 +48,22 @@ class Home(TemplateView):
     def get_stats(self):
         self.stats['activities'] = UserUserActivity.query\
             .filter(UserUserActivity.created_time >= date.today()).count()
+        self.stats['total_activities'] = UserUserActivity.query.count()
         self.stats['specialists'] = len(Specialist.query.all())
+        self.stats['specialists_online'] = "1"
         # Coming soon
         #  self.stats['online'] = User.query.filter()
-        self.stats['users'] = len(User.query.all())
-        self.stats['services'] = len(Service.query.all())
+        self.stats['users'] = User.query.count()
+        self.stats['services'] = Service.query.count()
+        self.stats['categories'] = ServiceCategory.query.count()
+        self.stats['new_users'] = User.query \
+            .filter(func.date(User.registration_time) == date.today()).count()
+
+        if self.stats['new_users']:
+            self.stats['new_users_in_percents'] = \
+                self.stats['new_users'] / User.query\
+                .filter(func.date(User.registration_time) == date
+                        .today() - timedelta(1)).count() * 100
 
         return self.stats
 
@@ -120,6 +131,7 @@ class UserProfile(TemplateView):
     def get_service_activity_form(self):
         if self.user.specialist:
             return AddServiceActivityForm.get_form(self.user.specialist)
+
 
     # commented for now(will be done soon)
     # def get_activity(self, kwargs):
@@ -242,55 +254,9 @@ def sign_up_user():
     })
 
 
-@app.route('/_get_services_sign_up')
-def get_services_data():
-    services = get_model_column_values(
-        Service,
-        columns=[
-            {
-                'dict_key': 'name', 'column': 'title'
-            },
-            {
-                'dict_key': 'id', 'column': 'id'
-            }
-        ])
-    return jsonify({
-        'services': services
-    })
-
-
-@app.route('/add_service', methods=['POST'])
+@app.route('/account/add_services', methods=['POST'])
 @login_required
-def add_service():
-    form = ServiceForm()
-    if form.validate():
-        service = Service(
-            title=form.title.data,
-            domain=form.domain.data,
-            description=form.description.data)
-        db.session.add(service)
-        db.session.flush()
-        spec_service = SpecialistService(
-            specialist_id=current_user.specialist.id,
-            service_id=service.id)
-        db.session.add(spec_service)
-        return jsonify({
-            'status': 'ok',
-            'service': {
-                'name': service.title,
-                'id': service.id
-            }
-        })
-
-    return jsonify({
-        'status': 'error',
-        'errors': form.errors
-    })
-
-
-@app.route('/add_specialist_service', methods=['POST'])
-@login_required
-def add_searched_services():
+def add_services_to_specialist():
     services = []
     for service_id in json.loads(request.data).get('selected_service_ids', []):
         service = Service.query.filter_by(id=service_id).first()
@@ -347,7 +313,10 @@ def create_specialist():
                 country=form.location.country.data,
                 state=form.location.state.data,
                 city=form.location.city.data,
-                building=form.location.building.data)
+                street=form.location.street.data,
+                building=form.location.building.data,
+                latitude=form.location.latitude.data,
+                longitude=form.location.longitude.data)
 
             db.session.add(location)
             current_user.location = location
@@ -432,15 +401,18 @@ app.add_url_rule(
 
 
 class AccountSpecialist(TemplateView):
-    template_name = 'user/AccountSettingsSpecialist.html'
     decorators = [login_required]
 
     def __init__(self):
         super(AccountSpecialist, self).__init__()
         self.user = None
 
-    def get(self, *args, **kwargs):
+    def dispatch_request(self, *args, **kwargs):
         self.user = current_user
+        self.set_template_name()
+        return super(AccountSpecialist, self).dispatch_request(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -448,12 +420,9 @@ class AccountSpecialist(TemplateView):
         context = super(AccountSpecialist, self).get_context_data()
         context.update({'user': current_user})
         context.update({'spec_form': SpecialistForm()})
-        context.update({'ser_form': ServiceForm()})
         context.update({
             'latest_activities': self.get_latest_u_u_services_activities()
         })
-        context.update({'services_dict': self.get_services_json()})
-        context.update({'categories_dict': self.get_categories_json()})
 
         return context
 
@@ -480,47 +449,11 @@ class AccountSpecialist(TemplateView):
 
         return latest_activities
 
-    @cache.cached(key_prefix='services_dict')
-    def get_services_json(self):
-        """
-        Get all services for js.
-        sample_of_return_json = [
-            {
-                'title': 'Service',
-                'id': 1,
-                'category_id': 2
-            },
-            {
-                'title': 'Service2',
-                'id': 2,
-                'category_id': 3
-            }
-        ]
-        :return:
-        """
-
-        schema = ServiceSchema(many=True)
-        return json.dumps(schema.dump(Service.query.all()).data)
-
-    @cache.cached(key_prefix='categories_dict')
-    def get_categories_json(self):
-        """
-        Get all categories for js.
-        sample_of_return_json = [
-            {
-                'title': 'Category',
-                'id': 1
-            },
-            {
-                'title': 'Category2',
-                'id': 2
-            },
-        ]
-        :return:
-        """
-
-        schema = ServiceCategorySchema(many=True)
-        return json.dumps(schema.dump(ServiceCategory.query.all()).data)
+    def set_template_name(self):
+        if self.user.specialist:
+            self.template_name = 'user/AccountSettingsSpecialist.html'
+        else:
+            self.template_name = 'user/CreateSpecialist.html'
 
 
 app.add_url_rule(
@@ -594,28 +527,8 @@ class AccountOffers(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOffers, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'active_offers': self.get_active_offers()})
-        context.update({'past_offers': self.get_past_offers()})
 
         return context
-
-    def get_active_offers(self):
-        active_offers = UserUserActivity.query\
-            .filter(
-                UserUserActivity.from_user_id == current_user.id,
-                UserUserActivity.start >= date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-
-        return active_offers
-
-    def get_past_offers(self):
-        past_offers = UserUserActivity.query\
-            .filter(
-                UserUserActivity.from_user_id == current_user.id,
-                UserUserActivity.start < date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-
-        return past_offers
 
 app.add_url_rule(
     '/account/offers',
@@ -638,27 +551,8 @@ class AccountOrders(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountOrders, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'active_orders': self.get_active_orders()})
-        context.update({'past_orders': self.get_past_orders()})
-
         return context
 
-    def get_active_orders(self):
-        active_orders = UserUserActivity.query\
-            .filter(
-                UserUserActivity.to_user_id == current_user.id,
-                UserUserActivity.start >= date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-
-        return active_orders
-
-    def get_past_orders(self):
-        past_orders = UserUserActivity.query\
-            .filter(
-                UserUserActivity.to_user_id == current_user.id,
-                UserUserActivity.start < date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
-        return past_orders
 
 app.add_url_rule(
     '/account/orders',
@@ -719,6 +613,16 @@ def service_autocomplete():
 
     search_string = query.strip()
 
+    q = (Service.title.startswith(search_string), )
+    if 'category' in request.args:
+        try:
+            category = ServiceCategory.query.filter(
+                ServiceCategory.id == request.args['category']).one()
+        except NoResultFound:
+            return abort(404)
+
+        q += (Service.category == category, )
+
     try:
         # db query which selects services which start with search string.
         # Order by count of UserUserActivity entries.
@@ -726,7 +630,7 @@ def service_autocomplete():
             .query(Service,
                    db.func.count(Service.user_user_activities)
                    .label('total'))\
-            .filter(Service.title.startswith(search_string))\
+            .filter(*q)\
             .outerjoin(UserUserActivity)\
             .group_by(Service.id)\
             .order_by('total DESC')\
@@ -748,35 +652,86 @@ def service_autocomplete():
         })
 
 
+@app.route('/autocomplete/categories')
+def category_autocomplete():
+    if 'query' not in request.args:
+        return page_not_found()
+
+    query = request.args['query']
+
+    search_string = query.strip()
+
+    try:
+        # db query which selects services which start with search string.
+        # Order by count of UserUserActivity entries.
+        categories = db.session\
+            .query(ServiceCategory,
+                   db.func.count(ServiceCategory.services)
+                   .label('total'))\
+            .filter(ServiceCategory.title.startswith(search_string))\
+            .outerjoin(Service)\
+            .group_by(ServiceCategory.id)\
+            .order_by('total DESC')\
+            .limit(7)\
+            .all()
+
+        return jsonify({
+            'query': search_string,
+            'suggestions': [
+                {'value': s.title, 'data': s.id}
+                for s, act in categories
+            ]
+        })
+
+    except NoResultFound:
+        return jsonify({
+            'query': search_string,
+            'suggestions': []
+        })
+
+
 class SearchSpecialist(TemplateView):
     template_name = 'Search.html'
 
     def __init__(self):
         super(SearchSpecialist, self).__init__()
         self.service = None
+        self.page = None
 
     def get(self, service_id, *args, **kwargs):
         self.service = Service.query.get(service_id)
+        try:
+            self.page = int(request.args.get('page', 1))
+            if self.page < 1:
+                return redirect(
+                    url_for(
+                        'search_specialist',
+                        service_id=self.service.id) + '?page=1')
+        except ValueError:
+            return redirect(
+                url_for(
+                    'search_specialist',
+                    service_id=self.service.id) + '?page=1')
 
-        return self.render_to_response(self.get_context_data())
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(SearchSpecialist, self).get_context_data(**kwargs)
         context.update({'current_service': self.service})
+        context.update({'specialists_count': len(self.service.specialists.all())})
         context.update({'specialists': self.get_specialists()})
         context.update({'similar_services': self.get_similar_services()})
+        context.update({'current_page': self.page})
 
         return context
 
-    def get_specialists(self):
+    def get_specialists_with_distance(self):
         """
-        Return all specialists of selected service.
-        If user allowed usage of his current location specialists would
-        be sorted by proximity
+        Return dict which contains specialist and distance between him and
+        current user.
+        Sorted by proximity
         """
-
-        if not current_user_location:
-            return self.service.specialists.all()
 
         specialist_info = [
             {
@@ -788,17 +743,33 @@ class SearchSpecialist(TemplateView):
             }
             for s in self.service.specialists.all()
         ]
+        return sorted(specialist_info, key=lambda d: d['distance'])
+
+    def get_specialists(self):
+        """
+        Return specialists of selected service sliced according to current page.
+        If user allowed usage of his current location specialists would
+        be sorted by proximity
+        """
+        from_user_number = (self.page - 1) * 12
+        to_user_number = self.page * 12
+        if not current_user_location:
+            return self.service.specialists\
+                .slice(from_user_number, to_user_number).all()
 
         return [
-            item['specialist']
-            for item in sorted(specialist_info, key=lambda d: d['distance'])
+            s['specialist']
+            for s in self.get_specialists_with_distance()
+            [from_user_number:to_user_number]
         ]
 
     def get_similar_services(self):
-        # db query which selects services which have the
-        # same category as selected service and have at least one
-        # Specialist entry.
-        # Order by count of UserUserActivity entries.
+        """
+        db query which selects services which have the
+        same category as selected service and have at least one
+        Specialist entry.
+        Order by count of UserUserActivity entries.
+        """
         similar_services = db.session\
             .query(Service, db.func.count(Service.user_user_activities)
                    .label('total'))\

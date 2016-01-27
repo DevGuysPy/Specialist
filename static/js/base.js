@@ -13,4 +13,15 @@ $(document).ready(function() {
         }).done(function (data) {
         })
     });
+    $('.tooltipped').tooltip({delay: 50});
 });
+
+function initInputAutocomplete(input, apiUrl, params, onSelectFunc){
+    input.autocomplete({
+        serviceUrl: apiUrl,
+        params: params,
+        onSelect: function (suggestion) {
+            onSelectFunc(suggestion);
+        }
+    })
+}

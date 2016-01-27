@@ -9,7 +9,18 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css"
           media="screen,projection"/>
     <link href="{{ url_for('static', filename='datetimepicker/jquery.datetimepicker.css') }}" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='css/new_design.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/prism.css') }}" type="text/css" rel="stylesheet"
+          media="screen,projection">
+    <link href="{{ url_for('static', filename='js/plugins/perfect-scrollbar/perfect-scrollbar.css') }}"
+          type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="{{ url_for('static', filename='js/plugins/jvectormap/jquery-jvectormap.css') }}"
+          type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="{{ url_for('static', filename='js/plugins/chartist-js/chartist.min.css') }}"
+          type="text/css" rel="stylesheet" media="screen,projection">
     <link href="{{ url_for('static', filename='css/base.css') }}" rel="stylesheet">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     {% block css %}{% endblock %}
 </head>
@@ -24,14 +35,38 @@
     {% endif %}
 {% endwith %}
 
-<body>
-<div class="page-wrap">
-    {% include 'nav.html' %}
-    {% block body %}{% endblock %}
+<body class="loaded">
+<!-- Start Page Loading -->
+<div id="loader-wrapper">
+    <div id="loader"></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+<!-- End Page Loading -->
+
+<!-- Start Page Loading -->
+<header id="header" class="page-topbar">
+    {% include 'header.html' %}
+</header>
+<!-- End Page Loading -->
+<div {% if current_user.is_authenticated %}id="main"{% endif %} class="main">
+    <div class="wrapper">
+        {% if current_user.is_authenticated %}
+            {% include 'left_nav.html' %}
+        {% endif %}
+        {#    {% include 'nav.html' %}#}
+
+        <!-- START CONTENT -->
+        <section id="content">
+
+            {% block body %}{% endblock %}
+
+        </section>
+        <!-- END CONTENT -->
+    </div>
 </div>
 {% include 'footer.html' %}
 </body>
-
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript"
@@ -39,7 +74,32 @@
 <script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
 <script src="{{ url_for('static', filename='datetimepicker/jquery.datetimepicker.full.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lodash.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/prism.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/chartist-js/chartist.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/sparkline/jquery.sparkline.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/plugins/sparkline/sparkline-script.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/plugins/masonry.pkgd.min.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/plugins/imagesloaded.pkgd.min.js') }}"></script>
+
+<script type="{{ url_for('static', filename='js/plugins.js') }}text/javascript"></script>
+
+<script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
 <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+<script>
+    $(window).load(function() {
+        setTimeout(function() {
+            $('body').addClass('loaded');
+        }, 200);
+    });
+    searchAutocomplete("{{ url_for('service_autocomplete') }}");
+</script>
 {% block script %}{% endblock %}
 
 </html>

@@ -2,11 +2,12 @@ from sqlalchemy import exists, or_
 from flask_wtf import Form, RecaptchaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique, ModelFormField
+
 from wtforms import (StringField, DateTimeField, ValidationError,
                      PasswordField, IntegerField, DateField)
 
-from wtforms.validators import DataRequired, Length, Email, EqualTo
 
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 from wtforms_components import PhoneNumberField
 
 from models import (UserUserActivity, db, Service, User,
@@ -88,6 +89,11 @@ class LocationForm(BaseModelForm):
     class Meta:
         model = Location
         validators = [DataRequired()]
+
+
+class LocationForm(BaseModelForm):
+    class Meta:
+        model = Location
 
 
 class SpecialistForm(BaseModelForm):

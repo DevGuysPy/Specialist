@@ -20,8 +20,8 @@ MAIL_PASSWORD = os.environ.get('APP_MAIL_PASSWORD')
 
 # mail accounts
 MAIL_DEFAULT_SENDER = 'oklahoma098@gmail.com'
-
-SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+SQLALCHEMY_DATABASE_URI = 'postgresql://suka3:suka3@localhost/suka3'
+# SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 

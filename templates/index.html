@@ -3,41 +3,96 @@
 {% block body %}
     <!-- PARALLAX_START -->
     <div class="parallax-container">
-        <div class="row container center-align">
-            <a href="{{ url_for('sign_up') }}" class="btn-large btn-def get-started">Get Started</a>
+        <div class="row center-align">
+            <a href="{{ url_for('sign_up') }}" class="btn-large btn-def get-started waves-effect waves-light">
+                <strong>Get Started</strong>
+            </a>
         </div>
         <div class="parallax">
-            <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=%20%20%20%20%20%20Today's%20activities:%20{{ stats.activities }}
-    %20%20%20%20%20%20%20Number%20of%20users:%20{{ stats.users }}
-            %20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Number%20of%20specialists:%20{{ stats.specialists }}
-    %20%20%20%20%20%20Different%20%20services:%20{{ stats.services }}&w=1920&h=400">
+            <img src="http://goo.gl/hkIcuu">
         </div>
     </div>
     <!-- PARALLAX_END -->
 
     <!-- SEARCH_START -->
-    <div class="container">
-        <div class="row">
-            <form method="POST">
-                <div class="col offset-l1 l10 s12 white">
-                    <div class="card-panel search-pos">
-                        <nav>
-                            <div class="nav-wrapper">
-                                <form>
-                                    <div class="input-field">
-                                        <input id="main_search" type="search" placeholder="Search for specialist or service you want to order">
-                                        <label for="search"><i class="material-icons">search</i></label>
-                                        <a class="btn waves-effect waves-light hide-on-small-only search-btn">search</a>
-                                    </div>
-                                </form>
-                            </div>
-                        </nav>
-                    </div>
+    <div class="row">
+        <form method="POST">
+            <div class="col offset-l1 l10 s12 white">
+                <div class="card-panel search-pos">
+                    <nav>
+                        <div class="nav-wrapper">
+                            <form>
+                                <div class="input-field">
+                                    <input class="search-input" type="search"
+                                           placeholder="Search for specialist or service you want to order">
+                                    <label for="search"><i class="material-icons">search</i></label>
+                                    <a class="btn waves-effect waves-light hide-on-small-only search-btn">search</a>
+                                </div>
+                            </form>
+                        </div>
+                    </nav>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
     <!-- SEARCH_END-->
+
+    <div class="divider"></div>
+
+    <!--card stats start-->
+    <div id="card-stats" class="seaction" style="margin: 10px">
+        <h4 class="flow-text" style="margin-left: 20px;">Stats</h4>
+        <div class="row">
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content  green white-text">
+                        <p class="card-stats-title"><i class="mdi-social-group-add"></i> New Users</p>
+                        <h4 class="card-stats-number">{{ stats.new_users }}</h4>
+                        <p class="card-stats-compare">
+                            <i class="mdi-hardware-keyboard-arrow-up"></i>
+                            {{ stats.new_users_in_percents|default('0') }}
+                            <span class="green-text text-lighten-5">% from yesterday</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content purple white-text">
+                        <p class="card-stats-title">
+                            <i class="material-icons">assignment_ind</i> Number of specialist</p>
+                        <h4 class="card-stats-number">{{ stats.specialists }}</h4>
+                        <p class="card-stats-compare">
+                            {{ stats.specialists_online }}
+                            <span class="green-text text-lighten-5"> online</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content blue-grey white-text">
+                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Today's activities</p>
+                        <h4 class="card-stats-number">{{ stats.activities }}</h4>
+                        <p class="card-stats-compare">{{ stats.total_activities }}
+                            <span class="blue-grey-text text-lighten-5"> total activities</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content deep-purple white-text">
+                        <p class="card-stats-title"><i class="mdi-editor-insert-drive-file"></i> Total services</p>
+                        <h4 class="card-stats-number">{{ stats.services }}</h4>
+                        <p class="card-stats-compare">{{ stats.categories }}
+                            <span class="deep-purple-text text-lighten-5"> categories</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block script %}
     <script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>

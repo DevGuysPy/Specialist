@@ -77,6 +77,46 @@ class User(db.Model):
             status = 0
             return self.phones.filter(PhoneNumber.status == str(status)).first()
 
+    def get_orders(self):
+        orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id).all()
+        return orders
+
+    def get_active_orders(self):
+        active_orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id,
+                UserUserActivity.start >= datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+        return active_orders
+
+    def get_past_orders(self):
+        past_offers = UserUserActivity.query\
+            .filter(
+                UserUserActivity.to_user_id == self.id,
+                UserUserActivity.start < datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+
+        return past_offers
+
+    def get_active_offers(self):
+        active_orders = UserUserActivity.query\
+            .filter(
+                UserUserActivity.from_user_id == self.id,
+                UserUserActivity.start >= datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+        return active_orders
+
+    def get_past_offers(self):
+        past_offers = UserUserActivity.query\
+            .filter(
+                UserUserActivity.from_user_id == self.id,
+                UserUserActivity.start < datetime.date.today())\
+            .order_by(UserUserActivity.start.desc()).all()
+
+        return past_offers
+
     def __repr__(self):
         return '<User %r>' % (self.full_name())
 
@@ -135,7 +175,7 @@ class Company(db.Model):
 def get_experience_types():
     types = [('0', 'Less than 1 year')]
     types.extend(('{}'.format(i), '{} years'.format(i)) for i in range(1, 11))
-    types.append(('11', 'More than 10 years'))
+    types.append(('11', '10+ years'))
     return types
 
 
@@ -328,6 +368,26 @@ class Location(db.Model):
     apartment = db.Column(db.Integer())
     longitude = db.Column(db.Float(), nullable=False)
     latitude = db.Column(db.Float(), nullable=False)
+
+    def get_name(self):
+        location_parts = []
+        if self.street:
+            street = ' ' + self.street
+            if self.building:
+                street += ' ' + self.building
+                if self.apartment:
+                    street += '/' + self.apartment
+            location_parts.append(street)
+
+        if self.city:
+            location_parts.append(self.city)
+
+        if self.state:
+            location_parts.append(self.state)
+
+        location_parts.append(self.country)
+
+        return ', '.join(location_parts)
 
 
 class OrgCategory(db.Model):
