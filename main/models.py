@@ -343,7 +343,7 @@ class Location(db.Model):
     def get_name(self):
         location_parts = []
         if self.street:
-            street = 'street ' + self.street
+            street = ' ' + self.street
             if self.building:
                 street += ' ' + self.building
                 if self.apartment:

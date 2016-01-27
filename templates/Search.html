@@ -14,27 +14,52 @@
                     <div class="card specialist-card hoverable">
                         <input type="hidden" class="specialist-id" value={{ specialist.user.id }}>
                         <div class="card-image waves-effect waves-block waves-light">
-                            <img src="{{ url_for('static', filename='img/profile.png') }}" class="btn-price waves-effect waves-light">
+                            <img src="{{ url_for('static', filename='img/profile.png') }}"
+                                 class="btn-price waves-effect waves-light">
                             <img src="http://goo.gl/hkIcuu" alt="product-img" style="max-height: 150px">
                         </div>
                         <ul class="card-action-buttons stars">
-                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star</i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">star</i>
+                                </a>
                             </li>
-                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star</i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">star</i>
+                                </a>
                             </li>
-                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star</i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">star</i>
+                                </a>
                             </li>
-                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star_half</i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">star_half</i>
+                                </a>
                             </li>
-                            <li><a class="btn-floating waves-effect waves-light stars-bg"><i class="material-icons">star_border</i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">star_border</i>
+                                </a>
                             </li>
                         </ul>
                         <ul class="card-action-buttons">
-                            <li><a class="btn-floating waves-effect waves-light green accent-4"><i class="mdi-av-repeat tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order"></i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light green accent-4">
+                                    <i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">repeat</i>
+                                </a>
                             </li>
-                            <li><a class="btn-floating waves-effect waves-light red accent-2"><i class="mdi-action-favorite"></i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light red accent-2">
+                                    <i class="mdi-action-favorite"></i>
+                                </a>
                             </li>
-                            <li><a class="btn-floating waves-effect waves-light light-blue"><i class="mdi-action-info activator"></i></a>
+                            <li>
+                                <a class="btn-floating waves-effect waves-light light-blue">
+                                    <i class="mdi-action-info activator"></i>
+                                </a>
                             </li>
                         </ul>
                         <div class="center"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
@@ -56,15 +81,15 @@
                                 <div class="col s6">
                                     <div class="specialist-phone">
                                         <i class="material-icons tiny">contact_phone</i>
-                                        <p class="phone" style="display: none"> Phone: <strong>{{ specialist.user.phone_number }}</strong></p>
+                                        <span class="phone" style="display: none"> <strong>{{ specialist.user.phone_number }}</strong></span>
                                         <a class="show-phone"> Show phone</a>
                                     </div>
                                 </div>
                                 <div class="col s6">
                                     {% if specialist.org %}
-                                        <p>Works in <a href="#">{{ specialist.org.name }}</a></p>
+                                        <p><strong>Works in <a href="#">{{ specialist.org.name }}</a></strong></p>
                                     {% else %}
-                                        <p>{{ specialist.user.first_name }} doesn't work in company.</p>
+                                        <p><strong>{{ specialist.user.first_name }} doesn't work in company.</strong></p>
                                     {% endif %}
                                 </div>
                             </div>

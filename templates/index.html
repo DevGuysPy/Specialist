@@ -23,7 +23,8 @@
                         <div class="nav-wrapper">
                             <form>
                                 <div class="input-field">
-                                    <input class="search-input" type="search" placeholder="Search for specialist or service you want to order">
+                                    <input class="search-input" type="search"
+                                           placeholder="Search for specialist or service you want to order">
                                     <label for="search"><i class="material-icons">search</i></label>
                                     <a class="btn waves-effect waves-light hide-on-small-only search-btn">search</a>
                                 </div>
@@ -47,7 +48,10 @@
                     <div class="card-content  green white-text">
                         <p class="card-stats-title"><i class="mdi-social-group-add"></i> New Users</p>
                         <h4 class="card-stats-number">{{ stats.new_users }}</h4>
-                        <p class="card-stats-compare"><i class="mdi-hardware-keyboard-arrow-up"></i> {{ stats.new_users_in_percents|default('0%') }}% <span class="green-text text-lighten-5">from yesterday</span>
+                        <p class="card-stats-compare">
+                            <i class="mdi-hardware-keyboard-arrow-up"></i>
+                            {{ stats.new_users_in_percents|default('0') }}
+                            <span class="green-text text-lighten-5">% from yesterday</span>
                         </p>
                     </div>
                 </div>
@@ -55,9 +59,12 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content purple white-text">
-                        <p class="card-stats-title"><i class="material-icons">assignment_ind</i> Number of specialist</p>
+                        <p class="card-stats-title">
+                            <i class="material-icons">assignment_ind</i> Number of specialist</p>
                         <h4 class="card-stats-number">{{ stats.specialists }}</h4>
-                        <p class="card-stats-compare">{{ stats.specialists_online }} <span class="green-text text-lighten-5">online</span>
+                        <p class="card-stats-compare">
+                            {{ stats.specialists_online }}
+                            <span class="green-text text-lighten-5"> online</span>
                         </p>
                     </div>
                 </div>
@@ -67,7 +74,8 @@
                     <div class="card-content blue-grey white-text">
                         <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Today's activities</p>
                         <h4 class="card-stats-number">{{ stats.activities }}</h4>
-                        <p class="card-stats-compare"> {{ stats.total_activities }} <span class="blue-grey-text text-lighten-5">total activities</span>
+                        <p class="card-stats-compare">{{ stats.total_activities }}
+                            <span class="blue-grey-text text-lighten-5"> total activities</span>
                         </p>
                     </div>
                 </div>
@@ -77,7 +85,8 @@
                     <div class="card-content deep-purple white-text">
                         <p class="card-stats-title"><i class="mdi-editor-insert-drive-file"></i> Total services</p>
                         <h4 class="card-stats-number">{{ stats.services }}</h4>
-                        <p class="card-stats-compare">{{ stats.categories }} <span class="deep-purple-text text-lighten-5">categories</span>
+                        <p class="card-stats-compare">{{ stats.categories }}
+                            <span class="deep-purple-text text-lighten-5"> categories</span>
                         </p>
                     </div>
                 </div>

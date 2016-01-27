@@ -309,6 +309,7 @@ def create_specialist():
                 country=form.location.country.data,
                 state=form.location.state.data,
                 city=form.location.city.data,
+                street=form.location.street.data,
                 building=form.location.building.data,
                 latitude=form.location.latitude.data,
                 longitude=form.location.longitude.data)

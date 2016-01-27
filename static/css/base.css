@@ -314,9 +314,9 @@ a {
 #loader-wrapper .loader-section {
     position: fixed;
     top: 0;
-    width: 51%;
+    width: 50%;
     height: 100%;
-    background: white;
+    background:rgba(255,255,255,0.5);
     filter:blur(1px);
     z-index: 1000;
     -webkit-transform: translateX(0);

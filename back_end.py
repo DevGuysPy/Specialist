@@ -152,12 +152,6 @@ def create_companies():
 
 
 @manager.command
-def custom():
-    services = Service.query.all()
-    ser_id = random.choice(services).id
-
-
-@manager.command
 def rr():
     db.drop_all()
     db.create_all()

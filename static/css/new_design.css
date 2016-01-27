@@ -128,7 +128,7 @@ li.li-hover:hover{
   position: absolute;
   left: 48%;
   top: 46%;
-  background: url(../images/user-bg-2.jpg) no-repeat center center;
+  background: url(https://goo.gl/WrFvQo) no-repeat center center;
   z-index: 1001;
 }
 #loader:before {
@@ -380,8 +380,13 @@ input.header-search-input {
   font-size:16px;
   font-weight:400
 }
-.header-search-input::placeholder
-{
+.header-search-input::-webkit-input-placeholder {
+  color:#fff;
+  font-size:16px;
+  font-weight:400
+}
+
+.header-search-input:-moz-placeholder {
   color:#fff;
   font-size:16px;
   font-weight:400
@@ -421,13 +426,17 @@ input.header-search-input:focus {
   font-size:16px;
   font-weight:400
 }
-.header-search-input:focus::placeholder
-{
+.header-search-input:focus::-webkit-input-placeholder {
   color:#333;
   font-size:16px;
   font-weight:400
 }
 
+.header-search-input:focus:-moz-placeholder {
+  color:#333;
+  font-size:16px;
+  font-weight:400
+}
 
 /*Old Search*/
 li.search-out:hover{
@@ -776,7 +785,7 @@ h5.breadcrumbs-header {
   /* SASS Internet Explorer */
 }
 #flight-card .card-content-bg {
-  background: url(../images/sample-1.jpg) no-repeat center center;
+  background: url(#) no-repeat center center;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -1650,8 +1659,8 @@ tr.group:hover {
   line-height: 65px;
   margin: 10px;
   position: absolute;
-  top: 0px;
-  letter-spacing: 0px;
+  top: 0;
+  letter-spacing: 0;
 }
 /* -----Products Masonery ----- */
 
@@ -1662,10 +1671,10 @@ tr.group:hover {
   width: 20%;
 }
 .product .card {
-  margin:0px;
+  margin: 0;
 }
 .product ul.card-action-buttons{
-  margin: -18px 10px 0px 0px;
+  margin: -18px 10px 0 0;
   text-align: right;
 }
 .product ul.card-action-buttons li{
@@ -1688,7 +1697,7 @@ tr.group:hover {
   line-height: 65px;
   margin: 10px;
   position: absolute;
-  top: 0px;
+  top: 0;
 }
 /* eCommers product page media queries */
 @media screen and (max-width: 2200px) {
@@ -1803,7 +1812,7 @@ tr.group:hover {
   font-size: 1.28rem;
   line-height: 1.6em;
   color: #009315;
-  speak: none;
+  /*speak: none;*/
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
