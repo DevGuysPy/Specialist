@@ -10,6 +10,7 @@ import logging
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
+from main.views import get_random_background
 from app import app, db
 from default_db_data import services_data, nouns, countries_and_cities
 from main.models import (Service, ServiceCategory, User, UserUserActivity,
@@ -98,6 +99,7 @@ def create_users():
                     password='1111',
                     confirmed=True,
                     location=loc,
+                    bg_photo=get_random_background(),
                     birth_date=get_random_date(1950, 1996),
                     phone_number='+380' + str(
                             random.randint(100000000, 999999999)))

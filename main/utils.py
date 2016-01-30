@@ -1,11 +1,14 @@
 import datetime
+import random
+
 from flask import abort, url_for, session, redirect, flash, render_template
 from flask.ext.mail import Message
 from flask.ext.login import login_user, login_required, logout_user
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 
-from app import mail, app, login_manager, db
+import settings
+from app import mail, app, login_manager, db, bucket
 from models import User, UserUserActivity
 
 
@@ -167,3 +170,8 @@ app.jinja_env.filters['time'] = timefilter
 def current_time():
     current_time = datetime.datetime.now()
     return dict(current_time=current_time)
+
+
+def get_random_background():
+    img = random.choice(list(bucket.list()))
+    return 'https://' + settings.REGION_HOST + '/spec-bg/' + img.name

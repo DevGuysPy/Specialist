@@ -16,8 +16,7 @@ from app import app, db
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
 from utils import (generate_confirmation_token, send_email,
-                   send_user_verification_email,
-                   account_not_found, page_not_found)
+                   send_user_verification_email, page_not_found, get_random_background)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, ServiceForm, LoginForm)
 
@@ -109,7 +108,7 @@ class UserProfile(TemplateView):
     def get(self, *args, **kwargs):
         self.user = User.query.get(kwargs.get('user_id'))
         if not self.user:
-            return account_not_found()
+            abort(404)
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
@@ -230,7 +229,8 @@ def sign_up_user():
                         form.full_name.data.split(' ')[1:]),
                     email=form.email.data,
                     password=form.password.data,
-                    birth_date=form.birth_date.data)
+                    birth_date=form.birth_date.data,
+                    bg_photo=get_random_background())
 
         db.session.add(user)
         db.session.flush()

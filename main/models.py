@@ -33,7 +33,9 @@ class User(db.Model):
 
     email = db.Column(db.String(), nullable=False, unique=True)
 
-    photo = db.Column(db.String(), unique=True)
+    profile_photo = db.Column(db.String(), unique=True)
+
+    bg_photo = db.Column(db.String(), nullable=False)
 
     birth_date = db.Column(db.Date(), nullable=False)
 
@@ -345,6 +347,7 @@ class Location(db.Model):
         if self.street:
             street = ' ' + self.street
             if self.building:
+                street += ' ' + self.building
                 street += ' ' + self.building
                 if self.apartment:
                     street += '/' + self.apartment
