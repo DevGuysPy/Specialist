@@ -16,6 +16,8 @@ function initSignUpOrLogin(modal){
     var signPasswordErrorEl = $('.error.sign-up-password');
 
     $('#sign_up_submit').on('click', function(){
+        var btn = $(this);
+        var preloader = initPreloader(btn);
         $.ajax({
             url: '/user_sign_up?login=true',
             method: 'POST',
@@ -30,10 +32,15 @@ function initSignUpOrLogin(modal){
                     signPasswordErrorEl.text(
                         'password' in data.errors ? data.errors.password : '');
                     signFullNameErrorEl.text(
-                        'full_name' in data.errors ? data.errors.full_name : '')
+                        'full_name' in data.errors ? data.errors.full_name : '');
+                    preloader.hide();
+                    btn.show()
                 }
             },
             error: function(a, error){
+                signPasswordErrorEl.text('Ups, something go wrong.');
+                preloader.hide();
+                $(this).show();
                 console.log(error)
             }
 
@@ -43,6 +50,8 @@ function initSignUpOrLogin(modal){
     var loginEmailErrorEl = $('.error.login-email');
     var loginPasswordErrorEl = $('.error.login-password');
     $('#login_submit').on('click', function(){
+        var btn = $(this);
+        var preloader = initPreloader(btn);
         $.ajax({
             url: '/login',
             method: 'POST',
@@ -56,9 +65,14 @@ function initSignUpOrLogin(modal){
                         'email' in data.errors ? data.errors.email : '');
                     loginPasswordErrorEl.text(
                         'password' in data.errors ? data.errors.password : '');
+                    preloader.hide();
+                    btn.show();
                 }
             },
             error: function(a, error){
+                loginPasswordErrorEl.text('Ups, something go wrong.');
+                preloader.hide();
+                $(this).show();
                 console.log(error)
             }
         })
@@ -101,4 +115,16 @@ function getLocByLatLng(lat, lng, successFunc) {
             successFunc(data)
         }
     })
+}
+
+function initPreloader(btn){
+    var main_preloader = $('#main-preloader');
+    btn.hide();
+    var custom_preloader = main_preloader
+        .clone()
+        .insertBefore(btn)
+        .show();
+    custom_preloader.removeAttr('id');
+
+    return custom_preloader
 }

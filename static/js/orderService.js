@@ -141,11 +141,11 @@ function initOrderServiceModal(currentServiceId){
 
         var specCard = modal.find('.order-service-specialist-card');
 
-        $('body').on('click', '#add_order', function(){
+        modal.on('click', '#add_order', function(){
             addOrder(specCard, $(this));
         });
 
-        $('#order-service-send-msg-btn').on('click', function(){
+        modal.on('click', '#order-service-send-msg-btn', function(){
             sendPersonalMsg(specCard, modal, $(this));
         });
 
@@ -186,9 +186,12 @@ function initOrderServiceModal(currentServiceId){
             .remove();
 
         $('.sign_up_or_login').on('login', function(){
-           $(this).replaceWith(
+            $('.sign_up_or_login.login-interface').replaceWith(
                '<a id="add_order" class="waves-effect waves-light btn ' +
-               'blue-grey darken-3">Send request</a>')
+               'blue-grey darken-3">Send request</a>');
+            $('.sign_up_or_login.login-msg').replaceWith(
+               '<a id="order-service-send-msg-btn" class="waves-effect ' +
+               'waves-light btn blue-grey darken-3">Send Message</a>');
         });
 
         modal.openModal();
@@ -225,9 +228,7 @@ function initOrderServiceLocAutocomplete(modal) {
 }
 
 function addOrder(specCard, btn){
-    var preloader = $('.order-service-preloader');
-    preloader.show();
-    btn.hide();
+    var preloader = initPreloader(btn);
     var data = {};
     data['service_id'] =
         $('.order-service-services').find('option:selected').val();
@@ -271,9 +272,7 @@ function addOrder(specCard, btn){
 }
 
 function sendPersonalMsg(card, modal, btn){
-    var preloader = $('.order-service-message-preloader');
-    preloader.show();
-    btn.hide();
+    var preloader = initPreloader(btn);
     var data = {};
     data['user_id'] =
         card.find('input[class="user-id"]').val();
