@@ -1,0 +1,55 @@
+<div id="sign-up-or-login-modal" class="modal">
+    <div class="modal-content">
+        <ul class="tabs">
+            <li class="tab col s3">
+                <a class="active" href="#sign-up-tab">SIGN UP</a>
+            </li>
+            <li class="tab col s3">
+                <a href="#login-tab">LOGIN</a>
+            </li>
+        </ul>
+        <div id="sign-up-tab" class="col s12 sign-up-tab">
+            <form id="sign_up_form_modal">
+                {{ sign_up_form.csrf_token }}
+                <div class="input-field">
+                    {{ sign_up_form.full_name(id="sign_up_full_name") }}
+                    <label for="sign_up_full_name">Enter your full name</label>
+                    <div class="error sign-up-full_name"></div>
+                </div>
+                <div class="input-field">
+                    {{ sign_up_form.email(id="sign_up_email") }}
+                    <label for="sign_up_email">Enter your email</label>
+                    <div class="error sign-up-email"></div>
+                </div>
+                <div class="input-field">
+                    {{ sign_up_form.password(id="sign_up_password", type="password") }}
+                    <label for="sign_up_password">Enter your password</label>
+                    <div class="error sign-up-password"></div>
+                </div>
+                <div class="center">
+                    <a id="sign_up_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">SIGN UP</a>
+                </div>
+            </form>
+        </div>
+        <div id="login-tab" class="col s12 login-tab">
+            <form id="login_form_modal">
+                <div class="card-content grey-text text-darken-1">
+                    {{ login_form.csrf_token }}
+                    <div class="input-field">
+                        {{ login_form.email(id="login_email") }}
+                        <label for="login_email">Enter your email</label>
+                        <div class="error login-email"></div>
+                    </div>
+                    <div class="input-field">
+                        {{ login_form.password(id="login_password") }}
+                        <label for="login_password">Enter your password</label>
+                        <div class="error login-password"></div>
+                    </div>
+                </div>
+                <div class="center">
+                    <a id="login_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">LOGIN</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

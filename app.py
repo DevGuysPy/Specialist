@@ -1,6 +1,7 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.mail import Mail
+from flask.ext.restless import APIManager
 from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
@@ -20,6 +21,8 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.debug = True
 app.config.from_object('settings')
 db = SQLAlchemy(app)
+
+api_manager = APIManager(app, flask_sqlalchemy_db=db)
 
 mail = Mail()
 mail.init_app(app)

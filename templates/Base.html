@@ -66,12 +66,15 @@
     </div>
 </div>
 {% include 'footer.html' %}
+{% if not current_user.is_authenticated %}
+    {% include "LoginOrSignUp.html" %}
+{% endif %}
 </body>
 
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
 <script src="{{ url_for('static', filename='datetimepicker/jquery.datetimepicker.full.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lodash.js') }}"></script>
 <script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>
@@ -86,9 +89,9 @@
 
 <script src="{{ url_for('static', filename='js/plugins/imagesloaded.pkgd.min.js') }}"></script>
 
-<script type="{{ url_for('static', filename='js/plugins.js') }}text/javascript"></script>
+{#<script type="{{ url_for('static', filename='js/plugins.js') }}text/javascript"></script>#}
 
-<script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
+{#<script src="{{ url_for('static', filename='js/plugins.js') }}"></script>#}
 <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 

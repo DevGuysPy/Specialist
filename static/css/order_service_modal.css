@@ -1,0 +1,112 @@
+.order-service-header {
+    font-size: 50px;
+    font-weight: 300;
+}
+
+.order-service-specialist-card .product {
+    width: 100%;
+    position: inherit !important;
+}
+
+.tabs .tab a {
+    color: #37474f;
+}
+
+.tabs .tab a:hover {
+    color: #b0bec5;
+}
+
+.tabs .indicator {
+    background-color: #37474f;
+}
+
+.order-service-services ul {
+    max-height: 350px;
+}
+
+.order-service-description {
+    margin-top: 95px;
+}
+
+.pac-container {
+    z-index: 9999;
+}
+
+.order-service-current-map {
+    width: 100%;
+    height: 300px;
+    margin: 10px 20px 10px 0;
+}
+
+.tab-by-personal-msg,.tab-by-telephone,.by-interface-location,.by-interface-main,.by-interface-timing.order-service-animation {
+    animation-duration: 0.2s;
+    animation-name: slidein;
+}
+
+@keyframes slidein {
+  from {
+    margin-left: 50%;
+    width: 100%;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 100%;
+  }
+}
+
+.location-btn {
+    width: 40px !important;
+    height: 40px !important;
+}
+
+.location-btn i {
+    line-height: 40px !important;
+}
+
+.add-location-btn i {
+    display: inline;
+}
+
+.hide-location-btn {
+    position: absolute;
+    margin-top: -34px;
+    margin-left: -36px;
+}
+
+.custom-fields {
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.selected-location {
+    padding-top: 5px;
+}
+
+.order-service-divider {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.modal-content .product {
+    padding-top: 0;
+}
+
+#add_order, .order-service-login-btn, .error-message, .order-service-preloader {
+    margin-top: 10px
+}
+
+.error-message {
+    color: #f50057 !important;
+}
+
+#sign-up-or-login-modal {
+    max-width: 25%;
+    margin-top: 150px;
+}
+
+.by-message-title{
+    font-size: 20px;
+    font-weight: 400;
+}
+

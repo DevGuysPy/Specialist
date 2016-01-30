@@ -1,12 +1,18 @@
 import datetime
-from flask import abort, url_for, session, redirect, flash, render_template
+import json
+
+from flask import (abort, url_for, session, redirect, flash, render_template,
+                   request, jsonify)
 from flask.ext.mail import Message
-from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import (login_user, login_required, logout_user,
+                             current_user)
+from sqlalchemy.orm.exc import NoResultFound
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 
 from app import mail, app, login_manager, db
-from models import User, UserUserActivity
+from models import User, UserUserActivity, Message as PersonalMessage
+from forms import RegistrationForm, LoginForm
 
 
 def generate_confirmation_token(confirmation_item):
@@ -167,3 +173,53 @@ app.jinja_env.filters['time'] = timefilter
 def current_time():
     current_time = datetime.datetime.now()
     return dict(current_time=current_time)
+
+
+@app.context_processor
+def get_sign_up_form():
+    return dict(sign_up_form=RegistrationForm())
+
+
+@app.context_processor
+def get_login_form():
+    return dict(login_form=LoginForm())
+
+
+@app.route('/send_message', methods=['POST'])
+@login_required
+def send_personal_message():
+    data = json.loads(request.data)
+
+    user_id = data.get('user_id')
+    subject = data.get('subject')
+    text = data.get('text')
+
+    if not user_id or not subject or not text:
+        return jsonify({
+            'status': 'error',
+            'message': 'Please enter subject and text of message'
+        })
+
+    try:
+        user = User.query.filter_by(id=int(user_id)).one()
+    except (ValueError, NoResultFound):
+        return jsonify({
+            'status': 'error',
+            'message': 'User does not exist'
+        })
+
+    message = PersonalMessage(
+        from_user=current_user,
+        to_user=user,
+        subject=subject,
+        text=text)
+
+    db.session.add(message)
+    db.session.flush()
+
+    return jsonify({
+        'status': 'ok',
+        'redirect_url': '/account/' + str(current_user.id)
+    })
+
+

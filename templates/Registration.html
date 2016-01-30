@@ -1,7 +1,6 @@
 {% extends "Base.html" %}
 {% block css %}
     <link href="{{ url_for('static', filename='css/registration.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/typeahead.css') }}" rel="stylesheet">
 {% endblock %}
 {% block body %}
     <div class="row">
@@ -20,11 +19,6 @@
                                 {{ basic_form.email(id="sign_up_email") }}
                                 <label for="sign_up_email">Enter your email</label>
                                 <div id="error_sign_up_email" class="error"></div>
-                            </div>
-                            <div class="input-field">
-                                {{ basic_form.birth_date(id="sign_up_birth_date", class="datepicker") }}
-                                <label for="sign_up_birth_date">Select your birth date</label>
-                                <div id="error_sign_up_birth_date" class="error"></div>
                             </div>
                             <div class="input-field">
                                 {{ basic_form.password(id="sign_up_password", type="password") }}

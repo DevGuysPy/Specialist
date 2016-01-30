@@ -89,11 +89,6 @@ class LocationForm(BaseModelForm):
         validators = [DataRequired()]
 
 
-class LocationForm(BaseModelForm):
-    class Meta:
-        model = Location
-
-
 class SpecialistForm(BaseModelForm):
     class Meta:
         model = Specialist
