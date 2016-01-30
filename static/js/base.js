@@ -120,11 +120,18 @@ function getLocByLatLng(lat, lng, successFunc) {
 function initPreloader(btn){
     var main_preloader = $('#main-preloader');
     btn.hide();
-    var custom_preloader = main_preloader
-        .clone()
-        .insertBefore(btn)
-        .show();
-    custom_preloader.removeAttr('id');
+    var previous_prl = btn.parent().find('.preloader-wrapper');
+
+    var custom_preloader = null;
+    if (!(previous_prl.length)) {
+        custom_preloader = main_preloader
+            .clone()
+            .insertBefore(btn)
+            .show();
+        custom_preloader.removeAttr('id');
+    } else {
+        custom_preloader = previous_prl.show();
+    }
 
     return custom_preloader
 }
