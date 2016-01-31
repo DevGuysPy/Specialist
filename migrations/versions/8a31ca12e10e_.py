@@ -68,7 +68,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('title')
     )
-    op.create_table('user',
+    op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('first_name', sa.String(length=256), nullable=True),
     sa.Column('last_name', sa.String(length=256), nullable=True),
@@ -167,7 +167,7 @@ def downgrade():
     op.drop_table('user_org_activity')
     op.drop_table('specialist')
     op.drop_table('org_org_activity')
-    op.drop_table('user')
+    op.drop_table('users')
     op.drop_table('service')
     op.drop_table('company')
     op.drop_table('service_category')

@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
 import json
 from datetime import date
-from math import radians, cos, sin, asin, sqrt
-from sqlalchemy import desc, func
 
+from sqlalchemy import desc, func
+from math import cos, sqrt
 from flask import (render_template, url_for, jsonify, redirect, request,
                    session, abort)
 from flask_views.base import TemplateView
@@ -719,14 +719,18 @@ class SearchSpecialist(TemplateView):
         """
         current_location =\
             session['current_user_location']['geometry']['location']
-
+        lng = current_location['lng']
+        lat = current_location['lat']
         specialist_info = [
             {
                 'specialist': s,
-                'distance': get_distance(s.user.location.longitude,
-                                         s.user.location.latitude,
-                                         current_location['lng'],
-                                         current_location['lat'])
+                # Sql query is much more faster than Sqlalchemy ORM
+                'distance': get_distance(lng, lat, db.engine.execute(
+                    'SELECT Location.latitude, Location.longitude '
+                    'FROM Location '
+                    'INNER JOIN specialist ON specialist.id = %s '
+                    'INNER JOIN users ON specialist.user_id=users.id '
+                    'WHERE Location.id = users.location_id' % s.id).fetchone())
             }
             for s in self.service.specialists.all()
         ]
@@ -778,21 +782,7 @@ app.add_url_rule(
 )
 
 
-def get_distance(lon1, lat1, lon2, lat2):
-    """
-    Calculate the great circle distance between two points
-    on the earth (specified in decimal degrees)
-    """
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    km = 6367 * c
-
-    return km
 
 
 @app.route('/set_current_location', methods=['POST'])
@@ -858,3 +848,18 @@ def create_order():
         'status': 'ok',
         'redirect_url': url_for('order', id=order.id)
     })
+
+
+def get_distance(lon1, lat1, latlng2):
+        """
+        Calculate the great circle distance between two points
+        on the earth (specified in decimal degrees)
+        """
+
+        lon2 = latlng2['longitude']
+        lat2 = latlng2['latitude']
+        R = 6371
+        x = (lon2 - lon1) * cos( 0.5*(lat2+lat1) )
+        y = lat2 - lat1
+        d = R * sqrt( x*x + y*y )
+        return d

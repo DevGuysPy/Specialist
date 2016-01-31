@@ -14,7 +14,7 @@ ACTIVITY_STATUS_TYPES = (
 
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = db.Column(db.Integer(), primary_key=True)
 
     first_name = db.Column(db.String(256))
@@ -159,8 +159,8 @@ class Specialist(db.Model):
     __tablename__ = 'specialist'
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship("User", back_populates="specialist")
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship("User")
 
     experience = db.Column(ChoiceType(get_experience_types()), default='0')
 
@@ -209,12 +209,12 @@ class UserUserActivity(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
 
-    from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+    from_user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                              nullable=False)
     from_user = db.relationship('User', foreign_keys=[from_user_id],
                                 backref="from_activities_user")
 
-    to_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+    to_user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                            nullable=False)
     to_user = db.relationship('User', foreign_keys=[to_user_id],
                               backref="to_activities_user")
@@ -296,7 +296,7 @@ class UserOrgActivity(db.Model):
     org = db.relationship('Company', foreign_keys=[org_id],
                           backref="from_activities_user_org")
 
-    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                         nullable=False)
     user = db.relationship('User', foreign_keys=[user_id],
                            backref="to_activities_user_org")
@@ -388,12 +388,12 @@ class OrgCategory(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
-    from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+    from_user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                              nullable=False)
     from_user = db.relationship('User', foreign_keys=[from_user_id],
                                 backref="from_messages")
 
-    to_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+    to_user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                            nullable=False)
     to_user = db.relationship('User', foreign_keys=[to_user_id],
                               backref="to_messages")
