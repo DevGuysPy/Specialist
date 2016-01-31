@@ -782,9 +782,6 @@ app.add_url_rule(
 )
 
 
-
-
-
 @app.route('/set_current_location', methods=['POST'])
 def set_current_location():
     """

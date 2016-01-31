@@ -44,15 +44,15 @@
 }
 
 @keyframes slidein {
-  from {
-    margin-left: 50%;
-    width: 100%;
-  }
+    from {
+        margin-left: 50%;
+        width: 100%;
+    }
 
-  to {
-    margin-left: 0%;
-    width: 100%;
-  }
+    to {
+        margin-left: 0%;
+        width: 100%;
+    }
 }
 
 .location-btn {
@@ -61,7 +61,7 @@
 }
 
 .location-btn i {
-    line-height: 40px !important;
+    line-height: 0 !important;
 }
 
 .add-location-btn i {
@@ -113,3 +113,22 @@
 .order-service {
     min-height: 700px;
 }
+.sidebar-collapse {
+    top: -92px;
+}
+@media only screen and (max-width: 630px) {
+    .ban-mobile-fast-order {
+        display:none !important
+    }
+}
+@media only screen and (max-width: 1300px) {
+    #order-service-modal {
+        width: 97%;
+    }
+}
+@media only screen and (min-width: 1301px) and (max-width: 1700px) {
+    #order-service-modal {
+        width: 73%;
+    }
+}
+

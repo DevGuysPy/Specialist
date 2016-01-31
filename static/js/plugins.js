@@ -126,42 +126,6 @@ $(function() {
   $('.leftside-navigation').height(leftnavHeight).perfectScrollbar({
     suppressScrollX: true
   });
-    var righttnav = $("#chat-out").height();
-  $('.rightside-navigation').height(righttnav).perfectScrollbar({
-    suppressScrollX: true
-  });
-
-
-  // Fullscreen
-  function toggleFullScreen() {
-    if ((document.fullScreenElement && document.fullScreenElement !== null) ||
-      (!document.mozFullScreen && !document.webkitIsFullScreen)) {
-      if (document.documentElement.requestFullScreen) {
-        document.documentElement.requestFullScreen();
-      }
-      else if (document.documentElement.mozRequestFullScreen) {
-        document.documentElement.mozRequestFullScreen();
-      }
-      else if (document.documentElement.webkitRequestFullScreen) {
-        document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-      }
-    }
-    else {
-      if (document.cancelFullScreen) {
-        document.cancelFullScreen();
-      }
-      else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      }
-      else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
-      }
-    }
-  }
-
-  $('.toggle-fullscreen').click(function() {
-    toggleFullScreen();
-  });
 
 
   // Floating-Fixed table of contents (Materialize pushpin)
@@ -181,29 +145,6 @@ $(function() {
     });
   }
 
-  // Toggle Flow Text
-  var toggleFlowTextButton = $('#flow-toggle')
-  toggleFlowTextButton.click(function() {
-    $('#flow-text-demo').children('p').each(function() {
-      $(this).toggleClass('flow-text');
-    })
-  });
-
-
-  //Toggle Containers on page
-  var toggleContainersButton = $('#container-toggle-button');
-  toggleContainersButton.click(function() {
-    $('body .browser-window .container, .had-container').each(function() {
-      $(this).toggleClass('had-container');
-      $(this).toggleClass('container');
-      if ($(this).hasClass('container')) {
-        toggleContainersButton.text("Turn off Containers");
-      }
-      else {
-        toggleContainersButton.text("Turn on Containers");
-      }
-    });
-  });
 
   // Detect touch screen and enable scrollbar if necessary
   function is_touch_device() {
@@ -219,24 +160,6 @@ $(function() {
     $('#nav-mobile').css({
       overflow: 'auto'
     })
-  }
-
-  //LINE CHART WITH AREA IN SIDEBAR
-    new Chartist.Line('#ct2-chart', {
-        labels: [1, 2, 3, 4, 5, 6, 7, 8],
-        series: [
-            [5, 9, 7, 8, 5, 3, 5, 4]
-        ]
-    }, {
-        low: 0,
-        showArea: true
-    });
-
-  //Trending chart for small screen
-  if(window_width <= 480){
-    $("#trending-line-chart").attr({
-      height: '200'
-    });
   }
 
 
