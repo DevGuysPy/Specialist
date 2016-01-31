@@ -16,10 +16,9 @@ from app import app, db
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
 from utils import (generate_confirmation_token, send_email,
-                   send_user_verification_email,
-                   account_not_found, page_not_found)
+                   send_user_verification_email, page_not_found, get_random_background)
 from forms import (AddServiceActivityForm, RegistrationForm,
-                   SpecialistForm, ServiceForm, LoginForm)
+                   SpecialistForm, LoginForm)
 
 current_user_location = None
 
@@ -54,12 +53,12 @@ class Home(TemplateView):
         self.stats['categories'] = ServiceCategory.query.count()
         self.stats['new_users'] = User.query \
             .filter(func.date(User.registration_time) == date.today()).count()
+        yesterday_users = User.query\
+            .filter(func.date(User.registration_time) == date.today() - timedelta(1)).count()
 
-        if self.stats['new_users']:
+        if yesterday_users:
             self.stats['new_users_in_percents'] = \
-                self.stats['new_users'] / User.query\
-                .filter(func.date(User.registration_time) == date
-                        .today() - timedelta(1)).count() * 100
+                self.stats['new_users'] / yesterday_users * 100
 
         return self.stats
 
@@ -109,7 +108,7 @@ class UserProfile(TemplateView):
     def get(self, *args, **kwargs):
         self.user = User.query.get(kwargs.get('user_id'))
         if not self.user:
-            return account_not_found()
+            abort(404)
 
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
@@ -230,7 +229,8 @@ def sign_up_user():
                         form.full_name.data.split(' ')[1:]),
                     email=form.email.data,
                     password=form.password.data,
-                    birth_date=form.birth_date.data)
+                    birth_date=form.birth_date.data,
+                    bg_photo=get_random_background())
 
         db.session.add(user)
         db.session.flush()
@@ -456,6 +456,20 @@ app.add_url_rule(
     '/account/specialist',
     view_func=AccountSpecialist.as_view('account_specialist')
 )
+
+
+@app.route('/remove_services/<int:id>', methods=['POST'])
+def remove_services(id):
+    service = SpecialistService.query.filter_by(specialist_id=current_user.specialist.id, service_id=id).first()
+    # Temporary, not sure about this
+    # activities = UserUserActivity.query.filter_by(service_id=id).all()
+    # if activities:
+    #     for a in activities:
+    #         db.session.delete(a)
+    db.session.delete(service)
+    return jsonify({
+        'status': 'ok'
+    })
 
 
 class AccountCompany(TemplateView):

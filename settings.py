@@ -22,6 +22,12 @@ RECAPTCHA_OPTIONS = {'theme': 'white'}
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
 
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+
+REGION_HOST = 's3.eu-central-1.amazonaws.com'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
 try:
     from local_settings import *
 except ImportError:

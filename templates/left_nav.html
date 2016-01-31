@@ -1,7 +1,7 @@
 <!-- START LEFT SIDEBAR NAV -->
 <aside id="left-sidebar-nav">
     <ul id="slide-out" class="side-nav fixed leftside-navigation">
-        <li class="user-details cyan darken-2">
+        <li class="user-details darken-2" style="background: url('{{ current_user.bg_photo }}') no-repeat center center !important; background-size: 240px 84px !important;">
             <div class="row">
                 <div class="col col s4 m4 l4">
                     <img src="{{ url_for('static', filename='img/profile.png') }}"

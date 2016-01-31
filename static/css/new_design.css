@@ -556,7 +556,6 @@ ul.side-nav.leftside-navigation:hover {
   /*overflow-y:hidden;*/
 }
 ul.side-nav.leftside-navigation li.user-details {
-  background: url(http://goo.gl/hkIcuu) no-repeat center center;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -710,6 +709,9 @@ h5.breadcrumbs-header {
   text-align: center;
 }
 #card-stats .card-stats-title, #card-stats .card-stats-title i {
+  font-size: 1.2rem;
+}
+#card-services .card-stats-title {
   font-size: 1.2rem;
 }
 

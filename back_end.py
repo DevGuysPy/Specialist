@@ -4,12 +4,13 @@ import random
 
 from loremipsum import get_sentences
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import logging
 
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
+from main.views import get_random_background
 from app import app, db
 from default_db_data import services_data, nouns, countries_and_cities
 from main.models import (Service, ServiceCategory, User, UserUserActivity,
@@ -29,26 +30,30 @@ migrate = Migrate(app, db)
 @manager.command
 def create_activities():
     time = datetime.utcnow()
-    for i in range(20):
+    users = User.query.count()
+    services = Service.query.count()
+    for i in range(1000000):
         print i
         user = UserUserActivity(confirmed=True,
                                 start=time,
-                                from_user_id=1,
-                                to_user_id=2,
-                                service_id=1
+                                from_user_id=random.randint(1, users),
+                                to_user_id=random.randint(1, users),
+                                service_id=random.randint(1, services)
                                 )
         db.session.add(user)
     db.session.commit()
 
 
 @manager.command
-def create_all(srv=False, comp=False, usr=False):
+def create_all(srv=False, comp=False, usr=False, act=False):
     if srv:
         add_services_to_database()
     if comp:
         create_companies()
     if usr:
         create_users()
+    if act:
+        create_activities()
 
 
 def get_random_date(from_year, to_year):
@@ -98,6 +103,7 @@ def create_users():
                     password='1111',
                     confirmed=True,
                     location=loc,
+                    bg_photo=get_random_background(),
                     birth_date=get_random_date(1950, 1996),
                     phone_number='+380' + str(
                             random.randint(100000000, 999999999)))

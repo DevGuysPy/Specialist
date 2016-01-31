@@ -6,63 +6,9 @@
 
 {% block settings_content %}
     <div id="specialist_settings_content">
-        <div class="row">
-            <div class="col m6">
-                <div class="specialist-services"
-                         {% if user.specialist.services|length == 0 %}
-                            style="display: none"
-                         {% endif %}>
-                    <div class="card">
-                        <div class="card_content">
-                            <p class="flow-text center-align services-title">Services you offer</p>
-                        </div>
-                    </div>
-                    <ul class="collapsible" data-collapsible="accordion" id="services_accordion">
-                        {% for s in user.specialist.services %}
-                            <li>
-                                <div class="collapsible-header service-accordion">
-                                    {{ s.title }}
-                                </div>
-                                <div class="collapsible-body service-accordion">
-                                    {% set latest_activity = latest_activities[s.title] %}
-                                    <ul class="collection with-header">
-                                        {% if latest_activity %}
-                                            <li class="collection-header">
-                                                <h5>Your latest activity</h5>
-                                            </li>
-                                            <li class="collection-item avatar">
-                                                <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
-                                                <span class="title">{{ latest_activity.to_user.full_name() }}</span>
-                                                <div class="chip right chip-status-{{ latest_activity.status.code }}">
-                                                    {{ latest_activity.status }}
-                                                </div>
-                                                <br>
-                                                Start - {{ latest_activity.start }}<br>
-                                                Location - we are working on this
-                                            </li>
-                                        {% else %}
-                                            <li class="collection-header">
-                                                <h5>You haven't orders on this service</h5>
-                                            </li>
-                                        {% endif %}
-                                    </ul>
+        <div class="section row">
 
-
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% if user.specialist.services|length == 0 %}
-                    <div class="card no-services-services">
-                        <div class="card_content">
-                            <p class="flow-text center-align services-title">
-                                You don`t offer any services. You can easily add them.</p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            <div class="col m6">
+            <div class="col offset-l3 l6 s12">
                 <div class="card" id="search_service_card">
                     <div class="card-content">
                         <h5>Feel free to add services you offer</h5>
@@ -80,6 +26,44 @@
                         </button>
                     </div>
                 </div>
+            </div>
+
+        </div>
+        <div class="container row prepend" id="products">
+            <div class="product-sizer"></div>
+            {% for s in user.specialist.services %}
+                <div class="product" id="service_{{ s.id }}">
+                    <div class="card random-bg" id="card-stats">
+                        <div class="card-content white-text front">
+                            <span class="activator"><i class="material-icons right cursor">more_vert</i></span>
+                            <span class="card-stats-title">{{ s.title }}</span>
+                            <h4 class="card-stats-number">{{ s.activities_count() }}</h4>
+                            <p class="card-stats-compare">
+                                <span class="green-text text-lighten-5"> times ordered</span>
+                            </p>
+                        </div>
+                        <div class="card-reveal">
+                            <span class="grey-text text-darken-4 card-title flow-text"><i class="material-icons right">close</i></span><br>
+                            <p class="center-align"> <i class="material-icons cursor red-text" onclick="removeService({{ s.id }})">delete</i> - remove service</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/accountSpecialist.js') }}"></script>
+    <script>
+        initServiceContent(
+                "{{ url_for('add_services_to_specialist') }}",
+                "{{ url_for('service_autocomplete') }}"
+        );
+    </script>
+{% endblock %}
+
 {#                      Commented for now. Will be done soon  #}
 {#                    <div class="card" id="add_service_card">#}
 {#                        <div class="card-content">#}
@@ -105,17 +89,3 @@
 {#                            </form>#}
 {#                        </div>#}
 {#                    </div>#}
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block script %}
-    <script src="{{ url_for('static', filename='js/accountSpecialist.js') }}"></script>
-    <script>
-        initServiceContent(
-                "{{ url_for('add_services_to_specialist') }}",
-                "{{ url_for('service_autocomplete') }}"
-        );
-    </script>
-{% endblock %}
