@@ -16,7 +16,9 @@
                 {{ activity.from_user.full_name() }}
             </a>
             </p>
-            <p class="flow-text center">Start at: {{ activity.start | datetimefilter }}</p>
+            {% if activity.start %}
+                <p class="flow-text center">Start at: {{ activity.start | datetimefilter }}</p>
+            {% endif %}
             <blockquote>{{ activity.description }}</blockquote>
             <p class="flow-text center">Status: </p>
         </div>

@@ -46,6 +46,7 @@
     detailsScope: null,
     autoselect: true,
     location: false,
+    setGlobal: false,
 
     mapOptions: {
       zoom: 14,
@@ -119,6 +120,10 @@
         this.options.mapOptions
       );
 
+      if (this.options.setGlobal) {
+        window.orderServiceMap = this.map;
+      }
+
       // add click event listener on the map
       google.maps.event.addListener(
         this.map,
@@ -185,6 +190,10 @@
       this.autocomplete = new google.maps.places.Autocomplete(
         this.input, options
       );
+
+      if (this.options.setGlobal) {
+        window.orderServiceAutocomplete = this.autocomplete;
+      }
 
       this.geocoder = new google.maps.Geocoder();
 

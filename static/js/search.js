@@ -8,7 +8,7 @@ function specialistCardHandler(){
     cards.find('.btn-price, .profile-trigger').on('click', function(){
         window.location = '/account/' + $(this)
                 .closest('.specialist-card')
-                .find('input[class="specialist-id"]')
+                .find('input[class="user-id"]')
                 .val()
     });
 

@@ -1,0 +1,177 @@
+<div id="order-service-modal" class="modal order-service">
+    <div class="modal-content">
+        <div class="row center">
+            <h4 class="order-service-header">Order service</h4>
+        </div>
+        <div class="row">
+            <div class="col m5">
+                <div class="order-service-specialist-card"></div>
+            </div>
+            <div class="col m7 order-service-tabs">
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="tabs">
+                            <li class="tab col s4">
+                                <a href="#tab1">By telephone</a>
+                            </li>
+                            <li class="tab col s4">
+                                <a class="active" href="#tab2">By our interface</a>
+                            </li>
+                            <li class="tab col s4">
+                                <a href="#tab3">By personal msg</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="tab1" class="col s12 tab-by-telephone">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="card-title center">We are working on this.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab2" class="col s12 tab-by-interface">
+                        <div class="card by-interface-main">
+                            <div class="card-content">
+                                <div class="input-field col s12 order-service-services">
+                                    <select>
+                                    </select>
+                                    <label>Select service</label>
+                                </div>
+                                <div class="input-field order-service-description">
+                                    <textarea id="order_service_description" class="materialize-textarea"></textarea>
+                                    <label for="order_service_description">Description of service</label>
+                                    <div id="error_order_service_description" class="error"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col m4">
+                                        <p class="custom-fields add-location">Add location</p>
+                                    </div>
+                                    <div class="col m7">
+                                        <p class="selected-location">You have not selected location for your order</p>
+                                    </div>
+                                    <div class="col m1">
+                                        <a class="right add-location-btn location-btn btn-floating btn-large waves-effect waves-light blue-grey darken-3 tooltipped" data-position="top" data-delay="50" data-tooltip="Add location">
+                                            <i class="material-icons">add_location</i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="divider order-service-divider"></div>
+                                <div class="row">
+                                    <div class="col m4">
+                                        <p class="custom-fields add-timing">Change timing</p>
+                                    </div>
+                                    <div class="col m7">
+                                        <div class="timing-info">
+                                            <div class="start-timing-info timing-info-str" style="display: none">
+                                                <p class="info"></p>
+                                                <div class="divider"></div>
+                                            </div>
+                                            <div class="end-timing-info timing-info-str" style="display: none">
+                                                <p class="info"></p>
+                                                <div class="divider"></div>
+                                            </div>
+                                            <div class="type-timing-info timing-info-str">
+                                                <p class="info">Type: Without strict time limits</p>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col m1">
+                                        <a class="right add-service-timing location-btn btn-floating btn-large waves-effect waves-light blue-grey darken-3 tooltipped" data-position="top" data-delay="50" data-tooltip="Add timing">
+                                            <i class="material-icons">access_time</i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="center">
+                                    <p class="error-message" style="display: none">Ups, we have some problems. Try again.</p>
+                                    {% if current_user.is_authenticated %}
+                                        <a id="add_order" class="waves-effect waves-light btn blue-grey darken-3">Send request</a>
+                                    {% else %}
+                                        <a class="order-service-login-btn waves-effect waves-light btn blue-grey darken-3 sign_up_or_login login-interface login-event">Login or sign up to proceed</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card by-interface-location" style="display: none">
+                            <div class="card-content">
+                                <a class="left hide-location-btn location-btn btn-floating btn-large waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">arrow_back</i>
+                                </a>
+                                <div class="input-field">
+                                    <input type="text" id="order_service_location_autocomplete">
+                                    <label for="order_service_location_autocomplete">Select your location</label>
+                                </div>
+                                <div class="order-service-current-map"></div>
+                                <div id="order_service_location_details">
+                                    <input type="hidden" name='country'>
+                                    <input type="hidden" name='route'>
+                                    <input type="hidden" name='street_number'>
+                                    <input type="hidden" name='locality'>
+                                    <input type="hidden" name='administrative_area_level_1'>
+                                    <input type="hidden" name='lat'>
+                                    <input type="hidden" name='lng'>
+                                </div>
+                                <input type="checkbox" id="order-service-current-location" />
+                                <label for="order-service-current-location">Select your current location</label>
+                            </div>
+                        </div>
+                        <div class="card by-interface-timing" style="display: none">
+                            <div class="card-content">
+                                <a class="left hide-location-btn location-btn btn-floating btn-large waves-effect waves-light blue-grey darken-3">
+                                    <i class="material-icons">arrow_back</i>
+                                </a>
+                                <div class="input-field">
+                                    <input type="date" id="order_service_start" class="start-datepicker select-timing">
+                                    <label for="order_service_start">Enter acceptable service start</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="date" id="order_service_end" class="end-datepicker select-timing">
+                                    <label for="order_service_end">Enter expected date of end service</label>
+                                </div>
+                                <div class="input-field">
+                                    <select class="select-timing-type">
+                                        <option value="0">Without strict time limits</option>
+                                        <option value="1">Moderate</option>
+                                        <option value="2">Urgent</option>
+                                    </select>
+                                    <label>Select type of timing</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab3" class="col s12 tab-by-personal-msg">
+                        <div class="card">
+                            <div class="card-content">
+                                <p class="center by-message-title">Here you can clarify your order.</p>
+                                <ul>
+                                    <li>1. Describe your order in general.</li>
+                                    <li>2. Write about type of work, volume of work.</li>
+                                    <li>3. Enter time frames.</li>
+                                    <li>4. Don't forget about your specs and location.</li>
+                                    <li>5. Select estimated price.</li>
+                                </ul>
+
+                                <div class="input-field">
+                                    <input type="text" id="order_service_message_subject">
+                                    <label for="order_service_message_subject">Enter subject of message</label>
+                                </div>
+                                <div class="input-field">
+                                    <textarea id="order_service_message_text" class="materialize-textarea"></textarea>
+                                    <label for="order_service_message_text">Enter text</label>
+                                </div>
+                                <p id="by-message-error" class="error-message center"></p>
+                                <div class="center">
+                                    {% if current_user.is_authenticated %}
+                                        <a id="order-service-send-msg-btn" class="waves-effect waves-light btn blue-grey darken-3">Send Message</a>
+                                    {% else %}
+                                        <a class="order-service-login-btn waves-effect waves-light btn blue-grey darken-3 sign_up_or_login login-msg login-event">Login or sign up to proceed</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

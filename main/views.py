@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import json
-from datetime import date, timedelta
+from datetime import date
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import desc, func
 
@@ -11,7 +11,7 @@ from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
 
-from app import app, db
+from app import app, db, api_manager
 
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location)
@@ -19,9 +19,12 @@ from utils import (generate_confirmation_token, send_email,
                    send_user_verification_email,
                    account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
-                   SpecialistForm, ServiceForm, LoginForm)
+                   SpecialistForm, LoginForm)
 
 current_user_location = None
+
+api_manager.create_api(Specialist, exclude_columns=[
+    'experience', 'user.password', 'user.phone_number'])
 
 
 class Home(TemplateView):
@@ -56,10 +59,7 @@ class Home(TemplateView):
             .filter(func.date(User.registration_time) == date.today()).count()
 
         if self.stats['new_users']:
-            self.stats['new_users_in_percents'] = \
-                self.stats['new_users'] / User.query\
-                .filter(func.date(User.registration_time) == date
-                        .today() - timedelta(1)).count() * 100
+            self.stats['new_users_in_percents'] = 0
 
         return self.stats
 
@@ -229,8 +229,7 @@ def sign_up_user():
                     last_name=' '.join(
                         form.full_name.data.split(' ')[1:]),
                     email=form.email.data,
-                    password=form.password.data,
-                    birth_date=form.birth_date.data)
+                    password=form.password.data)
 
         db.session.add(user)
         db.session.flush()
@@ -238,6 +237,9 @@ def sign_up_user():
         send_user_verification_email(user.id)
 
         session['signing_up_user_id'] = user.id
+
+        if 'login' in request.args:
+            login_user(user)
 
         return jsonify({
             'status': 'ok',
@@ -715,14 +717,16 @@ class SearchSpecialist(TemplateView):
         current user.
         Sorted by proximity
         """
+        current_location =\
+            session['current_user_location']['geometry']['location']
 
         specialist_info = [
             {
                 'specialist': s,
                 'distance': get_distance(s.user.location.longitude,
                                          s.user.location.latitude,
-                                         current_user_location['longitude'],
-                                         current_user_location['latitude'])
+                                         current_location['lng'],
+                                         current_location['lat'])
             }
             for s in self.service.specialists.all()
         ]
@@ -736,7 +740,7 @@ class SearchSpecialist(TemplateView):
         """
         from_user_number = (self.page - 1) * 12
         to_user_number = self.page * 12
-        if not current_user_location:
+        if not session.get('current_user_location'):
             return self.service.specialists\
                 .slice(from_user_number, to_user_number).all()
 
@@ -800,8 +804,57 @@ def set_current_location():
     """
 
     data = json.loads(request.data)
-    global current_user_location
-    current_user_location = data
+    session['current_user_location'] = data
     return jsonify({
         'status': 'ok'
+    })
+
+
+@app.route('/add_order', methods=['POST'])
+@login_required
+def create_order():
+    data = json.loads(request.data)
+    service_id = data.get('service_id')
+    user_id = data.get('user_id')
+    if not (user_id and service_id):
+        return abort(400)
+
+    try:
+        from_user = User.query.filter_by(id=int(user_id)).one()
+        service = Service.query.filter_by(id=int(service_id)).one()
+    except (ValueError, NoResultFound):
+        return abort(400)
+    location = data.get('location')
+
+    if location and location.get('country') and location.get('lng') and \
+            location.get('lat'):
+        location = Location(
+            country=location['country'],
+            state=location.get('administrative_area_level_1'),
+            city=location.get('locality'),
+            street=location.get('route'),
+            building=location.get('street_number'),
+            longitude=location.get('lng'),
+            latitude=location.get('lat'))
+        db.session.add(location)
+        db.session.flush()
+    else:
+        location = None
+
+    order = UserUserActivity(
+        from_user=from_user,
+        to_user=current_user,
+        service=service,
+        description=data.get('description'),
+        start=data.get('start') or None,
+        end=data.get('end') or None,
+        location=location,
+        timing_type=data.get('timing_type', '0'))
+
+    db.session.add(order)
+    db.session.flush()
+
+    return jsonify({
+        'status': 'ok',
+        'redirect_url': url_for('order', id=order.id)
     })

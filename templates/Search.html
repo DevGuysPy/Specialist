@@ -1,5 +1,9 @@
 {% extends "Base.html" %}
 
+{% block css %}
+    <link href="{{ url_for('static', filename='css/order_service_modal.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
 
     <p class="flow-text search-title center">
@@ -12,7 +16,7 @@
             {% for specialist in specialists %}
                 <div class="product">
                     <div class="card specialist-card hoverable">
-                        <input type="hidden" class="specialist-id" value={{ specialist.user.id }}>
+                        <input type="hidden" class="user-id" value={{ specialist.user.id }}>
                         <div class="card-image waves-effect waves-block waves-light">
                             <img src="{{ url_for('static', filename='img/profile.png') }}"
                                  class="btn-price waves-effect waves-light">
@@ -46,9 +50,10 @@
                             </li>
                         </ul>
                         <ul class="card-action-buttons">
-                            <li>
-                                <a class="btn-floating waves-effect waves-light green accent-4">
-                                    <i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">repeat</i>
+                            <li class="order-service-el">
+                                <a class="btn-floating waves-effect waves-light green accent-4 order-service-btn">
+                                    <i class="mdi-av-repeat tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">
+                                    </i>
                                 </a>
                             </li>
                             <li>
@@ -62,7 +67,7 @@
                                 </a>
                             </li>
                         </ul>
-                        <div class="center"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
+                        <div class="center"><span class="flow-text profile-trigger cursor specialist-name">{{ specialist.user.full_name()}}</span></div>
                         <div class="card-content">
                             <div class="row">
                                 <div class="col m6">
@@ -130,6 +135,7 @@
 
                             {% endif %}
                         </div>
+                        <div class="order-spec-service-modal"></div>
                     </div>
                 </div>
             {% endfor %}
@@ -149,7 +155,6 @@
             </li>
         </ul>
     </div>
-
     <div class="row">
         <p class="flow-text center">Similar services</p>
         {% for service in similar_services %}
@@ -166,7 +171,7 @@
             </div>
         {% endfor %}
     </div>
-
+    {% include "OrderService.html" %}
 {% endblock %}
 
 {% block script %}
@@ -177,6 +182,8 @@
                 {{ specialists_count }},
                 {{ current_page }});
     </script>
+    <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/orderService.js') }}"></script>
     <script type="text/javascript">
         /*
          * Masonry container for eCommerce page
@@ -188,6 +195,7 @@
                 columnWidth: ".product-sizer",
             });
         });
+        initOrderServiceModal({{ current_service.id }});
     </script>
 
 {% endblock %}

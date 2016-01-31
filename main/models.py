@@ -14,6 +14,7 @@ ACTIVITY_STATUS_TYPES = (
 
 
 class User(db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.Integer(), primary_key=True)
 
     first_name = db.Column(db.String(256))
@@ -35,7 +36,7 @@ class User(db.Model):
 
     photo = db.Column(db.String(), unique=True)
 
-    birth_date = db.Column(db.Date(), nullable=False)
+    birth_date = db.Column(db.Date())
 
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
                             nullable=True)
@@ -65,6 +66,8 @@ class User(db.Model):
         return unicode(self.id)
 
     def get_age(self):
+        if not self.birth_date:
+            return 'User has not entered his age'
         return datetime.date.today().year - self.birth_date.year
 
     def get_orders(self):
@@ -153,6 +156,7 @@ def get_experience_types():
 
 
 class Specialist(db.Model):
+    __tablename__ = 'specialist'
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -194,7 +198,15 @@ class ServiceCategory(db.Model):
     description = db.Column(db.Text())
 
 
+TIMING_TYPE = (
+        ('0', 'Without strict time limits'),
+        ('1', 'Moderate'),
+        ('2', 'Urgent')
+    )
+
+
 class UserUserActivity(db.Model):
+
     id = db.Column(db.Integer(), primary_key=True)
 
     from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
@@ -211,12 +223,18 @@ class UserUserActivity(db.Model):
                            nullable=False)
     service = db.relationship('Service', backref="user_user_activities")
 
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'),
+                            nullable=True)
+    location = db.relationship('Location')
+
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
     description = db.Column(db.Text())
 
     specialist_rating = db.Column(db.Integer())
     customer_rating = db.Column(db.Integer())
+
+    timing_type = db.Column(ChoiceType(TIMING_TYPE), default='0')
 
     status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
 
@@ -264,12 +282,13 @@ class UserUserActivity(db.Model):
         return activity, True
 
 
-class UserOrgActivity(db.Model):
-    ACTIVITY_TYPE = (
+ACTIVITY_TYPE = (
         (0, 'User Org'),
         (1, 'Org User')
     )
 
+
+class UserOrgActivity(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
@@ -364,3 +383,26 @@ class Location(db.Model):
 class OrgCategory(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(256), nullable=False, unique=True)
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+
+    from_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+                             nullable=False)
+    from_user = db.relationship('User', foreign_keys=[from_user_id],
+                                backref="from_messages")
+
+    to_user_id = db.Column(db.Integer(), db.ForeignKey('user.id'),
+                           nullable=False)
+    to_user = db.relationship('User', foreign_keys=[to_user_id],
+                              backref="to_messages")
+
+    subject = db.Column(db.String(length=1000), nullable=False)
+
+    text = db.Column(db.Text(), nullable=False)
+
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'))
+    service = db.relationship('Service')
+
+    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
