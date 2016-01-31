@@ -711,9 +711,9 @@ class SearchSpecialist(TemplateView):
 
         return context
 
-    def get_specialists_with_distance(self):
+    def get_specialist_ids_with_distance(self):
         """
-        Return dict which contains specialist and distance between him and
+        Return dict which contains specialist id and distance between him and
         current user.
         Sorted by proximity
         """
@@ -721,20 +721,18 @@ class SearchSpecialist(TemplateView):
             session['current_user_location']['geometry']['location']
         lng = current_location['lng']
         lat = current_location['lat']
-        specialist_info = [
-            {
-                'specialist': s,
-                # Sql query is much more faster than Sqlalchemy ORM
-                'distance': get_distance(lng, lat, db.engine.execute(
-                    'SELECT Location.latitude, Location.longitude '
-                    'FROM Location '
-                    'INNER JOIN specialist ON specialist.id = %s '
-                    'INNER JOIN users ON specialist.user_id=users.id '
-                    'WHERE Location.id = users.location_id' % s.id).fetchone())
-            }
-            for s in self.service.specialists.all()
-        ]
-        return sorted(specialist_info, key=lambda d: d['distance'])
+        spec_infos = db.engine.execute(
+            'SELECT Specialist.id, Location.latitude, Location.longitude '
+            'FROM specialist_service '
+            'INNER JOIN Specialist ON '
+            'Specialist.id = specialist_service.specialist_id '
+            'INNER JOIN users ON users.id = Specialist.user_id '
+            'INNER JOIN Location ON Location.id = users.location_id '
+            'WHERE specialist_service.service_id = %s' % self.service.id)
+        distances = \
+            [(s[0], get_distance(lat, lng, s[1], s[2])) for s in spec_infos]
+
+        return sorted(distances, key=lambda dist: dist[1])
 
     def get_specialists(self):
         """
@@ -748,11 +746,10 @@ class SearchSpecialist(TemplateView):
             return self.service.specialists\
                 .slice(from_user_number, to_user_number).all()
 
-        return [
-            s['specialist']
-            for s in self.get_specialists_with_distance()
-            [from_user_number:to_user_number]
-        ]
+        sorted_specialist_ids = \
+            [s[0] for s in self.get_specialist_ids_with_distance()
+                [from_user_number:to_user_number]]
+        return Specialist.query.filter(Specialist.id.in_(sorted_specialist_ids))
 
     def get_similar_services(self):
         """
@@ -847,14 +844,12 @@ def create_order():
     })
 
 
-def get_distance(lon1, lat1, latlng2):
+def get_distance(lon1, lat1, lat2, lon2):
         """
         Calculate the great circle distance between two points
         on the earth (specified in decimal degrees)
         """
 
-        lon2 = latlng2['longitude']
-        lat2 = latlng2['latitude']
         R = 6371
         x = (lon2 - lon1) * cos( 0.5*(lat2+lat1) )
         y = lat2 - lat1
