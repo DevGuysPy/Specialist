@@ -17,38 +17,11 @@
                 <div class="product">
                     <div class="card specialist-card hoverable">
                         <input type="hidden" class="user-id" value={{ specialist.user.id }}>
-                        <div class="card-image waves-effect waves-block waves-light">
-                            <img src="{{ url_for('static', filename='img/profile.png') }}"
-                                 class="btn-price waves-effect waves-light">
-                            <img src="http://goo.gl/hkIcuu" alt="product-img" style="max-height: 150px">
+                        <div class="card-image waves-effect waves-block waves-light mini-bane">
+                            <img src="http://goo.gl/hkIcuu" alt="product-img">
                         </div>
-                        <ul class="card-action-buttons stars">
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star_half</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star_border</i>
-                                </a>
-                            </li>
-                        </ul>
+                        <img src="{{ url_for('static', filename='img/profile.png') }}"
+                             class="btn-price waves-effect waves-light">
                         <ul class="card-action-buttons">
                             <li class="order-service-el">
                                 <a class="btn-floating waves-effect waves-light green accent-4 order-service-btn ban-mobile-fast-order">
@@ -67,8 +40,8 @@
                                 </a>
                             </li>
                         </ul>
-                        <div class="center"><span class="flow-text profile-trigger cursor specialist-name">{{ specialist.user.full_name()}}</span></div>
-                        <div class="card-content">
+                        <div class="center specialist-name"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
+                        <div class="card-content" style="padding-bottom: 15px">
                             <div class="row">
                                 <div class="col m6">
                                     <p><i class="material-icons tiny">location_on</i><strong> {{ specialist.user.location.get_name() }}</strong></p>
@@ -98,6 +71,21 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="stars">
+                                <span class="">
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star_half</i>
+                                <i class="material-icons">star_border</i>
+                            </span>
+                            </div>
+                            <div class="comments-count">
+                                <span class="flow-text" style="font-size: 1rem;"> Comments: 10</span>
+                            </div>
+
                         </div>
                         <div class="card-reveal">
                             <span class="card-title grey-text text-darken-4"><i class="mdi-navigation-close right"></i></span>
@@ -186,9 +174,11 @@
     <script src="{{ url_for('static', filename='js/orderService.js') }}"></script>
     <script type="text/javascript">
         /*
-         * Masonry container for eCommerce page
+         * Masonry container
          */
-        var $containerProducts = $("#products");
+        var $containerProducts = $("#products").masonry({
+            singleMode: true, isAnimated: true
+        });
         $containerProducts.imagesLoaded(function() {
             $containerProducts.masonry({
                 itemSelector: ".product",

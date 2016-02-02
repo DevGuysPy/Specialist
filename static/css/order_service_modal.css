@@ -131,4 +131,36 @@
         width: 73%;
     }
 }
-
+.btn-price {
+    border: 3px solid #fff;
+    background: #FFF;
+    border-radius: 50% !important;
+    margin: 20px !important;
+    width: 99px !important;
+    height: 99px !important;
+}
+.specialist-card .card-image {
+    height: 75px;
+}
+.card-footer {
+    background-color: #3E4551;
+    height: 50px;
+    color: #fff;
+    text-align: center;
+    font-size: 15px;
+}
+.card-footer {
+    padding-top: 10px;
+}
+.card-footer span i {font-size: 1.3rem;}
+.stars {
+    margin: 5px 25px 0 -90px ;
+;
+}
+.comments-count {
+    margin-top: -25px;
+    margin-right: -123px;
+}
+.specialist-name {
+    margin-top: 21px;
+}
