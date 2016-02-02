@@ -4,12 +4,15 @@ from flask.ext.mail import Mail
 from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
+from flask_admin import Admin
 import boto
 
 import boto.s3
 
 
 app = Flask(__name__, static_url_path='/static')
+
+admin = Admin(app, name='letsmework', template_mode='bootstrap3')
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
@@ -40,3 +43,4 @@ bucket = conn.get_bucket('spec-bg')
 
 import main.models
 import main.views
+import main.admin

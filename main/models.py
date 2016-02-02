@@ -54,6 +54,8 @@ class User(db.Model):
 
     confirmed = db.Column(db.Boolean(), default=False)
 
+    is_admin = db.Column(db.Boolean(), default=False)
+
     def full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
@@ -115,6 +117,9 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % (self.full_name())
 
+    def __unicode__(self):
+        return self.full_name()
+
 
 class SpecialistService(db.Model):
     __tablename__ = 'specialist_service'
@@ -149,6 +154,9 @@ class Company(db.Model):
 
     confirmed = db.Column(db.Boolean(), default=False)
 
+    def __unicode__(self):
+        return self.name
+
 
 def get_experience_types():
     types = [('0', 'Less than 1 year')]
@@ -177,6 +185,9 @@ class Specialist(db.Model):
 
     confirmed = db.Column(db.Boolean(), default=False)
 
+    def __unicode__(self):
+        return self.user.full_name()
+
 
 class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -196,6 +207,9 @@ class Service(db.Model):
             service_id=self.id,
             from_user_id=current_user.id).count()
 
+    def __unicode__(self):
+        return self.title
+
 
 class ServiceCategory(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -203,6 +217,9 @@ class ServiceCategory(db.Model):
     title = db.Column(db.String(256), nullable=False, unique=True)
 
     description = db.Column(db.Text())
+
+    def __unicode__(self):
+        return self.title
 
 
 class UserUserActivity(db.Model):
@@ -234,6 +251,9 @@ class UserUserActivity(db.Model):
     confirmed = db.Column(db.Boolean(), default=False)
 
     created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+    def __unicode__(self):
+        return str(self.id)
 
     @classmethod
     def get_or_create(cls,
@@ -371,6 +391,9 @@ class Location(db.Model):
         location_parts.append(self.country)
 
         return ', '.join(location_parts)
+
+    def __unicode__(self):
+        return self.get_name()
 
 
 class OrgCategory(db.Model):

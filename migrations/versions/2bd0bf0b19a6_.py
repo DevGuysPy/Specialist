@@ -1,14 +1,14 @@
 """empty message
 
-Revision ID: fc3fa8512959
-Revises: 71924d1000be
-Create Date: 2016-01-24 13:50:21.027837
+Revision ID: 2bd0bf0b19a6
+Revises: None
+Create Date: 2016-02-01 14:43:18.455561
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'fc3fa8512959'
-down_revision = '71924d1000be'
+revision = '2bd0bf0b19a6'
+down_revision = None
 
 from alembic import op
 import sqlalchemy as sa
@@ -75,15 +75,17 @@ def upgrade():
     sa.Column('password', sqlalchemy_utils.types.password.PasswordType(), nullable=False),
     sa.Column('phone_number', sqlalchemy_utils.types.phone_number.PhoneNumberType(length=20), nullable=True),
     sa.Column('email', sa.String(), nullable=False),
-    sa.Column('photo', sa.String(), nullable=True),
+    sa.Column('profile_photo', sa.String(), nullable=True),
+    sa.Column('bg_photo', sa.String(), nullable=False),
     sa.Column('birth_date', sa.Date(), nullable=False),
     sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('registration_time', sa.DateTime(), nullable=True),
     sa.Column('confirmed', sa.Boolean(), nullable=True),
+    sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['location_id'], ['location.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('photo')
+    sa.UniqueConstraint('profile_photo')
     )
     op.create_table('org_org_activity',
     sa.Column('id', sa.Integer(), nullable=False),
