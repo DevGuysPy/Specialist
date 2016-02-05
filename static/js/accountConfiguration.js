@@ -1,81 +1,105 @@
-function initAccountSettings(change_password_url, change_phone_url,
-                             set_phone_url, set_reserve_phone_url, change_reserve_phone_url) {
+function initAccountSettings(change_password_url, set_phone_url) {
     checkPasswordFields();
-    PickForChangeReservePhone();
     phoneFieldEmpty();
-    sendEmail();
+    deletePhone();
     //click events for forms' submits
     $('#change-password-submit').click(function(event){
         event.preventDefault();
-        adjustSettings(change_password_url, $('#change_password_form'), $('.change_password_error'))
-    });
-
-    $('#change-phone-submit').click(function(event){
-        event.preventDefault();
-        adjustSettings(change_phone_url, $('#change_phone_number_form'), $('.change_phone_error'))
+        $('#cd-popup-pass').addClass('is-visible');
+        $('#accept-pass').click(function(){
+            adjustSettings(change_password_url, $('#change_password_form'), $('.change_password_error'))
+        });
     });
 
     $('#set-phone-submit').click(function(event){
         event.preventDefault();
         adjustSettings(set_phone_url, $('#set_phone_form'), $('.set_phone_error'))
     });
-
-    $('#set-reserve-phone-submit').click(function(event){
-        event.preventDefault();
-        adjustSettings(set_reserve_phone_url, $('#set_reserve_phone_form'), $('.set_reserve_phone_error'))
-    });
-
-    $('#change-reserve-phone-submit').click(function(event){
-        event.preventDefault();
-        adjustSettings(change_reserve_phone_url, $('#change_reserve_phone_form'), $('.change_reserve_phone_error'))
-    });
+    $('#set_number').mask('+38(000)000-0000')
 
 }
 
-function phoneFieldEmpty(){
+//press on X or escape to remove pop-remove
+function removePopUp() {
+
+    $(document).on('keyup', function(event){
+    	if(event.which=='27'){
+    		$('.cd-popup').removeClass('is-visible');
+	    }
+    });
+    $('.cd-popup').on('click', function(event){
+        $(this).removeClass('is-visible');
+	});
+}
+
+function deletePhone(){
+
+    var initButton = $('#delete');
+    initButton.addClass('disabled');
+    var checkBox = $(':checkbox[name="phone"]');
+
+    //enabling delete button
+    //if one checkbox is checked at least ==> remove disable style
+    checkBox.click(function(){
+        if ($('#phone1').is(':checked') || $('#phone2').is(':checked') ) {
+            initButton.removeClass('disabled');
+        }else{
+            initButton.addClass('disabled');
+        }
+    });
+    removePopUp();
+
+    initButton.click(function(){
+        var phonesToDelete = [];
+        var checkedBoxes = $("input:checkbox[name=phone]:checked");
+        checkedBoxes.each(function(){
+            phonesToDelete.push(this.value)
+        });
+
+        $('#cd-popup-contacts').addClass('is-visible');
+
+        $('#accept-contacts').click(function(){
+            $.ajax({
+            method: 'POST',
+            url: '/account/delete/phone',
+            data: JSON.stringify(phonesToDelete),
+            dataType: "json",
+            contentType: "application/json"
+        }).done(function (response) {
+            if (response.status == 'ok') {
+                 location.reload();
+            }else{
+                alert('Removing the disabled class is not a good idea')
+            }
+        });
+        });
+    });
+}
+
+function phoneFieldEmpty() {
 
     var setPhoneError = $('.set_phone_error');
-    var changePhoneError = $('.change_phone_error');
 
     var setReservePhoneError = $('.set_reserve_phone_error');
-    var changeReservePhoneError = $('.change_reserve_phone_error');
 
     //'onkeyup' events for phone fields
-    $('#set_number').on('keyup', function(){
+    $('#set_number').on('keyup', function () {
         setPhoneError.empty();
     });
-    $('#change_number').on('keyup', function(){
-        changePhoneError.empty()
-    });
-    $('#set_reserve_number').on('keyup', function(){
+    $('#set_reserve_number').on('keyup', function () {
         setReservePhoneError.empty();
     });
-    $('#new_reserve_number').on('keyup', function(){
-        changeReservePhoneError.empty();
-    });
 }
 
-function PickForChangeReservePhone(){
-    $('.reserve_phone').click(function(){
-        var reservePhoneNumber = $(this).text();
-        $('#old_reserve_number').attr('value', reservePhoneNumber)
-    });
-
-}
-
-function adjustSettings(url, form, errorField) {
+function adjustSettings(url, data, errorField) {
     errorField.empty();
     $.ajax({
         method: 'POST',
         url: url,
-        data: form.serializeArray()
+        data: data.serializeArray()
     }).done(function (response) {
         if (response.status == 'ok') {
-            var cardContent = $('.card-content');
-            cardContent.empty();
-            cardContent.html(
-                'Settings successfuly applied!<br>'
-                );
+            location.reload();
         } else {
             _.forEach(response.input_errors, function (value, key) {
                 var errorInput = $('#' + key);
@@ -86,7 +110,6 @@ function adjustSettings(url, form, errorField) {
         }
     })
 }
-
 
 function checkPasswordFields(){
     var currentPasswordInput = $('#current_password');

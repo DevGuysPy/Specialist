@@ -25,13 +25,18 @@ class User(db.Model):
             'pbkdf2_sha512',
             'md5_crypt'
         ],
-
         deprecated=['md5_crypt']
     ), nullable=False)
 
     email = db.Column(db.String(), nullable=False, unique=True)
 
     photo = db.Column(db.String(), unique=True)
+
+    main_phone = db.Column(PhoneNumberType(unique=True))
+    main_phone_confirmed = db.Column(db.Boolean(), default=False)
+
+    extra_phone = db.Column(PhoneNumberType(unique=True))
+    extra_phone_confirmed = db.Column(db.Boolean(), default=False)
 
     birth_date = db.Column(db.Date(), nullable=False)
 
@@ -65,17 +70,8 @@ class User(db.Model):
     def get_age(self):
         return datetime.date.today().year - self.birth_date.year
 
-    def get_phone(self, number=False, reserve=False):
-        if reserve:
-            if number:
-                status = 1
-                return self.phones.filter(PhoneNumber.status == str(status),
-                                          PhoneNumber.number == number).first()
-            status = 1
-            return self.phones.filter(PhoneNumber.status == str(status)).all()
-        else:
-            status = 0
-            return self.phones.filter(PhoneNumber.status == str(status)).first()
+    def get_extra_phones(self):
+        return self.phones.filter()
 
     def get_orders(self):
         orders = UserUserActivity.query\
@@ -119,24 +115,6 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % (self.full_name())
-
-
-class PhoneNumber(db.Model):
-    PHONE_STATUS_TYPES = (
-        ('0', 'Main'),
-        ('1', 'Reserve')
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship("User", backref=db.backref("phones", lazy='dynamic'))
-
-    number = db.Column(PhoneNumberType(unique=True))
-
-    status = db.Column(ChoiceType(PHONE_STATUS_TYPES), default='0')
-
-    confirmed = db.Column(db.Boolean(), default=False)
 
 class SpecialistService(db.Model):
     __tablename__ = 'specialist_service'

@@ -5,6 +5,7 @@ from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
 
+from settings import UPLOAD_FOLDER
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -28,6 +29,7 @@ app_session = Session()
 app.config['SESSION_TYPE'] = 'filesystem'
 app_session.init_app(app)
 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 import main.models
 import main.views

@@ -1,28 +1,81 @@
-<ul class="collection">
-    {% if current_user.get_phone() %}
-        <li class="collection-item avatar">
-        <i class="material-icons circle">folder</i>
-        <span class="title">Main</span>
-        <p>{{ current_user.get_phone().number }}</p>
-        {% if current_user.get_phone().confirmed %}
-            <p>Status: confirmed<br>
-        {% else %}
-            <p>Status: unconfirmed<br>
-        {% endif %}
-    </li>
-    {% endif %}
-    {% if current_user.get_phone(reserve=True) %}
-        <li class="collection-item avatar">
-            <i class="material-icons circle">folder</i>
-            <span class="title">Reserve</span>
-            {% for reserve_phone in current_user.get_phone(reserve=True) %}
-                <div class="reserve_phone">{{ reserve_phone.number }}</div>
-                {% if reserve_phone.confirmed %}
-                    <p>Status: confirmed<br>
-                {% else %}
-                    <p>Status: unconfirmed<br>
-                {% endif %}
-            {% endfor %}
-    {% endif %}
-    </li>
-  </ul>
+<div id="demo">
+    <div class="table-responsive-vertical shadow-z-1">
+        <table id="table" class="table table-hover table-mc-light-blue">
+
+            <thead>
+            <tr>
+                <th id="checkbox_caption" style="width: 100px;">Choose</th>
+                <th>Type</th>
+                <th>Number</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% if current_user.main_phone and current_user.main_phone_confirmed %}
+                        <td id="checkboxes">
+                            <input type="checkbox" class="filled-in" name="phone" id="phone1" value="{{ current_user.main_phone.international }}"/>
+                            <label for="phone1"></label>
+                        </td>
+                        <td style="width: 100px;">Main</td>
+                        <td>{{ current_user.main_phone.international }}</td>
+                        <td>
+                            {% if current_user.main_phone_confirmed %}
+                                Confirmed
+                            {% else %}
+                                Unconfirmed
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td id="checkboxes" class="unconfirmed_phone">
+                            <input type="checkbox" class="filled-in" name="phone" id="phone1" value="{{ current_user.main_phone.international }}"/>
+                            <label for="phone1"></label>
+                        </td>
+                        <td style="width: 100px;" class="unconfirmed_phone">Main</td>
+                        <td class="unconfirmed_phone">{{ current_user.main_phone.international }}</td>
+                        <td class="unconfirmed_phone">
+                            {% if current_user.main_phone_confirmed %}
+                                Confirmed
+                            {% else %}
+                                Unconfirmed
+                            {% endif %}
+                        </td >
+                    {% endif %}
+                </tr>
+                <tr>
+                    {% if current_user.extra_phone and current_user.extra_phone_confirmed %}
+                        <td id="checkboxes">
+                            <input type="checkbox" class="filled-in" name="phone" id="phone2" value="{{ current_user.extra_phone.international }}"/>
+                            <label for="phone2"></label>
+                        </td>
+                        <td style="width: 100px;">Extra</td>
+                        <td>{{ current_user.extra_phone.international }}</td>
+
+                        <td>
+                            {% if current_user.extra_phone_confirmed %}
+                                Confirmed
+                            {% else %}
+                                Unconfirmed
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td id="checkboxes" class="unconfirmed_phone">
+                            <input type="checkbox" class="filled-in" name="phone" id="phone2" value="{{ current_user.extra_phone.international }}"/>
+                            <label for="phone2"></label>
+                        </td>
+                        <td style="width: 100px;" class="unconfirmed_phone">Extra</td>
+                        <td class="unconfirmed_phone">{{ current_user.extra_phone.international }}</td>
+
+                        <td class="unconfirmed_phone">
+                            {% if current_user.extra_phone_confirmed %}
+                                Confirmed
+                            {% else %}
+                                Unconfirmed
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

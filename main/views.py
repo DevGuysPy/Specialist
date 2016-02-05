@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-import json
+import json, os
 from datetime import date, timedelta
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import desc, func
@@ -10,6 +10,7 @@ from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
+from werkzeug.utils import secure_filename
 
 from app import app, db
 
@@ -20,10 +21,10 @@ from utils import (generate_confirmation_token, send_email,
                    account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, ServiceForm, LoginForm, ChangePasswordForm,
-                   ChangePhoneForm, SetPhoneForm,
-                   SetReservePhoneForm, ChangeReservePhoneForm)
+                   SetPhoneForm, EditUserProfileForm)
 
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 current_user_location = None
 
@@ -290,7 +291,7 @@ def create_specialist():
     :return:
     """
 
-    form = SpecialistForm()
+    form = SpecialistForm(current_user)
     if form.validate():
         specialist = Specialist(
             user=current_user,
@@ -419,7 +420,7 @@ class AccountSpecialist(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AccountSpecialist, self).get_context_data()
         context.update({'user': current_user})
-        context.update({'spec_form': SpecialistForm()})
+        context.update({'spec_form': SpecialistForm(current_user)})
         context.update({
             'latest_activities': self.get_latest_u_u_services_activities()
         })
@@ -481,8 +482,8 @@ app.add_url_rule(
 )
 
 
-class AccountConfiguration(TemplateView):
-    template_name = 'user/AccountSettingsConfiguration.html'
+class AccountSettings(TemplateView):
+    template_name = 'user/AccountConfigurations/AccountSettings.html'
     decorators = [login_required]
 
     def get(self, *args, **kwargs):
@@ -490,27 +491,50 @@ class AccountConfiguration(TemplateView):
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
-        context = super(AccountConfiguration, self).get_context_data()
+        context = super(AccountSettings, self).get_context_data()
         context.update({
             'user': current_user,
             'change_password_form':
                 ChangePasswordForm(current_user, prefix='change_password'),
-            'change_phone_number_form':
-                ChangePhoneForm(current_user, prefix='change_phone'),
             'set_phone_form': SetPhoneForm(current_user, prefix='set_phone'),
-            'set_reserve_phone_form': SetReservePhoneForm(
-                current_user, prefix='set_reserve_phone'),
-            'change_reserve_phone_form': ChangeReservePhoneForm(
-                current_user,
-                prefix='change_reserve_phone')
+            'edit_profile_form': EditUserProfileForm(prefix='edit_profile')
         })
         return context
 
 app.add_url_rule(
-    '/account/settings',
-    view_func=AccountConfiguration.as_view('account_settings'),
+    '/account/settings/',
+    view_func=AccountSettings.as_view('account_settings'),
     methods=['GET', 'POST']
 )
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+@app.route('/account/settings/edit/profile', methods=['GET' ,'POST'])
+@login_required
+def edit_user_profile():
+    edit_profile_form = EditUserProfileForm(prefix='edit_profile')
+    if request.method == 'POST':
+        if edit_profile_form.validate():
+            user_new_photo = request.files['photo']
+            if user_new_photo and allowed_file(user_new_photo.filename):
+                file_name = secure_filename(user_new_photo.filename)
+                path_to_photo = os.path.join(app.config['UPLOAD_FOLDER'],
+                                             file_name)
+                user_new_photo.save(path_to_photo)
+                current_user.photo = path_to_photo
+
+            current_user.first_name = edit_profile_form.first_name.data
+            current_user.last_name = edit_profile_form.last_name.data
+            current_user.email = edit_profile_form.email.data
+            return redirect(url_for('account_settings'))
+        return jsonify({
+            'status': 'error',
+            'input_errors': edit_profile_form.errors
+        })
 
 
 class AccountOffers(TemplateView):

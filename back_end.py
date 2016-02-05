@@ -95,12 +95,12 @@ def create_users():
                             unicode(first_name.lower()),
                             unicode(last_name.lower()) + str(
                                     random.randint(0, 10000))),
+                    main_phone='+380'+str(
+                                random.randint(100000000, 999999999)),
                     password='1111',
                     confirmed=True,
                     location=loc,
-                    birth_date=get_random_date(1950, 1996),
-                    phone_number='+380' + str(
-                            random.randint(100000000, 999999999)))
+                    birth_date=get_random_date(1950, 1996))
 
         db.session.add(user)
         db.session.flush()

@@ -4,8 +4,11 @@
         <li class="user-details cyan darken-2">
             <div class="row">
                 <div class="col col s4 m4 l4">
-                    <img src="{{ url_for('static', filename='img/profile.png') }}"
-                         alt="U" class="circle responsive-img valign profile-image">
+                    {% if not current_user.photo %}
+                        <img src="/static/img/profile.png" class="circle responsive-img valign profile-image">
+                    {% else %}
+                        <img src="/{{ current_user.photo }}" class="circle responsive-img valign profile-image">
+                    {% endif %}
                 </div>
                 <div class="col col s8 m8 l8">
                     <a class="btn-flat dropdown-button waves-effect waves-light white-text profile-btn"
@@ -50,8 +53,9 @@
                         {% endif %}
                     </a>
                 </li>
+
                 <li>
-                    <a href="{{ url_for('account_settings') }}" class="waves-effect">
+                    <a class="collapsible-header  waves-effect" href="{{ url_for('account_settings') }}">
                         <i class="material-icons">settings</i>
                         Settings
                     </a>

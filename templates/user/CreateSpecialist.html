@@ -59,38 +59,14 @@
                     </div>
                     <div class="card">
                         <div class="card-content">
-                            <div class="card-title center">Enter your work phone to allow your customers communicate with you</div>
-                            <div class="input-field">
-                                {% if current_user.phone_number or current_user.reserve_phone_number %}
-                                    {% if not current_user.phone_number %}
-                                        <input name="phone" type="radio" value="Ooops! You have no main phone" id="select_phone" onclick="setPhone($('#specialist_phone'))">
-                                        <label for="select_phone">Main: {{ current_user.phone_number }}</label>
-                                    {% else %}
-                                        <input name="phone" type="radio" value="{{ current_user.phone_number }}" id="select_phone" onclick="setPhone($('#specialist_phone'))">
-                                        <label for="select_phone">Main: {{ current_user.phone_number }}</label>
-                                    {% endif %}
-                                    {% if not current_user.reserve_phone_number %}
-                                        <input name="phone" value="Ooops! You have no reserve phone" type="radio" id="select_reserve_phone" onclick="setReservePhone($('#specialist_phone'))">
-                                        <label for="select_reserve_phone">Reserve: {{ current_user.reserve_phone_number }}</label>
-                                    {% else %}
-                                        <input name="phone" value="{{ current_user.reserve_phone_number }}" type="radio" id="select_reserve_phone" onclick="setReservePhone($('#specialist_phone'))">
-                                        <label for="select_reserve_phone">Reserve: {{ current_user.reserve_phone_number }}</label>
-                                    {% endif %}
-                                {% endif %}
-                                {% if current_user.phone_number or current_user.reserve_phone_number %}
-                                    <div class="input-field">
-                                        {{ spec_form.phone(id="specialist_phone", readonly=true) }}
-                                        <div id="error_specialist_phone" class="error"></div >
-                                    </div>
-                                {% endif %}
-                                {% if not current_user.phone_number and not current_user.reserve_phone_number%}
-                                    <div class="input-field">
-                                        {{ spec_form.phone(id="specialist_phone", value="You have no phone number to apply", readonly=true) }}
-                                        <label for="specialist_phone">Enter your work phone</label>
-                                        <div id="error_specialist_phone" class="error"></div>
-                                    </div>
-                                {% endif %}
-                            </div>
+                            <div class="card-title center">Contact to use</div>
+                            {% if current_user.main_phone or current_user.extra_phone %}
+                                <div class="input-field">
+                                    {{ spec_form.phone(id="phone") }}
+                                    <label for="specialist_description">+xx(xxx)xxx-xxx</label>
+                                    <div id="error_specialist_phone" class="error center"></div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card">

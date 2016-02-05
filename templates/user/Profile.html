@@ -11,9 +11,16 @@
             <div class="card-image waves-effect waves-block waves-light">
                 <img class="activator" src="http://goo.gl/hkIcuu" alt="user background">
             </div>
-            <figure class="card-profile-image">
-                <img src="{{ url_for('static', filename='img/profile.png') }}" alt="profile image" class="circle z-depth-2 responsive-img activator">
-            </figure>
+            {% if current_user.photo %}
+                <figure class="card-profile-image">
+                    <img src="/{{ current_user.photo }}" alt="profile image" class="circle z-depth-2 responsive-img activator">
+                </figure>
+            {% else %}
+                <figure class="card-profile-image">
+                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="profile image" class="circle z-depth-2 responsive-img activator">
+                </figure>
+            {% endif %}
+
             <div class="card-content">
                 <div class="row">
                     <div class="col s3 offset-s2">
@@ -64,7 +71,7 @@
             </div>
             <div class="card-reveal">
 
-                    <span class="card-title grey-text text-darken-4">{{ user.full_name() }} <i class="mdi-navigation-close right"></i></span>
+                <span class="card-title grey-text text-darken-4">{{ user.full_name() }} <i class="mdi-navigation-close right"></i></span>
                     <span><i class="mdi-action-perm-identity cyan-text text-darken-2"></i>
                         Services:
                         {% for s in user.specialist.services %}
@@ -77,10 +84,10 @@
                         {% endfor %}
                     </span>
                 </p>
-                {% if user.get_phone().confirmed %}
+                {% if user.main_phone_confirmed %}
                     <p>
                         <i class="material-icons">contact_phone</i>
-                        <a href="tel:{{ user.get_phone().number }}"> {{ user.get_phone().number }}</a>
+                        <a href="tel:{{ user.main_phone.international }}"> {{ user.main_phone.international }}</a>
                     </p>
                 {% else %}
                     <p>

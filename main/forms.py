@@ -1,17 +1,18 @@
 from sqlalchemy import exists, or_
 from flask_wtf import Form, RecaptchaField
+
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory, Unique, ModelFormField
 
 from wtforms import (StringField, DateTimeField, ValidationError,
-                     PasswordField, IntegerField, DateField)
+                     PasswordField, IntegerField, DateField, RadioField)
 
 
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from wtforms_components import PhoneNumberField
 
 from models import (UserUserActivity, db, Service, User,
-                    Specialist, Location, Company, PhoneNumber)
+                    Specialist, Location, Company)
 
 
 BaseModelForm = model_form_factory(Form)
@@ -101,11 +102,16 @@ class SpecialistForm(BaseModelForm):
         model = Specialist
         only = ['experience', 'description']
 
-    phone = PhoneNumberField('Phone', country_code='UA',
-                             validators=[
-                                 DataRequired(
-                                     message=u'You should set the correct '
-                                             u'phone number')])
+    def __init__(self, user, *args, **kwargs):
+        super(SpecialistForm, self).__init__(*args, **kwargs)
+        self.user = user
+
+
+    phone = PhoneNumberField('Phone',
+                        validators=[
+                            DataRequired(
+                                message=u'You should set the correct '
+                                        u'phone number')])
 
     service_id = IntegerField('Service',
                               validators=[
@@ -170,23 +176,23 @@ class ChangePasswordForm(Form):
                                                     message='Passwords must match')])
 
 
-
-
 class SetPhoneForm(BaseModelForm):
     class Meta:
-        model = PhoneNumber
-        only = ['number']
+        model = User
+        only = ['main_phone', 'extra_phone']
 
     def __init__(self, user, *args, **kwargs):
         super(SetPhoneForm, self).__init__(*args, **kwargs)
         self.user = user
 
+    # unique validator checking main and extra phone on existing
     def check_on_existing(self, field):
-        existing = PhoneNumber.query.filter(PhoneNumber.number == field.data).first()
+        existing = self.user.query.filter(or_(self.user.main_phone == field.data, self.user.extra_phone == field.data))\
+            .first()
         if existing:
             raise ValidationError(u'Already exists')
 
-    set_number = PhoneNumberField('Set_phone', country_code='UA',
+    number = PhoneNumberField('Set_phone',
                               validators=[
                                 DataRequired(
                                     message=u'Enter your phone '
@@ -194,99 +200,17 @@ class SetPhoneForm(BaseModelForm):
                                             u'your country code'),
                                 check_on_existing]
                              )
+    type = RadioField(choices=[('0', 'Main'), ('1', 'Extra')])
 
-class ChangePhoneForm(BaseModelForm):
+
+class EditUserProfileForm(BaseModelForm):
     class Meta:
-        model = PhoneNumber
-        only = ['number']
+        model = User
+        only = ['first_name', 'last_name', 'photo', 'email', 'birth_date']
 
-    def __init__(self, user, *args, **kwargs):
-        super(ChangePhoneForm, self).__init__(*args, **kwargs)
-        self.user = user
-
-    def check_main_phone_confirming(self, field):
-        if not self.user.get_phone().confirmed:
-            raise ValidationError(u'Firstly you have to confirm yours current')
-
-    def check_main_on_existing(self, field):
-        if self.user.get_phone().confirmed:
-            existing = PhoneNumber.query.filter(PhoneNumber.number == field.data).first()
-            if existing:
-                raise ValidationError(u'Already exists')
-
-    change_number = PhoneNumberField('Change_phone', country_code='UA',
-                                        validators=[
-                                            DataRequired(
-                                                message=u'Enter your phone '
-                                                        u'number following to '
-                                                        u'your country code'),
-                                            check_main_phone_confirming,
-                                            check_main_on_existing])
-
-
-class SetReservePhoneForm(BaseModelForm):
-    class Meta:
-        model = PhoneNumber
-        only = ['number']
-
-    def __init__(self, user, *args, **kwargs):
-        super(SetReservePhoneForm, self).__init__(*args, **kwargs)
-        self.user = user
-
-    def check_on_existing(self, field):
-        existing = PhoneNumber.query.filter(PhoneNumber.number == field.data).first()
-        if existing:
-            raise ValidationError(u'Already exists')
-
-    set_reserve_number = PhoneNumberField('Set_reserve_phone',
-                                          country_code='UA',
-                                          validators=[
-                                            DataRequired(
-                                                message=u'Enter your phone '
-                                                        u'number following to '
-                                                        u'your country code'),
-                                            check_on_existing]
-                                         )
-
-
-class ChangeReservePhoneForm(BaseModelForm):
-
-    class Meta:
-        model = PhoneNumber
-        only = ['number']
-
-    def __init__(self, user, *args, **kwargs):
-        super(ChangeReservePhoneForm, self).__init__(*args, **kwargs)
-        self.user = user
-
-    def check_reserve_phone_confirming(self, field):
-        if not self.user.get_phone(field.data,
-                                   reserve=True).confirmed:
-            raise ValidationError(u'Firstly you have to confirm yours current '
-                                  u'reserve')
-
-    def check_on_existing(self, field):
-        existing = PhoneNumber.query.filter(PhoneNumber.number == field.data).first()
-        if existing:
-            raise ValidationError(u'Already exists')
-
-    old_reserve_number = PhoneNumberField('old_reserve_phone',
-                                          country_code='UA',
-                                          validators=[
-                                            DataRequired(message=u'Choose a '
-                                                                 u'reserve '
-                                                                 u'number you '
-                                                                 u'want to '
-                                                                 u'change'),
-                                             check_reserve_phone_confirming])
-
-    new_reserve_number = PhoneNumberField('new_reserve_phone',
-                                             country_code='UA',
-                                             validators=[
-                                                DataRequired(
-                                                    message=u'Enter your phone '
-                                                            u'number '
-                                                            u'following to '
-                                                            u'your country code'),
-                                                check_on_existing]
-                                             )
+        email = StringField('Email', validators=[DataRequired(),
+                                                 Email(),
+                                                 Unique(User.email)])
+        first_name = StringField('FirstName', validators=[DataRequired(message=u'Required')])
+        last_name = StringField('LastName', validators=[DataRequired(message=u'Required')])
+        birth_date = DateField("Birth Date", validators=[DataRequired()])
