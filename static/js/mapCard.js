@@ -37,7 +37,7 @@ function initCardMap(userLatitude, userLongitude, location){
         content: contentString
     });
 
-    var companyImage = new google.maps.MarkerImage('http://demo.geekslabs.com/ashoka/images/map-marker.png',
+    var companyImage = new google.maps.MarkerImage('static/img/map-marker.png',
         new google.maps.Size(36,62),// Width and height of the marker
         new google.maps.Point(0,0),
         new google.maps.Point(18,52)// Position of the marker

@@ -24,7 +24,7 @@ RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY')
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-REGION_HOST = 's3.eu-central-1.amazonaws.com'
+REGION_HOST = os.environ.get('REGION_HOST')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 

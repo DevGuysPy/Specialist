@@ -8,8 +8,8 @@
                          alt="U" class="circle responsive-img valign profile-image">
                 </div>
                 <div class="col col s8 m8 l8">
-                    <a class="btn-flat dropdown-button waves-effect waves-light white-text profile-btn"
-                       href="{{ url_for('user_profile', user_id=current_user.id) }}" data-activates="profile-dropdown">
+                    <a class="btn-flat waves-effect waves-light white-text profile-btn"
+                       href="{{ url_for('user_profile', user_id=current_user.id) }}">
                         {{ current_user.full_name() }}
                     </a>
                 </div>

@@ -98,9 +98,6 @@
     <script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script>
-        $(document).ready(function(){
-            $('.parallax').parallax();
-        });
         searchAutocomplete("{{ url_for('service_autocomplete') }}");
     </script>
 {% endblock %}
