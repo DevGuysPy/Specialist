@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import os
 
 MAIL_SERVER = 'smtp.googlemail.com'
@@ -27,6 +28,12 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 REGION_HOST = os.environ.get('REGION_HOST')
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+LANGUAGES = {
+    'en': 'English',
+    'uk': 'Українська',
+    'ru': 'Русский'
+}
 
 try:
     from local_settings import *

@@ -1,5 +1,6 @@
 import datetime
 
+from flask.ext.babel import gettext, lazy_gettext
 from flask.ext.login import current_user
 
 from app import db
@@ -7,12 +8,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
 
 ACTIVITY_STATUS_TYPES = (
-    ('0', 'Waiting for start'),
-    ('1', 'In work'),
-    ('2', 'Canceled'),
-    ('3', 'Failed'),
-    ('4', 'Done'),
-    ('5', 'Expired')
+    ('0', gettext('Waiting for start')),
+    ('1', gettext('In work')),
+    ('2', gettext('Canceled')),
+    ('3', gettext('Failed')),
+    ('4', gettext('Done')),
+    ('5', gettext('Expired'))
 )
 
 
@@ -113,7 +114,7 @@ class User(db.Model):
         return past_offers
 
     def __repr__(self):
-        return '<User %r>' % (self.full_name())
+        return gettext('<User %r>' % (self.full_name()))
 
 
 class SpecialistService(db.Model):
@@ -151,9 +152,9 @@ class Company(db.Model):
 
 
 def get_experience_types():
-    types = [('0', 'Less than 1 year')]
-    types.extend(('{}'.format(i), '{} years'.format(i)) for i in range(1, 11))
-    types.append(('11', '10+ years'))
+    types = [('0', lazy_gettext('Less than 1 year'))]
+    types.extend(('{}'.format(i), lazy_gettext('%(i)s years', i=i)) for i in range(1, 11))
+    types.append(('11', lazy_gettext('10+ years')))
     return types
 
 

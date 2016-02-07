@@ -1,3 +1,4 @@
+from flask.ext.babel import gettext, lazy_gettext
 from sqlalchemy import exists
 from flask_wtf import Form, RecaptchaField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
@@ -11,7 +12,6 @@ from wtforms_components import PhoneNumberField
 from models import (UserUserActivity, db, Service, User,
                     Specialist, Location, Company)
 
-
 BaseModelForm = model_form_factory(Form)
 
 
@@ -22,7 +22,7 @@ class SearchForm(Form):
 def validate_start_end(form, field):
     if form.end.data and field.data > form.end.data:
         raise ValidationError(
-            'Start of activity must be earlier than end of activity')
+            gettext('Start of activity must be earlier than end of activity'))
 
 
 def validate_id_for(model):
@@ -30,8 +30,9 @@ def validate_id_for(model):
         if not db.session.query(
                 exists().where(model.id == field.data)).scalar():
             raise ValidationError(
-                '{} with id {} does not exist'.format(
-                    model.__name__, field.data))
+                gettext('{} with id {} does not exist'.format(
+                    model.__name__, field.data)))
+
     return validate_id
 
 
@@ -60,7 +61,7 @@ class AddServiceActivityForm(BaseModelForm):
 def validate_full_name(form, field):
     if len(field.data.split(' ')) <= 1:
         raise ValidationError(
-            'Please enter a valid full name. Example: John Folstrom')
+            gettext('Please enter a valid full name. Example: John Folstrom'))
 
 
 class RegistrationForm(BaseModelForm):
@@ -78,7 +79,8 @@ class RegistrationForm(BaseModelForm):
     password = StringField('Password',
                            validators=[
                                DataRequired(),
-                               Length(min=4, max=64)])
+                               Length(min=6, max=64, message=lazy_gettext(
+                                   'Field must be between 6 and 64 characters long.'))])
     birth_date = DateField("Birth Date", validators=[DataRequired()])
     recaptcha = RecaptchaField()
 
@@ -104,9 +106,9 @@ class SpecialistForm(BaseModelForm):
 
     service_id = IntegerField('Service',
                               validators=[
-                                  DataRequired(message='You must select '
-                                                       'at least one '
-                                                       'service you offer')
+                                  DataRequired(message=lazy_gettext('You must select '
+                                                                    'at least one '
+                                                                    'service you offer'))
                               ])
 
     location = ModelFormField(LocationForm)

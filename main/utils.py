@@ -1,15 +1,20 @@
 import datetime
 import random
 
-from flask import abort, url_for, session, redirect, flash, render_template
+from flask import abort, url_for, session, redirect, flash, render_template, request
 from flask.ext.mail import Message
 from flask.ext.login import login_user, login_required, logout_user
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 
-import settings
-from app import mail, app, login_manager, db, bucket
+from settings import REGION_HOST, LANGUAGES
+from app import mail, app, login_manager, db, bucket, babel
 from models import User, UserUserActivity
+
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(LANGUAGES.keys())
 
 
 def generate_confirmation_token(confirmation_item):
@@ -170,4 +175,4 @@ def current_time():
 
 def get_random_background():
     img = random.choice(list(bucket.list()))
-    return 'https://' + settings.REGION_HOST + '/spec-bg/' + img.name
+    return 'https://' + REGION_HOST + '/spec-bg/' + img.name

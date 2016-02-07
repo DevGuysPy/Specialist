@@ -4,6 +4,7 @@ from flask.ext.mail import Mail
 from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
+from flask.ext.babel import Babel
 import boto
 
 import boto.s3
@@ -23,6 +24,8 @@ app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.debug = True
 app.config.from_object('settings')
 db = SQLAlchemy(app)
+
+babel = Babel(app)
 
 mail = Mail()
 mail.init_app(app)

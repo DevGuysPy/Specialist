@@ -1,4 +1,4 @@
-function initServiceActivity(addServiceActivityURL) {
+function initServiceActivity(addServiceActivityURL, Requestsuccessfullysent) {
     var card = $('#add_service_activity');
     var preloader = $('.preloader-wrapper');
     $( document ).ready(function() {
@@ -6,7 +6,7 @@ function initServiceActivity(addServiceActivityURL) {
     });
 
     var done = '<p class="btn disabled">' +
-        '<i class="material-icons left">done</i>Request successfully sent</p>'
+        '<i class="material-icons left">done</i>' + Requestsuccessfullysent +'</p>';
 
     $('#service_activity_start').datetimepicker({
       format: 'Y-m-d H:i:00'

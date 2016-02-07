@@ -7,7 +7,7 @@ from loremipsum import get_sentences
 from datetime import datetime, timedelta, date
 import logging
 
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from main.views import get_random_background
@@ -178,6 +178,8 @@ def add_services_to_database():
 
     db.session.commit()
 
+
+manager.add_command("runserver", Server(threaded=True, port=5000))
 
 if __name__ == '__main__':
     manager.run()

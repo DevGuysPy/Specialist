@@ -2,6 +2,8 @@
 import json
 from datetime import date, timedelta
 from math import radians, cos, sin, asin, sqrt
+
+from flask.ext.babel import gettext
 from sqlalchemy import desc, func
 
 from flask import (render_template, url_for, jsonify, redirect, request,
@@ -127,7 +129,6 @@ class UserProfile(TemplateView):
         if self.user.specialist:
             return AddServiceActivityForm.get_form(self.user.specialist)
 
-
     # commented for now(will be done soon)
     # def get_activity(self, kwargs):
     #     if self.user is not None:
@@ -153,7 +154,7 @@ def add_service_activity(user_id):
     if not user or not user.specialist:
         return jsonify({
             'status': 'error',
-            'errors': 'User is not a specialist'
+            'errors': gettext('User is not a specialist')
         })
     form = AddServiceActivityForm.get_form(user.specialist)
 
@@ -177,13 +178,13 @@ def add_service_activity(user_id):
                 "ConfirmActivityEmail.html",
                 service=form.service.data.title.encode('utf-8'),
                 start=form.start.data,
-                end=form.end.data or "Not specified",
-                description=form.description.data or "Not specified",
+                end=form.end.data or gettext("Not specified"),
+                description=form.description.data or gettext("Not specified"),
                 confirm_url=str(confirm_url))
 
             send_email(to=user.email,
-                       subject='You have been invited by {}'.format(
-                           current_user.full_name()),
+                       subject=gettext('You have been invited by {}'.format(
+                           current_user.full_name())),
                        template=html)
 
         return jsonify({
@@ -353,7 +354,7 @@ class LoginView(FormView):
                 'status': 'error',
                 'errors': {
                     'password':
-                        'User with entered email and password does not exist'
+                        gettext('User with entered email and password does not exist')
                 }
             })
 
@@ -362,7 +363,7 @@ class LoginView(FormView):
                 'status': 'error',
                 'errors': {
                     'password':
-                        'User with entered email and password does not exist'
+                        gettext('Wrong password')
                 }
             })
 
@@ -371,7 +372,7 @@ class LoginView(FormView):
                 'status': 'error',
                 'errors': {
                     'password':
-                        'Confirm your email to log in'
+                        gettext('Confirm your email to log in')
                 },
                 'send_confirmation_email_url':
                     url_for('send_user_verification_email', user_id=user.id)

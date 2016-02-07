@@ -41,7 +41,7 @@
                     <div class="col s2 center-align">
                         {% if user.specialist %}
                             <h4 class="card-title grey-text text-darken-4">{{ user.specialist.experience.value }}</h4>
-                            <p class="medium-small grey-text">Work Experience</p>
+                            <p class="medium-small grey-text">{{ _('Work Experience') }}</p>
                         {% else %}
                             <h4 class="card-title grey-text text-darken-4">{{ user.get_orders()|length }}</h4>
                             <p class="medium-small grey-text">Orders</p>
@@ -206,9 +206,9 @@
     <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mapCard.js') }}"></script>
     <script type="text/javascript">
-        initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}");
+        initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}", {{ _("'Request successfully sent'")|safe }});
         {% if user.location %}
-            initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}")
+            initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}");
         {% endif %}
     </script>
 
