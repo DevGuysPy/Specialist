@@ -3,9 +3,9 @@
 {% block body %}
 
     <p class="flow-text search-title center">
-        All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
+        {{ _("All specialists who offer") }} <strong>{{ current_service.title|capitalize }}</strong>
     </p>
-    <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
+    <p class="flow-text center">{{ _("Found") }} {{ specialists_count }} {{ _("specialists") }}.</p>
     <div class="section">
         <div id="products" class="row">
             <div class="product-sizer"></div>
@@ -48,7 +48,8 @@
                         <ul class="card-action-buttons">
                             <li>
                                 <a class="btn-floating waves-effect waves-light green accent-4">
-                                    <i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">repeat</i>
+                                    <i class="material-icons tooltipped"
+                                       data-position="top" data-delay="50" data-tooltip="{{ _("Fast order") }}">repeat</i>
                                 </a>
                             </li>
                             <li>
@@ -62,19 +63,22 @@
                                 </a>
                             </li>
                         </ul>
-                        <div class="center"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
+                        <div class="center">
+                            <span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span>
+                        </div>
                         <div class="card-content">
                             <div class="row">
                                 <div class="col m6">
-                                    <p><i class="material-icons tiny">location_on</i><strong> {{ specialist.user.location.get_name() }}</strong></p>
+                                    <p><i class="material-icons tiny">location_on</i>
+                                        <strong> {{ specialist.user.location.get_name() }}</strong></p>
                                 </div>
                                 <div class="col m6">
-                                    <p><strong>Experience: {{ specialist.experience.value }}</strong></p>
+                                    <p><strong>{{ _("Experience") }}: {{ specialist.experience.value }}</strong></p>
                                 </div>
                             </div>
                             <div class="divider"></div>
                             <div class="row">
-                                <p class="center">Success jobs: 70%</p>
+                                <p class="center">{{ _("Success jobs") }}: 70%</p>
                                 <div class="progress">
                                     <div class="determinate" style="width: 70%"></div>
                                 </div>
@@ -82,14 +86,14 @@
                                     <div class="specialist-phone">
                                         <i class="material-icons tiny">contact_phone</i>
                                         <span class="phone" style="display: none"> <strong>{{ specialist.user.phone_number }}</strong></span>
-                                        <a class="show-phone"> Show phone</a>
+                                        <a class="show-phone"> {{ _("Show phone") }}</a>
                                     </div>
                                 </div>
                                 <div class="col s6">
                                     {% if specialist.org %}
-                                        <p><strong>Works in <a href="#">{{ specialist.org.name }}</a></strong></p>
+                                        <p><strong>{{ _("Works in") }} <a href="#">{{ specialist.org.name }}</a></strong></p>
                                     {% else %}
-                                        <p><strong>{{ specialist.user.first_name }} doesn't work in company.</strong></p>
+                                        <p><strong>{{ specialist.user.first_name }} {{ _("doesn't work in company") }}.</strong></p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -98,7 +102,7 @@
                             <span class="card-title grey-text text-darken-4"><i class="mdi-navigation-close right"></i></span>
                             {% if specialist.description %}
                                 <div class="description">
-                                    <p class="center">About {{ specialist.user.first_name }}</p>
+                                    <p class="center">{{ _("About") }} {{ specialist.user.first_name }}</p>
                                     <p class="description-text">{{ specialist.description }}</p>
                                     <div class="divider"></div>
                                 </div>
@@ -114,17 +118,16 @@
                                             {% if loop.last %}
                                                 .
                                             {% elif services_added == 2 %}
-                                                and {{ specialist.services|length - 3 }} more.
+                                                {{ _("and") }} {{ specialist.services|length - 3 }} {{ _("more") }}.
                                                 {% break %}
                                             {% else %}
                                                 ,
                                             {% endif %}
                                         {% endif %}
-
                                     {% endfor %}
                                 </p>
                                 <div class="divider"></div>
-                                <p><i class="mdi-social-cake text-darken-2"></i>Age {{ specialist.user.get_age() }}</p>
+                                <p><i class="mdi-social-cake text-darken-2"></i>{{ _("Age") }} {{ specialist.user.get_age() }}</p>
                                 <div class="divider"></div>
                                 <p><i class="mdi-communication-email text-darken-2"></i> {{ specialist.user.email }}</p>
 
@@ -151,7 +154,7 @@
     </div>
 
     <div class="row">
-        <p class="flow-text center">Similar services</p>
+        <p class="flow-text center">{{ _("Similar services") }}</p>
         {% for service in similar_services %}
             <div class="col m4">
                 <div class="card hoverable cursor"
@@ -160,7 +163,7 @@
                         <div class="card-title center">
                             {{ service.title|capitalize }}
                         </div>
-                        <p>{{ service.specialists.all()|length }} specialists offer this service.</p>
+                        <p>{{ service.specialists.all()|length }} {{ _("specialists offer this service") }}.</p>
                     </div>
                 </div>
             </div>

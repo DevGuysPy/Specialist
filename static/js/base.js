@@ -25,3 +25,25 @@ function initInputAutocomplete(input, apiUrl, params, onSelectFunc){
         }
     })
 }
+$(".translation-button").dropdown({
+        inDuration: 300,
+        outDuration: 225,
+        constrain_width: !1,
+        hover: !0,
+        gutter: 0,
+        belowOrigin: !0,
+        alignment: "left"
+});
+function changeLanguage(langCode) {
+    $.ajax({
+        method: 'POST',
+        url: '/change/' + langCode
+    }).done(function (data) {
+        if (data.status == 'ok') {
+            window.location.reload()
+        }
+        else {
+            Materialize.toast('<span>Fuck off. ©Ura Muraviov</span>', 3000);
+        }
+    });
+}

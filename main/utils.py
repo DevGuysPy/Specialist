@@ -1,7 +1,8 @@
 import datetime
 import random
 
-from flask import abort, url_for, session, redirect, flash, render_template, request
+from flask import abort, url_for, session, redirect, flash, render_template, request, jsonify
+from flask.ext.babel import lazy_gettext
 from flask.ext.mail import Message
 from flask.ext.login import login_user, login_required, logout_user
 
@@ -14,7 +15,24 @@ from models import User, UserUserActivity
 
 @babel.localeselector
 def get_locale():
-    return request.accept_languages.best_match(LANGUAGES.keys())
+    try:
+        return session['lang_code']
+    except KeyError:
+        session['lang_code'] = request.accept_languages.best_match(LANGUAGES.keys())
+        return session['lang_code']
+
+
+@app.route('/change/<lang_code>', methods=['POST'])
+def change_lang(lang_code):
+    if lang_code in LANGUAGES.keys():
+        session['lang_code'] = lang_code
+        return jsonify({
+            'status': 'ok'
+        })
+    else:
+        return jsonify({
+            'status': 'error'
+        })
 
 
 def generate_confirmation_token(confirmation_item):
@@ -86,7 +104,7 @@ def send_user_verification_email(user_id):
                            full_name=user.full_name(),
                            confirm_url=str(confirm_url))
     send_email(to=user.email,
-               subject='Please confirm your account',
+               subject=lazy_gettext('Please confirm your account'),
                template=html)
 
     return 'ok'
@@ -99,11 +117,11 @@ def confirm_specialist_activity(token):
             id=activity_id).first_or_404()
 
     if activity.confirmed:
-        flash('Activity already confirmed.')
+        flash(lazy_gettext('Activity already confirmed.'))
     else:
         activity.confirmed = True
-        flash('You have confirmed your relationship with {}.'.format(
-                activity.to_user.full_name()))
+        flash(lazy_gettext('You have confirmed your relationship with %(fn)s.',
+              fn=activity.to_user.full_name()))
 
     return redirect(url_for('user_profile', user_id=activity.to_user.id))
 

@@ -1,7 +1,10 @@
 <!-- START LEFT SIDEBAR NAV -->
+<style>span.badge.today_badge:after{content:" {{ _("today") }}" !important; background-color: #37474f;}</style>
 <aside id="left-sidebar-nav">
     <ul id="slide-out" class="side-nav fixed leftside-navigation">
-        <li class="user-details darken-2" style="background: url('{{ current_user.bg_photo }}') no-repeat center center !important; background-size: 240px 84px !important;">
+        <li class="user-details darken-2"
+            style="background: url('{{ current_user.bg_photo }}') no-repeat center !important;
+                    background-size: 240px 84px !important;">
             <div class="row">
                 <div class="col col s4 m4 l4">
                     <img src="{{ url_for('static', filename='img/profile.png') }}"
@@ -20,40 +23,42 @@
                 <li>
                     <a href="{{ url_for('user_profile', user_id=current_user.id) }}" class="waves-effect">
                         <i class="material-icons">account_circle</i>
-                        Profile
+                        {{ _("Profile") }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ url_for('account_specialist') }}" class="waves-effect">
                         <i class="material-icons">assignment_ind</i>
-                        Specialist
+                        {{ _("Specialist") }}
                     </a>
                 </li>
                 <li><a href="{{ url_for('account_company') }}" class="waves-effect">
                     <i class="material-icons">account_balance</i>
-                    Company
+                    {{ _("Company") }}
                 </a>
                 </li>
                 <li>
                     <a href="{{ url_for('account_offers') }}" class="waves-effect">
-                        <i class="material-icons">repeat</i>Offers
+                        <i class="material-icons">repeat</i>
+                        {{ _("Offers") }}
                         {% if current_user.get_active_offers()|length > 0 %}
-                            <span class="badge new ">{{ current_user.get_active_offers()|length }}</span></a>
+                            <span class="badge new today_badge">{{ current_user.get_active_offers()|length }}</span>
                         {% endif %}
                     </a>
                 </li>
                 <li>
                     <a href="{{ url_for('account_orders') }}" class="waves-effect">
-                        <i class="material-icons">shopping_cart</i>Orders
+                        <i class="material-icons">shopping_cart</i>
+                        {{ _("Orders") }}
                         {% if current_user.get_active_orders()|length > 0 %}
-                            <span class="badge new">{{ current_user.get_active_orders()|length }}</span></a>
+                            <span class="badge new today_badge">{{ current_user.get_active_orders()|length }}</span>
                         {% endif %}
                     </a>
                 </li>
                 <li>
                     <a href="{{ url_for('account_settings') }}" class="waves-effect">
                         <i class="material-icons">settings</i>
-                        Settings
+                        {{ _("Settings") }}
                     </a>
                 </li>
             </ul>
@@ -61,7 +66,7 @@
         <li class="li-hover"><div class="divider"></div></li>
         <li>
             <a href="{{ url_for('logout') }}" class="waves-effect">
-                <i class="mdi-hardware-keyboard-tab"></i>Logout
+                <i class="mdi-hardware-keyboard-tab"></i>{{ _("Logout") }}
             </a>
         </li>
 

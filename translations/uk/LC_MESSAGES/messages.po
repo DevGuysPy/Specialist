@@ -1,0 +1,554 @@
+# Ukrainian translations for PROJECT.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-02-13 20:32+0200\n"
+"PO-Revision-Date: 2016-02-13 20:35+0200\n"
+"Last-Translator: \n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.2.0\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: main/forms.py:25
+msgid "Start of activity must be earlier than end of activity"
+msgstr "Початок послуги повинен бути раніше кінця."
+
+#: main/forms.py:33
+#, python-format
+msgid "%(mn)s with id %(dt)s does not exist"
+msgstr "%(mn)s з id %(dt)s не існує"
+
+#: main/forms.py:64
+msgid "Please enter a valid full name. Example: John Folstrom"
+msgstr "Вкажіть будь ласка повне ім'я. Наприклад: Василь Петренко"
+
+#: main/forms.py:82
+msgid "Field must be between 6 and 64 characters long."
+msgstr "Пароль повинен складатись з 6 - 64 символів."
+
+#: main/forms.py:109
+msgid "You must select at least one service you offer"
+msgstr "Вкажіть хочаб один сервіс, який ви надаєте"
+
+#: main/models.py:11
+msgid "Waiting for start"
+msgstr "Чекає на старт"
+
+#: main/models.py:12
+msgid "In work"
+msgstr "Досвід роботи"
+
+#: main/models.py:13
+msgid "Canceled"
+msgstr "Скасовано"
+
+#: main/models.py:14
+msgid "Failed"
+msgstr "Провалено"
+
+#: main/models.py:15
+msgid "Done"
+msgstr "Виконано"
+
+#: main/models.py:16
+msgid "Expired"
+msgstr "Застаріле"
+
+#: main/models.py:117
+#, python-format
+msgid "<User %r>"
+msgstr ""
+
+#: main/models.py:155
+msgid "Less than 1 year"
+msgstr "Менше року"
+
+#: main/models.py:156
+#, python-format
+msgid "%(i)s years"
+msgstr "%(i)s років"
+
+#: main/models.py:157
+msgid "10+ years"
+msgstr "10+ років"
+
+#: main/utils.py:90
+msgid "Please confirm your account"
+msgstr "Підтвердіть свій акаунт"
+
+#: main/utils.py:103
+msgid "Activity already confirmed."
+msgstr "Замовлення вже підтверджено"
+
+#: main/utils.py:107
+#, python-format
+msgid "You have confirmed your relationship with %(fn)s."
+msgstr "Ви підтвердили замовлення %(fn)s."
+
+#: main/views.py:156
+msgid "User is not a specialist"
+msgstr "Користувач не спеціаліст"
+
+#: main/views.py:180 main/views.py:181
+msgid "Not specified"
+msgstr "Не вказано"
+
+#: main/views.py:185
+#, python-format
+msgid "You have been invited by %(cust)s"
+msgstr "%(cust)s відправив(ла) запит на замовлення"
+
+#: main/views.py:355
+msgid "User with entered email and password does not exist"
+msgstr "Користувач з вказаним емейлом не існує"
+
+#: main/views.py:364
+msgid "Wrong password"
+msgstr "Неправильний пароль"
+
+#: main/views.py:373
+msgid "Confirm your email to log in"
+msgstr "Підтвердіть свій емейл, щоб увійти."
+
+#: templates/404.html:6
+msgid "Page Not Found"
+msgstr "Сторінка не знайдена"
+
+#: templates/404.html:7
+msgid "What you were looking for is just not there."
+msgstr "Ви загубились"
+
+#: templates/404.html:8
+msgid "go back"
+msgstr "назад"
+
+#: templates/AddServiceActivity.html:3
+msgid "Order service at"
+msgstr "Замовити у"
+
+#: templates/AddServiceActivity.html:10
+#: templates/user/CreateSpecialist.html:32
+msgid "Select service"
+msgstr "Вибрати сервіс"
+
+#: templates/AddServiceActivity.html:15
+msgid "Description of service"
+msgstr "Опис сервісу"
+
+#: templates/AddServiceActivity.html:20
+msgid "Start of service"
+msgstr "Початок"
+
+#: templates/AddServiceActivity.html:25
+msgid "End of service (optional)"
+msgstr "Кінець (необов'язково)"
+
+#: templates/AddServiceActivity.html:32
+msgid "Send request"
+msgstr "Надіслати запит"
+
+#: templates/AddServiceActivity.html:49
+msgid "Log in"
+msgstr "Увійти"
+
+#: templates/AddServiceActivity.html:50
+msgid "or"
+msgstr "або"
+
+#: templates/AddServiceActivity.html:51
+msgid "Sign Up"
+msgstr "Зареєструватись"
+
+#: templates/AddServiceActivity.html:52
+msgid "to order services"
+msgstr "для замовлення"
+
+#: templates/ConfirmActivityEmail.html:8
+msgid "Service"
+msgstr "Сервіс"
+
+#: templates/ConfirmActivityEmail.html:9
+#: templates/activities/OffersCollection.html:6
+#: templates/activities/OffersCollection.html:8
+#: templates/activities/OrdersCollection.html:6
+#: templates/activities/OrdersCollection.html:8
+msgid "Start"
+msgstr "Початок"
+
+#: templates/ConfirmActivityEmail.html:10
+#: templates/activities/OffersCollection.html:6
+#: templates/activities/OrdersCollection.html:6
+msgid "End"
+msgstr "Кінець"
+
+#: templates/ConfirmActivityEmail.html:11
+#: templates/activities/OffersCollection.html:11
+#: templates/activities/OrdersCollection.html:11
+msgid "Description"
+msgstr "Опис"
+
+#: templates/ConfirmActivityEmail.html:12
+msgid "Please confirm"
+msgstr "Підтвердіть"
+
+#: templates/ConfirmUserEmail.html:9
+msgid "please confirm your account"
+msgstr "підтвердіть свій акаунт"
+
+#: templates/Login.html:13 templates/Login.html:28 templates/header.html:24
+msgid "Login"
+msgstr "Логін"
+
+#: templates/Login.html:17 templates/Registration.html:21
+msgid "Enter your email"
+msgstr "Введіть адресу електронної пошти"
+
+#: templates/Login.html:22 templates/Registration.html:31
+msgid "Enter your password"
+msgstr "Введіть ваш пароль"
+
+#: templates/Login.html:30
+msgid "Haven't account yet?"
+msgstr "Ще не маєте акаунту?"
+
+#: templates/Registration.html:12
+msgid "Please enter data below"
+msgstr "Запоніть дані нижче"
+
+#: templates/Registration.html:16
+msgid "Enter your full name"
+msgstr "Вкажіть повне ім'я. Наприклад: Василь Петренко"
+
+#: templates/Registration.html:26
+msgid "Select your birth date"
+msgstr "Вкажіть дату народження"
+
+#: templates/Registration.html:39
+msgid "Create basic account"
+msgstr "Створити акаунт"
+
+#: templates/Search.html:6
+msgid "All specialists who offer"
+msgstr "Спеціалісти які виконують"
+
+#: templates/Search.html:8
+msgid "Found"
+msgstr "Знайдено"
+
+#: templates/Search.html:8
+msgid "specialists"
+msgstr "спеціалістів"
+
+#: templates/Search.html:52
+msgid "Fast order"
+msgstr "Швидке замовлення"
+
+#: templates/Search.html:76
+msgid "Experience"
+msgstr "Досвід"
+
+#: templates/Search.html:81
+msgid "Success jobs"
+msgstr "Успішність"
+
+#: templates/Search.html:89
+msgid "Show phone"
+msgstr "Показати телефон"
+
+#: templates/Search.html:94
+msgid "Works in"
+msgstr "Працює в"
+
+#: templates/Search.html:96
+msgid "doesn't work in company"
+msgstr "не працює в компанії"
+
+#: templates/Search.html:105
+msgid "About"
+msgstr "Про"
+
+#: templates/Search.html:121 templates/user/Profile.html:31
+msgid "and"
+msgstr "і"
+
+#: templates/Search.html:121 templates/user/Profile.html:31
+msgid "more"
+msgstr "інших"
+
+#: templates/Search.html:130 templates/user/Profile.html:89
+msgid "Age"
+msgstr "Вік"
+
+#: templates/Search.html:157
+msgid "Similar services"
+msgstr "Схожі сервіси"
+
+#: templates/Search.html:166
+msgid "specialists offer this service"
+msgstr "спеціалістів, які виконують цей сервіс"
+
+#: templates/header.html:19 templates/index.html:27
+msgid "Search for specialist or service you want to order"
+msgstr "Знайти спеціаліста або сервіс"
+
+#: templates/header.html:26
+msgid "SignUp"
+msgstr "Реєстрація"
+
+#: templates/index.html:8
+msgid "Get Started"
+msgstr "Розпочати"
+
+#: templates/index.html:29
+msgid "search"
+msgstr "пошук"
+
+#: templates/index.html:44
+msgid "Stats"
+msgstr "Статистика"
+
+#: templates/index.html:49
+msgid " New Users"
+msgstr "Нових користувачів"
+
+#: templates/index.html:54
+msgid " from yesterday"
+msgstr "  з вчора"
+
+#: templates/index.html:63
+msgid "Number of specialist"
+msgstr "Кількість спеціалістів"
+
+#: templates/index.html:67
+msgid " online"
+msgstr "онлайн"
+
+#: templates/index.html:75
+msgid "Today's activities"
+msgstr "Замовлень сьогодні"
+
+#: templates/index.html:78
+msgid " total activities"
+msgstr "всього замовлень "
+
+#: templates/index.html:86
+msgid "Total services"
+msgstr "Всього сервісів"
+
+#: templates/index.html:89
+msgid " categories"
+msgstr "категорій"
+
+#: templates/left_nav.html:2
+msgid "today"
+msgstr "сьогодні"
+
+#: templates/left_nav.html:26 templates/user/Profile.html:3
+msgid "Profile"
+msgstr "Профіль"
+
+#: templates/left_nav.html:32 templates/user/AccountOrder.html:15
+msgid "Specialist"
+msgstr "Спеціаліст"
+
+#: templates/left_nav.html:37
+msgid "Company"
+msgstr "Компанія"
+
+#: templates/left_nav.html:43
+msgid "Offers"
+msgstr "Пропозиції"
+
+#: templates/left_nav.html:52 templates/user/Profile.html:47
+msgid "Orders"
+msgstr "Замовлення"
+
+#: templates/left_nav.html:61
+msgid "Settings"
+msgstr "Налаштування"
+
+#: templates/left_nav.html:69
+msgid "Logout"
+msgstr "Вийти"
+
+#: templates/activities/OffersCollection.html:4
+msgid "info"
+msgstr "інформація"
+
+#: templates/activities/OffersCollection.html:17
+#: templates/activities/OrdersCollection.html:17
+#: templates/user/AccountOffer.html:8 templates/user/AccountOrder.html:8
+msgid "Confirmed"
+msgstr "Підверджено"
+
+#: templates/activities/OffersCollection.html:20
+#: templates/activities/OrdersCollection.html:20
+#: templates/user/AccountOffer.html:12 templates/user/AccountOrder.html:12
+msgid "Unconfirmed"
+msgstr "Не підтверджено"
+
+#: templates/user/AccountOffer.html:15
+msgid "Customer"
+msgstr "Замовник"
+
+#: templates/user/AccountOffer.html:19 templates/user/AccountOrder.html:19
+msgid "Start at"
+msgstr "Початок в"
+
+#: templates/user/AccountOffer.html:21 templates/user/AccountOrder.html:21
+msgid "Status"
+msgstr "Статус"
+
+#: templates/user/AccountSettingsCompany.html:8
+msgid ""
+"You haven't added company in which you are working.\n"
+"                    You can easily do it. (we are working on this)"
+msgstr ""
+"Ви не додали компанію, в якій ви працюєте. \n"
+"Ви  легко можете це зробити. (Ми працюємо над цим)"
+
+#: templates/user/AccountSettingsConfiguration.html:8
+msgid "Here you can change password and so on."
+msgstr "Тут можна змінити пароль і т.д."
+
+#: templates/user/AccountSettingsOffers.html:10
+#: templates/user/AccountSettingsOrders.html:10
+msgid "Today"
+msgstr "Замовлень сьогодні"
+
+#: templates/user/AccountSettingsOffers.html:23
+#: templates/user/AccountSettingsOrders.html:23
+msgid "Past"
+msgstr "Минулі"
+
+#: templates/user/AccountSettingsOffers.html:35
+#: templates/user/AccountSettingsOrders.html:35
+msgid "You haven't any relations yet. You can easily add them."
+msgstr "У вас немає ніяких відносин досі. Ви легко можете додати їх."
+
+#: templates/user/AccountSettingsSpecialist.html:14
+msgid "Feel free to add services you offer"
+msgstr "Додати послуги, які ви надаєте"
+
+#: templates/user/AccountSettingsSpecialist.html:17
+msgid "Select services you offer"
+msgstr "Вкажіть сервіси, які ви надаєте"
+
+#: templates/user/AccountSettingsSpecialist.html:25
+msgid "Add selected services"
+msgstr "Додати вибрані сервіси"
+
+#: templates/user/AccountSettingsSpecialist.html:42
+msgid "times ordered"
+msgstr "разів замовлено"
+
+#: templates/user/AccountSettingsSpecialist.html:50
+msgid "remove service"
+msgstr "Вилучити сервіс"
+
+#: templates/user/CreateSpecialist.html:11
+msgid "First you must sign up as specialist."
+msgstr "Спочатку ви повинні зареєструватися в якості спеціаліста."
+
+#: templates/user/CreateSpecialist.html:19
+msgid "Select category and service in which your are working"
+msgstr "Виберіть категорію та сервіс, який ви надаєте"
+
+#: templates/user/CreateSpecialist.html:24
+msgid "Select category"
+msgstr "Вибрати категорію"
+
+#: templates/user/CreateSpecialist.html:43
+msgid "Enter your experience in selected service"
+msgstr "Вкажіть свій досвід в обраній сфері"
+
+#: templates/user/CreateSpecialist.html:46
+msgid "Select your experience"
+msgstr "Виберіть досвід роботи"
+
+#: templates/user/CreateSpecialist.html:53
+#: templates/user/CreateSpecialist.html:57
+msgid "Introduce yourself to clients"
+msgstr "Представте себе"
+
+#: templates/user/CreateSpecialist.html:65
+msgid "Enter your work phone to allow your customers communicate with you"
+msgstr ""
+"Введіть свій робочий телефон, щоб ваші клієнти мають можливість зв'язатися з "
+"вами"
+
+#: templates/user/CreateSpecialist.html:69
+msgid "Enter your work phone"
+msgstr "Введіть свій робочий телефон"
+
+#: templates/user/CreateSpecialist.html:77
+msgid "Select your location. It helps us to find for you customers."
+msgstr ""
+"Виберіть своє місце розташування. Це допомагає нам знайти клієнтів для вас."
+
+#: templates/user/CreateSpecialist.html:80
+msgid "Select your location"
+msgstr "Вкажіть своє розташування"
+
+#: templates/user/CreateSpecialist.html:98
+msgid "Become a specialist"
+msgstr "Стати спеціалістом"
+
+#: templates/user/CreateSpecialist.html:134
+msgid "Do you work in a company?"
+msgstr "Ви працюєте в компанії?"
+
+#: templates/user/CreateSpecialist.html:135
+msgid "Find your company or add it."
+msgstr "Знайти компанію або додати ЇЇ."
+
+#: templates/user/Profile.html:44
+msgid "Work Experience"
+msgstr "Досвід роботи"
+
+#: templates/user/Profile.html:52
+msgid "Completed Projects"
+msgstr "Успішних замовлень"
+
+#: templates/user/Profile.html:55
+msgid "First year"
+msgstr "Перший рік"
+
+#: templates/user/Profile.html:56
+msgid "On site"
+msgstr "На сайті"
+
+#: templates/user/Profile.html:71
+msgid "Services"
+msgstr "Сервіси"
+
+#: templates/user/Profile.html:92
+msgid "Location"
+msgstr "Розташування"
+
+#: templates/user/Profile.html:108
+msgid "About Me!"
+msgstr "Про мене!"
+
+#: templates/user/Profile.html:132
+msgid "Some more information."
+msgstr "БІльше інформації"
+
+#: templates/user/Profile.html:212
+msgid "try again to send request"
+msgstr "спробувати знову"
+
+#: templates/user/Profile.html:213
+msgid "Request successfully sent"
+msgstr "Запит успішно надіслано"

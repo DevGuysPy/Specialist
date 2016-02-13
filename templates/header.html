@@ -15,25 +15,39 @@
             </ul>
             <div class="header-search-wrapper hide-on-med-and-down">
                 <i class="mdi-action-search"></i>
-                <input class="search-input header-search-input z-depth-2" type="search" placeholder="Search for specialist or service you want to order">
+                <input class="search-input header-search-input z-depth-2" type="search"
+                       placeholder="{{ _("Search for specialist or service you want to order") }}">
             </div>
             <ul class="right">
                 {% if current_user.is_authenticated %}
                 {% else %}
-                <li><a href="{{ url_for('login') }}" class="waves-effect waves-block waves-light">Login</a>
-                </li>
-                <li><a href="{{ url_for('sign_up') }}" class="waves-effect waves-block waves-light">SignUp</a>
-                </li>
+                    <li><a href="{{ url_for('login') }}" class="waves-effect waves-block waves-light">{{ _("Login") }}</a>
+                    </li>
+                    <li><a href="{{ url_for('sign_up') }}" class="waves-effect waves-block waves-light">{{ _("SignUp") }}</a>
+                    </li>
                 {% endif %}
+                <li><a class="waves-effect waves-block waves-light translation-button"
+                       data-activates="translation-dropdown">
+                    <img src="{{ url_for('static', filename='img/') }}{{ session['lang_code'] }}.png"
+                         alt="{{ session['lang_code'] }}" /></a>
+            </ul>
+            <!-- translation-button -->
+            <ul id="translation-dropdown" class="dropdown-content">
+                <li>
+                    <a onclick="changeLanguage('en')">
+                        <img src="{{ url_for('static', filename='img/en.png') }}" alt="English" />
+                        <span class="language-select">English</span></a>
+                </li>
+
+
+                <li>
+                    <a onclick="changeLanguage('uk')">
+                        <img src="{{ url_for('static', filename='img/uk.png') }}" alt="Ураїнська"/>
+                        <span class="language-select">Українська</span></a>
+                </li>
+
             </ul>
         </div>
     </nav>
 </div>
 <!-- end header nav-->
-
-
-
-
-<body>
-
-

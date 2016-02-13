@@ -1,4 +1,4 @@
-function initServiceActivity(addServiceActivityURL, Requestsuccessfullysent) {
+function initServiceActivity(addServiceActivityURL) {
     var card = $('#add_service_activity');
     var preloader = $('.preloader-wrapper');
     $( document ).ready(function() {
@@ -6,7 +6,7 @@ function initServiceActivity(addServiceActivityURL, Requestsuccessfullysent) {
     });
 
     var done = '<p class="btn disabled">' +
-        '<i class="material-icons left">done</i>' + Requestsuccessfullysent +'</p>';
+        '<i class="material-icons left">done</i>' + SuccessBtn +'</p>';
 
     $('#service_activity_start').datetimepicker({
       format: 'Y-m-d H:i:00'
@@ -28,7 +28,7 @@ function initServiceActivity(addServiceActivityURL, Requestsuccessfullysent) {
             if (data.status == 'error') {
                 errors.empty();
                 $('.preloader-wrapper').hide();
-                $('#service_activity_submit').show().html('try again to Send request');
+                $('#service_activity_submit').show().html(tryAgainBtn);
                 var content = card.find('.card-content');
                 for (var i in data.errors) {
                     var errorDiv = content

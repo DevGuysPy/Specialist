@@ -1,3 +1,11 @@
+.translation-button img {
+  position: relative;
+  top: 12px;
+}
+#translation-dropdown .language-select {
+  position: relative;
+  top: -9px;
+}
 
 body {
   background-color: #fcfcfc;
@@ -20,7 +28,6 @@ footer {
   line-height: 20px;
   margin-top: 11px;
 }
-span.badge.new:after{content:" today" !important; background-color: #37474f;}
 span.badge.new{background-color: #37474f;}
 
 #content .container .row {

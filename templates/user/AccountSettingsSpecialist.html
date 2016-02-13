@@ -11,10 +11,10 @@
             <div class="col offset-l3 l6 s12">
                 <div class="card" id="search_service_card">
                     <div class="card-content">
-                        <h5>Feel free to add services you offer</h5>
+                        <h5>{{ _("Feel free to add services you offer") }}</h5>
                         <div class="input-field">
                             <input type="text" id="add_specialist_services">
-                            <label for="add_specialist_services">Select services you offer</label>
+                            <label for="add_specialist_services">{{ _("Select services you offer") }}</label>
                         </div>
                         <div class="row">
                             <div id="selected_services">
@@ -22,7 +22,7 @@
                         </div>
                         <button id="search_service_submit"
                                 class="add-services-btn waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">
-                            Add selected services
+                            {{ _("Add selected services") }}
                         </button>
                     </div>
                 </div>
@@ -39,12 +39,15 @@
                             <span class="card-stats-title">{{ s.title }}</span>
                             <h4 class="card-stats-number">{{ s.activities_count() }}</h4>
                             <p class="card-stats-compare">
-                                <span class="green-text text-lighten-5"> times ordered</span>
+                                <span class="green-text text-lighten-5"> {{ _("times ordered") }}</span>
                             </p>
                         </div>
                         <div class="card-reveal">
-                            <span class="grey-text text-darken-4 card-title flow-text"><i class="material-icons right">close</i></span><br>
-                            <p class="center-align"> <i class="material-icons cursor red-text" onclick="removeService({{ s.id }})">delete</i> - remove service</p>
+                            <span class="grey-text text-darken-4 card-title flow-text">
+                                <i class="material-icons right">close</i></span><br>
+                            <p class="center-align">
+                                <i class="material-icons cursor red-text"
+                                   onclick="removeService({{ s.id }})">delete</i> - {{ _("remove service") }}</p>
                         </div>
                     </div>
                 </div>

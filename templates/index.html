@@ -41,12 +41,12 @@
 
     <!--card stats start-->
     <div id="card-stats" class="seaction" style="margin: 10px">
-        <h4 class="flow-text" style="margin-left: 20px;">Stats</h4>
+        <h4 class="flow-text" style="margin-left: 20px;">{{ _("Stats") }}</h4>
         <div class="row">
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content  green white-text">
-                        <p class="card-stats-title"><i class="mdi-social-group-add"></i>{{ _(' New Users') }}</p>
+                        <p class="card-stats-title"><i class="mdi-social-group-add"></i> {{ _(' New Users') }}</p>
                         <h4 class="card-stats-number">{{ stats.new_users }}</h4>
                         <p class="card-stats-compare">
                             <i class="mdi-hardware-keyboard-arrow-up"></i>
@@ -60,7 +60,7 @@
                 <div class="card">
                     <div class="card-content purple white-text">
                         <p class="card-stats-title">
-                            <i class="material-icons">assignment_ind</i>{{ _(' Number of specialist') }}</p>
+                            <i class="material-icons">assignment_ind</i> {{ _('Number of specialist') }}</p>
                         <h4 class="card-stats-number">{{ stats.specialists }}</h4>
                         <p class="card-stats-compare">
                             {{ stats.specialists_online }}
@@ -72,7 +72,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content blue-grey white-text">
-                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i>{{ _(" Today's activities") }}</p>
+                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> {{ _("Today's activities") }}</p>
                         <h4 class="card-stats-number">{{ stats.activities }}</h4>
                         <p class="card-stats-compare">{{ stats.total_activities }}
                             <span class="blue-grey-text text-lighten-5">{{ _(" total activities") }}</span>
@@ -83,7 +83,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content deep-purple white-text">
-                        <p class="card-stats-title"><i class="mdi-editor-insert-drive-file"></i>{{ _(" Total services") }}</p>
+                        <p class="card-stats-title"><i class="mdi-editor-insert-drive-file"></i> {{ _("Total services") }}</p>
                         <h4 class="card-stats-number">{{ stats.services }}</h4>
                         <p class="card-stats-compare">{{ stats.categories }}
                             <span class="deep-purple-text text-lighten-5">{{ _(" categories") }}</span>

@@ -7,7 +7,7 @@
         <div class="col s12 m12 l6">
             <ul id="task-card" class="collection with-header hoverable">
                 <li class="collection-header cyan">
-                    <h4 class="task-card-title">Today</h4>
+                    <h4 class="task-card-title">{{ _("Today") }}</h4>
                     <p class="task-card-date">{{ current_time|date }}</p>
                 </li>
                 {% for activity in active_orders %}
@@ -20,7 +20,7 @@
         <div class="col s12 m12 l6">
             <ul id="task-card" class="collection with-header hoverable">
                 <li class="collection-header cyan">
-                    <h4 class="task-card-title">Past</h4>
+                    <h4 class="task-card-title">{{ _("Past") }}</h4>
                 </li>
                 {% for activity in past_orders %}
                     {% include "activities/OrdersCollection.html" %}
@@ -32,7 +32,7 @@
         <div class="card">
             <div class="card-content">
                 <p class="flow-text center-align services-title">
-                    You haven't any relations yet. You can easily add them.
+                    {{ _("You haven't any relations yet. You can easily add them.") }}
                 </p>
             </div>
         </div>

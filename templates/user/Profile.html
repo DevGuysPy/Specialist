@@ -1,7 +1,7 @@
 {% extends "user/AccountSettings.html" %}
 
-{% block title %}{{ user.full_name() }} - Profile{% endblock %}
-{% block css %}
+{% block title %}{{ user.full_name() }} - {{ _("Profile") }}{% endblock %}
+{% block extra_css %}
     <link href="{{ url_for('static', filename='css/datetimepicker.css') }}" rel="stylesheet">
 {% endblock %}
 {% block settings_content %}
@@ -12,7 +12,8 @@
                 <img class="activator" src="{{ user.bg_photo }}" alt="user background">
             </div>
             <figure class="card-profile-image">
-                <img src="{{ url_for('static', filename='img/profile.png') }}" alt="profile image" class="circle z-depth-2 responsive-img activator">
+                <img src="{{ url_for('static', filename='img/profile.png') }}"
+                     alt="profile image" class="circle z-depth-2 responsive-img activator">
             </figure>
             <div class="card-content">
                 <div class="row">
@@ -24,11 +25,10 @@
                                 {%  for s in user.specialist.services %}
                                     {% set services_added = services_added + 1 %}
                                     {{ s.title }}
-
                                     {% if loop.last %}
                                         .
                                     {% elif services_added == 2 %}
-                                        and {{ user.specialist.services|length - 2 }} more.
+                                        {{ _('and') }} {{ user.specialist.services|length - 2 }} {{ _('more') }}.
                                         {% break %}
                                     {% else %}
                                         ,
@@ -44,16 +44,16 @@
                             <p class="medium-small grey-text">{{ _('Work Experience') }}</p>
                         {% else %}
                             <h4 class="card-title grey-text text-darken-4">{{ user.get_orders()|length }}</h4>
-                            <p class="medium-small grey-text">Orders</p>
+                            <p class="medium-small grey-text">{{ _('Orders') }}</p>
                         {% endif %}
                     </div>
                     <div class="col s2 center-align">
                         <h4 class="card-title grey-text text-darken-4">10</h4>
-                        <p class="medium-small grey-text">Completed Projects</p>
+                        <p class="medium-small grey-text">{{ _('Completed Projects') }}</p>
                     </div>
                     <div class="col s2 center-align">
-                        <h4 class="card-title grey-text text-darken-4">$ 1,253,000</h4>
-                        <p class="medium-small grey-text">Busness Profit</p>
+                        <h4 class="card-title grey-text text-darken-4">{{ _('First year') }}</h4>
+                        <p class="medium-small grey-text">{{ _('On site') }}</p>
                     </div>
                     <div class="col s1 right-align">
                         <a class="btn-floating activator waves-effect waves-light darken-2 right">
@@ -64,9 +64,11 @@
             </div>
             <div class="card-reveal">
                 <p>
-                    <span class="card-title grey-text text-darken-4">{{ user.full_name() }} <i class="mdi-navigation-close right"></i></span>
+                    <span class="card-title grey-text text-darken-4">
+                        {{ user.full_name() }} <i class="mdi-navigation-close right"></i>
+                    </span>
                     <span><i class="mdi-action-perm-identity cyan-text text-darken-2"></i>
-                        Services:
+                        {{ _("Services") }}:
                         {% for s in user.specialist.services %}
                             {{ s.title }}
                             {% if loop.last%}
@@ -84,10 +86,10 @@
                     </p>
                 {% endif %}
                 <p><i class="mdi-communication-email cyan-text text-darken-2"></i> {{ user.email}}</p>
-                <p><i class="mdi-social-cake cyan-text text-darken-2"></i>Age {{ user.get_age() }}</p>
+                <p><i class="mdi-social-cake cyan-text text-darken-2"></i>{{ _('Age') }} {{ user.get_age() }}</p>
                 <p>
                     <i class="mdi-device-airplanemode-on cyan-text text-darken-2"></i>
-                    Location: {{ user.location.country }},
+                    {{ _('Location') }}: {{ user.location.country }},
                     {{ user.location.city }}
                 </p>
             </div>
@@ -103,7 +105,7 @@
                     {% if user.specialist.description %}
                         <div class="card blue-grey darken-3">
                             <div class="card-content white-text">
-                                <span class="card-title">About Me!</span>
+                                <span class="card-title">{{ _('About Me!') }}</span>
 
                                 <p>
                                     {{ user.specialist.description }}
@@ -119,14 +121,15 @@
                     <div class="map-card">
                         <div class="card">
                             <div class="card-image waves-effect waves-block waves-light">
-                                <div id="map-canvas" data-lat="{{ user.location.latitude }}" data-lng="{{ user.location.longitude }}"></div>
+                                <div id="map-canvas" data-lat="{{ user.location.latitude }}"
+                                     data-lng="{{ user.location.longitude }}"></div>
                             </div>
                             <div class="card-content">
                                 <a class="btn-floating activator btn-move-up waves-effect waves-light darken-2 right">
                                     <i class="mdi-maps-pin-drop"></i>
                                 </a>
 
-                                <p class="blog-post-content">Some more information.</p>
+                                <p class="blog-post-content">{{ _('Some more information.') }}</p>
                             </div>
                             <div class="card-reveal">
                                 <span class="card-title grey-text text-darken-4">{{ user.location.country }},
@@ -206,7 +209,9 @@
     <script src="{{ url_for('static', filename='js/addServiceActivity.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mapCard.js') }}"></script>
     <script type="text/javascript">
-        initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}", {{ _("'Request successfully sent'")|safe }});
+        var tryAgainBtn = "{{ _('try again to send request') }}";
+        var SuccessBtn = "{{ _("Request successfully sent") }}";
+        initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}");
         {% if user.location %}
             initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}");
         {% endif %}

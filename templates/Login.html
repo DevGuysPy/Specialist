@@ -10,22 +10,24 @@
             <div class="card grey lighten-4">
                 <form id="login_form" method="POST">
                     <div class="card-content grey-text text-darken-1">
-                        <span class="card-title">Login</span>
+                        <span class="card-title">{{ _("Login") }}</span>
                             {{ form.csrf_token }}
                             <div class="input-field">
                                 {{ form.email(id="login_email") }}
-                                <label for="login_email">Enter your email</label>
+                                <label for="login_email">{{ _("Enter your email") }}</label>
                                 <div id="error_login_email" class="error"></div>
                             </div>
                             <div class="input-field">
                                 {{ form.password(id="login_password") }}
-                                <label for="login_password">Enter your password</label>
+                                <label for="login_password">{{ _("Enter your password") }}</label>
                                 <div id="error_login_password" class="error"></div>
                             </div>
                     </div>
                     <div class="card-action">
-                        <a id="login_submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Login</a><br>
-                        <a class="blue-text t" href="{{ url_for('sign_up') }}">Haven't account yet?</a>
+                        <a id="login_submit"
+                           class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">{{ _("Login") }}
+                        </a><br>
+                        <a class="blue-text t" href="{{ url_for('sign_up') }}">{{ _("Haven't account yet?") }}</a>
                     </div>
                 </form>
             </div>

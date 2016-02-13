@@ -111,7 +111,6 @@ class UserProfile(TemplateView):
         self.user = User.query.get(kwargs.get('user_id'))
         if not self.user:
             abort(404)
-
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -183,8 +182,7 @@ def add_service_activity(user_id):
                 confirm_url=str(confirm_url))
 
             send_email(to=user.email,
-                       subject=gettext('You have been invited by {}'.format(
-                           current_user.full_name())),
+                       subject=gettext('You have been invited by %(cust)s', cust=current_user.full_name()),
                        template=html)
 
         return jsonify({

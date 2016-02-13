@@ -30,8 +30,8 @@ def validate_id_for(model):
         if not db.session.query(
                 exists().where(model.id == field.data)).scalar():
             raise ValidationError(
-                gettext('{} with id {} does not exist'.format(
-                    model.__name__, field.data)))
+                gettext('%(mn)s with id %(dt)s does not exist',
+                    mn=model.__name__, dt=field.data))
 
     return validate_id
 
