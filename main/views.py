@@ -724,7 +724,7 @@ class SearchSpecialist(TemplateView):
         """
         Sort specialists which have current service entry by proximity
         to given coordinates.
-        Return sqlalchemy BaseQuery.
+        Return list of Specialist objects.
         """
 
         if specialists:
@@ -795,7 +795,7 @@ class SearchSpecialist(TemplateView):
             if 'city_loc' in request.args:
                 try:
                     city, country = request.args['city_loc'].split(',')
-                except IndexError:
+                except ValueError:
                     city = country = None
 
                 if city and country:
@@ -809,7 +809,7 @@ class SearchSpecialist(TemplateView):
                     lat, lng = request.args['lat_lng'].split(',')
                     lat = float(lat)
                     lng = float(lng)
-                except (IndexError, ValueError):
+                except ValueError:
                     lat = lng = None
 
                 if lat and lng:
