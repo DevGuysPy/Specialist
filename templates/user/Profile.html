@@ -84,7 +84,13 @@
                     </p>
                 {% endif %}
                 <p><i class="mdi-communication-email cyan-text text-darken-2"></i> {{ user.email}}</p>
-                <p><i class="mdi-social-cake cyan-text text-darken-2"></i>Age {{ user.get_age() }}</p>
+                <p><i class="mdi-social-cake cyan-text text-darken-2"></i>
+                    {% if user.get_age() %}
+                        Age {{ user.get_age() }}
+                    {% else %}
+                        User has not entered his age
+                    {% endif %}
+                </p>
                 <p>
                     <i class="mdi-device-airplanemode-on cyan-text text-darken-2"></i>
                     Location: {{ user.location.country }},

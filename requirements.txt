@@ -37,3 +37,5 @@ WTForms-Alchemy==0.13.3
 WTForms-Components==0.9.8
 marshmallow==2.4.2
 Flask-Restless==0.17.0
+Babel==2.2.0
+geopy==1.11.0

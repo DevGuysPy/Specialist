@@ -37,10 +37,10 @@ def confirm_token(token, expiration=3600):
 
 def send_email(to, subject, template, sender=None):
     msg = Message(
-            subject,
-            recipients=[to],
-            html=template,
-            sender=sender or app.config['MAIL_DEFAULT_SENDER']
+        subject,
+        recipients=[to],
+        html=template,
+        sender=sender or app.config['MAIL_DEFAULT_SENDER']
     )
     mail.send(msg)
 

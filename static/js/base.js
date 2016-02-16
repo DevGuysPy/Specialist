@@ -90,17 +90,19 @@ function initInputAutocomplete(input, apiUrl, params, onSelectFunc){
 }
 
 function initCurrentUserLocation() {
+    if (window.currentUserLocation){
+        return
+    }
     navigator.geolocation.getCurrentPosition(function (position) {
         getLocByLatLng(
             position.coords.latitude,
             position.coords.longitude,
             function(data){
-                var locData = _.head(data.results);
-                window.currentUserLocation = locData;
+                window.currentUserLocation = data;
                 $.ajax({
                     method: 'POST',
                     url: '/set_current_location',
-                    data: JSON.stringify(locData),
+                    data: JSON.stringify(data),
                     contentType: "application/json"
                 });
         });
@@ -112,7 +114,7 @@ function getLocByLatLng(lat, lng, successFunc) {
         url: 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' +
         lat + ',' + lng + '&sensor=true',
         success: function(data){
-            successFunc(data)
+            successFunc(_.head(data.results))
         }
     })
 }

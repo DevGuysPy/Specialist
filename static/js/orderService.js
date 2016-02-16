@@ -27,7 +27,7 @@ function initOrderServiceModal(currentServiceId){
        }
     });
 
-    google.maps.event.addListener(orderServiceAutocomplete,
+    google.maps.event.addListener(orderServiceLocObj.autocomplete,
             'place_changed', function() {
         locStrEl.text(locationAutocomEl.val());
         addLocationEl.text('Location added').css('color', '#43a047');
@@ -51,7 +51,7 @@ function initOrderServiceModal(currentServiceId){
     modal.find('.add-location-btn').on('click', function(){
         mainEl.hide();
         locEl.show().addClass('order-service-animation');
-        google.maps.event.trigger(orderServiceMap, "resize")
+        google.maps.event.trigger(orderServiceLocObj.map, "resize")
     });
 
     modal.find('.hide-location-btn').on('click', function(){
@@ -212,16 +212,18 @@ function initOrderServiceLocAutocomplete(modal) {
             draggable: true
         },
         location: [49.337407,29.8229751],
-        setGlobal: true
+        setGlobal: 'orderService'
     }).bind("geocode:dragged", function(event, latLng){
-        getLocByLatLng(latLng.lat(), latLng.lng(), function(data){
-            var address = _.head(data.results).formatted_address;
-            autocompleteInput.val(address);
+        getLocByLatLng(latLng.lat(), latLng.lng(), function(address){
+            var formattedAddress = address.formatted_address;
+            autocompleteInput.val(formattedAddress);
             modal
                 .find('#order-service-current-location')
                 .prop('checked', false);
-            $('.selected-location').text(address);
-            $('.add-location').text('Location added').css('color', '#43a047')
+            $('.selected-location').text(formattedAddress);
+            $('.add-location')
+                .text('Location added')
+                .css('color', '#43a047')
         });
     });
     autocompleteInput.attr('placeholder', '')

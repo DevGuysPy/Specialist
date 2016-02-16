@@ -62,7 +62,8 @@
     types: ['geocode'],
     blur: false,
     geocodeAfterResult: false,
-    restoreValueAfterBlur: false
+    restoreValueAfterBlur: false,
+    autocompleteOnlyCities: false
   };
 
   // See: [Geocoding Types](https://developers.google.com/maps/documentation/geocoding/#Types)
@@ -120,10 +121,6 @@
         this.options.mapOptions
       );
 
-      if (this.options.setGlobal) {
-        window.orderServiceMap = this.map;
-      }
-
       // add click event listener on the map
       google.maps.event.addListener(
         this.map,
@@ -177,23 +174,27 @@
       // Indicates is user did select a result from the dropdown.
       var selected = false;
 
-      var options = {
-        types: this.options.types,
-        bounds: this.options.bounds === true ? null : this.options.bounds,
-        componentRestrictions: this.options.componentRestrictions
-      };
+      var options = null;
+      if (this.options.autocompleteOnlyCities){
+        options = {
+          types: ['(cities)'],
+          region:'EU'
+        };
+      } else {
+        options = {
+          types: this.options.types,
+          bounds: this.options.bounds === true ? null : this.options.bounds,
+          componentRestrictions: this.options.componentRestrictions
+        };
 
-      if (this.options.country){
-        options.componentRestrictions = {country: this.options.country};
+        if (this.options.country){
+          options.componentRestrictions = {country: this.options.country};
+        }
       }
 
       this.autocomplete = new google.maps.places.Autocomplete(
         this.input, options
       );
-
-      if (this.options.setGlobal) {
-        window.orderServiceAutocomplete = this.autocomplete;
-      }
 
       this.geocoder = new google.maps.Geocoder();
 
@@ -249,6 +250,9 @@
             this.find();
           }
         }, this));
+      }
+      if (this.options.setGlobal) {
+        window[this.options.setGlobal + 'LocObj'] = this;
       }
     },
 

@@ -1,7 +1,8 @@
 import datetime
 from app import db
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import URLType, ChoiceType, PasswordType, PhoneNumberType
+from sqlalchemy_utils import URLType, ChoiceType, PasswordType,\
+    PhoneNumberType, CurrencyType
 
 ACTIVITY_STATUS_TYPES = (
     ('0', 'Waiting for start'),
@@ -67,7 +68,7 @@ class User(db.Model):
 
     def get_age(self):
         if not self.birth_date:
-            return 'User has not entered his age'
+            return
         return datetime.date.today().year - self.birth_date.year
 
     def get_orders(self):
@@ -349,8 +350,13 @@ class OrgOrgActivity(db.Model):
 
 
 class Location(db.Model):
+    LOCATION_TYPE = (
+        ('0', 'User Location'),
+        ('1', 'Fixed Location')
+    )
     id = db.Column(db.Integer(), primary_key=True)
     country = db.Column(db.String(), nullable=False)
+    area = db.Column(db.String())
     state = db.Column(db.String())
     city = db.Column(db.String())
     street = db.Column(db.String())
@@ -358,6 +364,8 @@ class Location(db.Model):
     apartment = db.Column(db.Integer())
     longitude = db.Column(db.Float(), nullable=False)
     latitude = db.Column(db.Float(), nullable=False)
+
+    type = db.Column(ChoiceType(LOCATION_TYPE), default='0')
 
     def get_name(self):
         location_parts = []
@@ -406,3 +414,48 @@ class Message(db.Model):
     service = db.relationship('Service')
 
     created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+
+class OrderPost(db.Model):
+    PRICE_TYPE = (
+        ('0', 'Fixed'),
+        ('1', 'Hourly'),
+        ('2', 'By appointment')
+    )
+
+    SPECIALIST_TYPE = (
+        ('0', 'Any'),
+        ('1', 'Experienced'),
+        ('2', 'The most experienced')
+    )
+
+    id = db.Column(db.Integer(), primary_key=True)
+
+    author_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
+                          nullable=False)
+    author = db.relationship('User', foreign_keys=[author_id],
+                             backref="order_posts")
+
+    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
+                           nullable=False)
+    service = db.relationship('Service')
+
+    title = db.Column(db.String(), nullable=False)
+
+    description = db.Column(db.Text(), nullable=False)
+
+    price_type = db.Column(ChoiceType(PRICE_TYPE), default='2')
+
+    currency_type = db.Column(CurrencyType)
+
+    price = db.Column(db.Float())
+
+    specialist_type = db.Column(ChoiceType(SPECIALIST_TYPE), default='0')
+
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
+    location = db.relationship('Location')
+
+    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+    timing_type = db.Column(ChoiceType(TIMING_TYPE), default='0')
+

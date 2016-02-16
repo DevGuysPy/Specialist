@@ -2,146 +2,238 @@
 
 {% block css %}
     <link href="{{ url_for('static', filename='css/order_service_modal.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/css/ion.rangeSlider.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/css/normalize.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/css/ion.rangeSlider.skinFlat.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
-
     <p class="flow-text search-title center">
         All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
     </p>
     <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
-    <div class="section">
-        <div id="products" class="row">
-            <div class="product-sizer"></div>
-            {% for specialist in specialists %}
-                <div class="product">
-                    <div class="card specialist-card hoverable">
-                        <input type="hidden" class="user-id" value={{ specialist.user.id }}>
-                        <div class="card-image waves-effect waves-block waves-light mini-bane">
-                            <img src="http://goo.gl/hkIcuu" alt="product-img">
-                        </div>
-                        <img src="{{ url_for('static', filename='img/profile.png') }}"
-                             class="btn-price waves-effect waves-light">
-                        <ul class="card-action-buttons">
-                            <li class="order-service-el">
-                                <a class="btn-floating waves-effect waves-light green accent-4 order-service-btn ban-mobile-fast-order">
-                                    <i class="mdi-av-repeat tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">
-                                    </i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light red accent-2">
-                                    <i class="mdi-action-favorite"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light light-blue">
-                                    <i class="mdi-action-info activator"></i>
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="center specialist-name"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
-                        <div class="card-content" style="padding-bottom: 15px">
+    <div class="row">
+        <div class="col m2 order-by-column">
+            <p class="flow-text center order-by-text">Order by</p>
+            <div id="chips-container"></div>
+            <div class="card">
+                <ul class="collapsible" data-collapsible="expandable">
+                    <li id="order-by-location-accordion-el">
+                        <div class="collapsible-header"><i class="material-icons">place</i>Proximity</div>
+                        <div class="collapsible-body order-by">
                             <div class="row">
-                                <div class="col m6">
-                                    <p><i class="material-icons tiny">location_on</i><strong> {{ specialist.user.location.get_name() }}</strong></p>
-                                </div>
-                                <div class="col m6">
-                                    <p><strong>Experience: {{ specialist.experience.value }}</strong></p>
-                                </div>
-                            </div>
-                            <div class="divider"></div>
-                            <div class="row">
-                                <p class="center">Success jobs: 70%</p>
-                                <div class="progress">
-                                    <div class="determinate" style="width: 70%"></div>
-                                </div>
-                                <div class="col s6">
-                                    <div class="specialist-phone">
-                                        <i class="material-icons tiny">contact_phone</i>
-                                        <span class="phone" style="display: none"> <strong>{{ specialist.user.phone_number }}</strong></span>
-                                        <a class="show-phone"> Show phone</a>
+                                <div class="col m9">
+                                    <div class="input-field">
+                                        <input type="text" id="order_by_location_city_autocomplete">
                                     </div>
                                 </div>
-                                <div class="col s6">
-                                    {% if specialist.org %}
-                                        <p><strong>Works in <a href="#">{{ specialist.org.name }}</a></strong></p>
-                                    {% else %}
-                                        <p><strong>{{ specialist.user.first_name }} doesn't work in company.</strong></p>
+                                <div class="col m3">
+                                    <div class="right">
+                                        <a class="round-btn select-loc-map btn-floating btn-large waves-effect waves-light blue-grey darken-3 tooltipped" style="margin-top: 23px;" data-position="top" data-delay="50" data-tooltip="Extended location">
+                                            <i class="material-icons">add_location</i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div id="order_by_location_city_details">
+                                    <input type="hidden" name='country'>
+                                    <input type="hidden" name='locality'>
+                                </div>
+                            </div>
+                            <div id="order_by_location_extended_details">
+                                <input type="hidden" name='lat'>
+                                <input type="hidden" name='lng'>
+                            </div>
+                        </div>
+                    </li>
+                    <li id="order-by-experience-accordion-el">
+                      <div class="collapsible-header"><i class="material-icons">trending_up</i>Experience</div>
+                      <div class="collapsible-body">
+                          <div class="order-by-slider">
+                              <input type="text" id="order_by_experience_slider" value="" />
+                          </div>
+                      </div>
+                    </li>
+                    <li id="order-by-success-accordion-el">
+                      <div class="collapsible-header"><i class="material-icons">thumb_up</i>Success jobs</div>
+                      <div class="collapsible-body">
+                          <div class="order-by-slider">
+                              <input type="text" id="order_by_success_slider" value="" />
+                          </div>
+                      </div>
+                    </li>
+                    <li id="order-by-orders-accordion-el">
+                      <div class="collapsible-header"><i class="material-icons">shopping_cart</i>Orders count</div>
+                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+                    </li>
+                    <li id="order-by-price-accordion-el">
+                      <div class="collapsible-header"><i class="material-icons">loyalty</i>Average price</div>
+                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+                    </li>
+                </ul>
+            </div>
+            <div class="center">
+                <a id="order_by_submit" class="waves-effect waves-light btn blue-grey darken-3">Submit</a>
+            </div>
+        </div>
+        <div class="col m10">
+            <div class="section">
+                <div id="products" class="row">
+                    <div class="product-sizer"></div>
+                    {% for specialist in specialists %}
+                        <div class="product">
+                            <div class="card specialist-card hoverable">
+                                <input type="hidden" class="user-id" value={{ specialist.user.id }}>
+                                <div class="card-image waves-effect waves-block waves-light mini-bane">
+                                    <img src="http://goo.gl/hkIcuu" alt="product-img">
+                                </div>
+                                <img src="{{ url_for('static', filename='img/profile.png') }}"
+                                     class="btn-price waves-effect waves-light">
+                                <ul class="card-action-buttons">
+                                    <li class="order-service-el">
+                                        <a class="btn-floating waves-effect waves-light green accent-4 order-service-btn ban-mobile-fast-order">
+                                            <i class="mdi-av-repeat tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">
+                                            </i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="btn-floating waves-effect waves-light red accent-2">
+                                            <i class="mdi-action-favorite"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="btn-floating waves-effect waves-light light-blue">
+                                            <i class="mdi-action-info activator"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="center specialist-name"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
+                                <div class="card-content" style="padding-bottom: 15px">
+                                    <div class="row">
+                                        <div class="col m6">
+                                            <p><i class="material-icons tiny">location_on</i><strong> {{ specialist.user.location.get_name() }}</strong></p>
+                                        </div>
+                                        <div class="col m6">
+                                            <p><strong>Experience: {{ specialist.experience.value }}</strong></p>
+                                        </div>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="row">
+                                        <p class="center">Success jobs: 70%</p>
+                                        <div class="progress">
+                                            <div class="determinate" style="width: 70%"></div>
+                                        </div>
+                                        <div class="col s6">
+                                            <div class="specialist-phone">
+                                                <i class="material-icons tiny">contact_phone</i>
+                                                <span class="phone" style="display: none"> <strong>{{ specialist.user.phone_number }}</strong></span>
+                                                <a class="show-phone"> Show phone</a>
+                                            </div>
+                                        </div>
+                                        <div class="col s6">
+                                            {% if specialist.org %}
+                                                <p><strong>Works in <a href="#">{{ specialist.org.name }}</a></strong></p>
+                                            {% else %}
+                                                <p><strong>{{ specialist.user.first_name }} doesn't work in company.</strong></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="stars">
+                                        <span class="">
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star_half</i>
+                                        <i class="material-icons">star_border</i>
+                                    </span>
+                                    </div>
+                                    <div class="comments-count">
+                                        <span class="flow-text" style="font-size: 1rem;"> Comments: 10</span>
+                                    </div>
+
+                                </div>
+                                <div class="card-reveal">
+                                    <span class="card-title grey-text text-darken-4"><i class="mdi-navigation-close right"></i></span>
+                                    {% if specialist.description %}
+                                        <div class="description">
+                                            <p class="center">About {{ specialist.user.first_name }}</p>
+                                            <p class="description-text">{{ specialist.description }}</p>
+                                            <div class="divider"></div>
+                                        </div>
+                                    {% endif %}
+                                    {% if specialist.services|length > 1 %}
+                                        <p>Also offer:
+                                            {% set services_added = 0 %}
+                                            {%  for s in specialist.services %}
+                                                {% if s != current_service %}
+                                                    {% set services_added = services_added + 1 %}
+                                                    {{ s.title }}
+
+                                                    {% if loop.last %}
+                                                        .
+                                                    {% elif services_added == 2 %}
+                                                        and {{ specialist.services|length - 3 }} more.
+                                                        {% break %}
+                                                    {% else %}
+                                                        ,
+                                                    {% endif %}
+                                                {% endif %}
+
+                                            {% endfor %}
+                                        </p>
+                                        <div class="divider"></div>
+                                        <p><i class="mdi-social-cake text-darken-2"></i>
+                                            {% if specialist.user.get_age() %}
+                                                Age {{ specialist.user.get_age() }}
+                                            {% else %}
+                                                User has not entered his age
+                                            {% endif %}
+                                        </p>
+                                        <div class="divider"></div>
+                                        <p><i class="mdi-communication-email text-darken-2"></i> {{ specialist.user.email }}</p>
+
                                     {% endif %}
                                 </div>
+                                <div class="order-spec-service-modal"></div>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <div class="stars">
-                                <span class="">
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star_half</i>
-                                <i class="material-icons">star_border</i>
-                            </span>
-                            </div>
-                            <div class="comments-count">
-                                <span class="flow-text" style="font-size: 1rem;"> Comments: 10</span>
-                            </div>
-
-                        </div>
-                        <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4"><i class="mdi-navigation-close right"></i></span>
-                            {% if specialist.description %}
-                                <div class="description">
-                                    <p class="center">About {{ specialist.user.first_name }}</p>
-                                    <p class="description-text">{{ specialist.description }}</p>
-                                    <div class="divider"></div>
-                                </div>
-                            {% endif %}
-                            {% if specialist.services|length > 1 %}
-                                <p>Also offer:
-                                    {% set services_added = 0 %}
-                                    {%  for s in specialist.services %}
-                                        {% if s != current_service %}
-                                            {% set services_added = services_added + 1 %}
-                                            {{ s.title }}
-
-                                            {% if loop.last %}
-                                                .
-                                            {% elif services_added == 2 %}
-                                                and {{ specialist.services|length - 3 }} more.
-                                                {% break %}
-                                            {% else %}
-                                                ,
-                                            {% endif %}
-                                        {% endif %}
-
-                                    {% endfor %}
-                                </p>
-                                <div class="divider"></div>
-                                <p><i class="mdi-social-cake text-darken-2"></i>Age {{ specialist.user.get_age() }}</p>
-                                <div class="divider"></div>
-                                <p><i class="mdi-communication-email text-darken-2"></i> {{ specialist.user.email }}</p>
-
-                            {% endif %}
-                        </div>
-                        <div class="order-spec-service-modal"></div>
-                    </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
-        <ul class="pagination center">
-            <li class="waves-effect" id="previous_page">
-                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page - 1 }}">
-                    <i class="material-icons">chevron_left</i>
-                </a>
-            </li>
-            <div class="page-numbers">
             </div>
-            <li class="waves-effect" id="next_page">
-                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page + 1 }}">
-                    <i class="material-icons">chevron_right</i>
-                </a>
-            </li>
-        </ul>
+            {% if specialists_count > 0 %}
+                <ul class="pagination center">
+                    <li class="waves-effect" id="previous_page">
+                        {% strip %}
+                            <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?
+                                    {% for s in request.args %}
+                                        {% if s != 'page' %}
+                                            {{ s }}={{ request.args[s] }}&
+                                        {% endif %}
+                                    {% endfor %}
+                                    page={{ current_page - 1 }}">
+                                <i class="material-icons">chevron_left</i>
+                            </a>
+                        {% endstrip %}
+                    </li>
+                    <div class="page-numbers">
+                    </div>
+                    <li class="waves-effect" id="next_page">
+                        {% strip %}
+                            <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?
+                                    {% for s in request.args %}
+                                        {% if s != 'page' %}
+                                            {{ s }}={{ request.args[s] }}&
+                                        {% endif %}
+                                    {% endfor %}
+                                    page={{ current_page + 1 }}">
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        {% endstrip %}
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
     </div>
     <div class="row">
         <p class="flow-text center">Similar services</p>
@@ -160,17 +252,21 @@
         {% endfor %}
     </div>
     {% include "OrderService.html" %}
+    {% include "MapModal.html" %}
 {% endblock %}
 
 {% block script %}
+    <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/js/ion-rangeSlider/ion.rangeSlider.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script>
         initSearchPage(
                 {{ current_service.id }},
                 {{ specialists_count }},
-                {{ current_page }});
+                {{ current_page }},
+                {{ experience_types|safe }},
+                {{ request.args|tojson|safe }});
     </script>
-    <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
     <script src="{{ url_for('static', filename='js/orderService.js') }}"></script>
     <script type="text/javascript">
         /*
