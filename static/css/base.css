@@ -477,3 +477,7 @@ a.disabled {
 .irs-from, .irs-to, .irs-single {
     background: #37474f !important;
 }
+
+.no-margin {
+    margin: 0 !important;
+}

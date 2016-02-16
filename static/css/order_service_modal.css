@@ -153,13 +153,15 @@
     padding-top: 10px;
 }
 .card-footer span i {font-size: 1.3rem;}
+
 .stars {
     margin: 5px 25px 0 -90px ;
 ;
+
 }
+
 .comments-count {
-    margin-top: -25px;
-    margin-right: -123px;
+    margin-top: 5px;
 }
 .specialist-name {
     margin-top: 21px;

@@ -421,7 +421,7 @@ function showPreviousChips(args, expTypes){
         var loc_parts = args.city_loc.split(',');
         if (loc_parts.length == 2) {
             addChip(
-                loc_parts[0] + ', ' + loc_parts[1],
+                'In ' + loc_parts[0] + ', ' + loc_parts[1],
                 'city_loc',
                 loc_parts[0] + ',' + loc_parts[1])
         }
@@ -433,7 +433,10 @@ function showPreviousChips(args, expTypes){
                 lat_lng[0],
                 lat_lng[1],
                 function(data){
-                   addChip(data.formatted_address, 'lat_lng', args.lat_lng)
+                   addChip(
+                       'Proximity to ' + data.formatted_address,
+                       'lat_lng',
+                       args.lat_lng)
                 }
             );
             if (args.radius){
