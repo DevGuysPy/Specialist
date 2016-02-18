@@ -95,11 +95,11 @@
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 <script>
-    $(window).load(function() {
-        setTimeout(function() {
-            $('body').addClass('loaded');
-        }, 200);
-    });
+{#    $(window).load(function() {#}
+{#        setTimeout(function() {#}
+{#            $('body').addClass('loaded');#}
+{#        }, 200);#}
+{#    });#}
     searchAutocomplete("{{ url_for('service_autocomplete') }}");
 </script>
 {% block script %}{% endblock %}

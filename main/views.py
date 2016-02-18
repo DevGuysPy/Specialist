@@ -701,16 +701,28 @@ class SearchSpecialist(TemplateView):
                     'search_specialist',
                     service_id=self.service.id) + '?page=1')
 
-        context = self.get_context_data()
-        return self.render_to_response(context)
+        if request.is_xhr:
+            spec = self.get_specialists()
+            template = render_template(
+                "SearchSpecialistCards.html",
+                specialists=spec,
+                specialists_count=self.specialist_count,
+                current_page=self.page,
+                current_service=self.service)
+            return json.dumps({
+                'template': template,
+                'specialists_count': self.specialist_count,
+                'current_page': self.page
+            })
+        else:
+            context = self.get_context_data()
+
+            return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(SearchSpecialist, self).get_context_data(**kwargs)
         context.update({'current_service': self.service})
-        context.update({'specialists': self.get_specialists()})
-        context.update({'specialists_count': self.specialist_count})
         context.update({'similar_services': self.get_similar_services()})
-        context.update({'current_page': self.page})
         context.update({'experience_types': json.dumps(get_experience_types())})
 
         return context

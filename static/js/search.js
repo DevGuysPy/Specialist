@@ -1,21 +1,56 @@
+var specialistsCount = null;
+var currentPage = null;
+
 function initSearchPage(currentServiceId,
-                        specialistsCount,
-                        currentPage,
-                        expTypes,
-                        requestArgs){
-    specialistCardHandler();
-    paginationHandler(currentServiceId, specialistsCount, currentPage, requestArgs);
-    initOrderByLocation(requestArgs);
-    initOrderByExperience(expTypes, requestArgs);
-    initOrderBySuccess(requestArgs);
+                        expTypes){
+    initSpecialistCards(currentServiceId, location.search);
+
+    initOrderByLocation();
+    initOrderByExperience(expTypes);
+    initOrderBySuccess();
     initOrderSorting();
     redirectWithSortParams(currentServiceId);
-    showPreviousChips(requestArgs, expTypes);
-
     $('#chips-container').on('click', '.material-icons', function(){
         $(this).closest('.search-chip').remove();
         $(this).closest('.chip').tooltip('remove');
     })
+}
+
+function initSpecialistCards(serviceId, params){
+    var container = $('#specialists-container');
+    $('body').removeClass('loaded');
+    $.ajax({
+        method: 'GET',
+        url : '/service/' + serviceId + params,
+        success: function(data){
+            data = JSON.parse(data);
+            specialistsCount = data.specialists_count;
+            currentPage = data.current_page;
+            container.empty();
+            container.prepend($(data.template));
+            window.history.pushState("", "", '/service/' + serviceId + params);
+            $('#specialists-count').text(
+                'Found ' + specialistsCount + ' specialists.');
+
+            var $containerProducts = $("#products").masonry({
+                    singleMode: true, isAnimated: true
+                });
+            $containerProducts.imagesLoaded(function() {
+                $containerProducts.masonry({
+                    itemSelector: ".product",
+                    columnWidth: ".product-sizer"
+                });
+            });
+
+            specialistCardHandler();
+            paginationHandler(serviceId, specialistsCount, currentPage);
+        },
+        complete: function(){
+            setTimeout(function() {
+                $('body').addClass('loaded')
+            }, 100)
+        }
+    });
 }
 
 function specialistCardHandler(){
@@ -54,8 +89,7 @@ function specialistCardHandler(){
     });
 }
 
-function paginationHandler(
-        currentServiceId, specialistsCount, currentPage, args) {
+function paginationHandler(serviceId, specialistsCount, currentPage) {
     var pagesCount = parseInt(specialistsCount / 12);
     if (specialistsCount - pagesCount * 12 != 0) {
         pagesCount = pagesCount + 1
@@ -63,23 +97,35 @@ function paginationHandler(
 
     var pagination = $('.page-numbers');
 
-    var params = '?';
-        if (args) {
-            for (var key in args) {
-                if (key != 'page') {
-                    params += key + '=' + args[key] + '&'
-                }
-            }
-        }
     _.forEach(_.range(1, pagesCount + 1), function (pageNum) {
         pagination.append(
             '<li class="waves-effect page-number">' +
-            '<a href="/service/' + currentServiceId + params + 'page='
-            + pageNum + '" id="' + pageNum + '">' + pageNum + '</a>' +
+            '<a href="#" id="' + pageNum + '">' + pageNum + '</a>' +
             '</li>')
     });
 
     var pageNumberEl = $('.page-number');
+
+    function makeUrl(pageNum){
+        var index = location.search.indexOf('page=');
+        var params = null;
+        if (index != -1){
+            params =
+                location.search.substr(0, index + 5) +
+                 pageNum +
+                location.search.substr(index+ 7, location.search.length)
+        } else if (location.search) {
+            params = location.search + '&page=' + pageNum
+        } else {
+            params = '?page=' + pageNum
+        }
+
+        return params
+    }
+
+    pageNumberEl.on('click', function(){
+        initSpecialistCards(serviceId, makeUrl($(this).find('a').attr('id')) )
+    });
 
     if (currentPage > 5){
         pageNumberEl.slice(1, currentPage - 5).hide();
@@ -90,6 +136,15 @@ function paginationHandler(
 
     var nextEl = $('#next_page');
     var previousEl = $('#previous_page');
+
+    previousEl.on('click', function(){
+        initSpecialistCards(serviceId, makeUrl(currentPage - 1) )
+    });
+
+    nextEl.on('click', function(){
+        initSpecialistCards(serviceId, makeUrl(currentPage + 1) )
+    });
+
     pageNumberEl.removeClass('active');
     pageNumberEl.find('a#' + currentPage).closest('li').addClass('active');
     if (currentPage == 1) {
@@ -179,14 +234,14 @@ function initOrderByLocation(){
     });
 }
 
-function initOrderByExperience(choices, args){
+function initOrderByExperience(choices){
     var slider = $('#order_by_experience_slider');
 
     slider.ionRangeSlider({
         type: 'double',
         values: choices.map(function (i) { return i[1] }),
-        from: args.exp_from || 0,
-        to: args.exp_to || choices.length,
+        from: 0,
+        to: choices.length,
         grid: true,
         onFinish: function(data){
             if (data.from == 0){
@@ -220,12 +275,12 @@ function initOrderByExperience(choices, args){
     });
 }
 
-function initOrderBySuccess(args){
+function initOrderBySuccess(){
     var slider = $('#order_by_success_slider');
     slider.ionRangeSlider({
         type: 'double',
-        from: args.success_from || 0,
-        to: args.success_to || 100,
+        from: 0,
+        to: 100,
         postfix: ' %',
         grid: true,
         step: 5,
@@ -387,10 +442,6 @@ function initOrderSorting(){
             }
         });
 
-        if (extendedLocInput.val()){
-            extendedLocInput.trigger('geocode');
-        }
-
         // add location info to orderByData when user has clicked submit btn
         var locDetails = $('#order_by_location_extended_details');
         submitBtn.on('click', function () {
@@ -438,185 +489,12 @@ function initOrderSorting(){
 
 function redirectWithSortParams(serviceId){
     $('#order_by_submit').on('click', function(){
-        var url = '/service/' + serviceId + '?';
+        var params = '?';
         $('#chips-container').find('.search-chip').each(function() {
             var input = $(this).find('input');
-            url += input.attr('name') + '=' + input.val() + '&';
+            params += input.attr('name') + '=' + input.val() + '&';
         });
 
-        window.location = url;
+        initSpecialistCards(serviceId, params)
     })
-}
-
-function showPreviousChips(args, expTypes){
-    // function which sets tags according to request args
-
-    // open accordion tabs
-    var triggeredAccordionEl = [];
-    function triggerAccordion(el){
-        if (_.contains(triggeredAccordionEl, el)){
-            return
-        } else {
-            $(document).ready(function () {
-                $('#order-by-' + el + '-accordion-el')
-                    .find('.collapsible-header')
-                    .trigger('click')
-            });
-            triggeredAccordionEl.push(el)
-        }
-    }
-
-    if (args.city_loc) {
-        var loc_parts = args.city_loc.split(',');
-        if (loc_parts.length == 2) {
-            var cityInput = $('#order_by_location_city_autocomplete');
-            addChip(
-                'In ' + loc_parts[0] + ', ' + loc_parts[1],
-                'city_loc',
-                loc_parts[0] + ',' + loc_parts[1]
-            ).find('.material-icons').on('click', function(){
-                cityInput.val('')
-            });
-            cityInput.val(loc_parts[0] + ', ' + loc_parts[1])
-        }
-        triggerAccordion('location')
-    }
-
-    if (args.exp_from){
-        for (i = 0; i < expTypes.length; i++) {
-            if (expTypes[i][0] == args.exp_from){
-                var expFromStr = expTypes[i][1];
-                break
-            }
-        }
-        if (expFromStr) {
-            addChip(
-                'Experience from ' + expFromStr,
-                'exp_from',
-                args.exp_from
-            ).find('.material-icons').on('click', function(){
-                    $('#order_by_experience_slider').data("ionRangeSlider")
-                            .update({
-                        from: 0
-                    });
-                });
-            triggerAccordion('experience')
-        }
-    }
-
-    if (args.exp_to){
-        for (i = 0; i < expTypes.length; i++) {
-            if (expTypes[i][0] == args.exp_to){
-                var expToStr = expTypes[i][1];
-                break
-            }
-        }
-        if (expToStr) {
-            addChip(
-                'Experience to ' + expToStr,
-                'exp_to',
-                args.exp_to
-            ).find('.material-icons').on('click', function(){
-                    $('#order_by_experience_slider').data("ionRangeSlider")
-                            .update({
-                        to: expTypes.length - 1
-                    });
-                });
-            triggerAccordion('experience')
-        }
-    }
-
-    if (args.success_from && args.success_from <= 100 &&
-            args.success_from >= 10){
-        addChip(
-            'Success from ' + args.success_from + '%',
-            'success_from',
-            args.success_from
-        ).find('.material-icons').on('click', function(){
-                $('#order_by_success_slider').data("ionRangeSlider").update({
-                    from: 0
-                });
-            });
-        triggerAccordion('success')
-    }
-
-    if (args.success_to && args.success_to <= 100 && args.success_to >= 10){
-        addChip(
-            'Success to ' + args.success_to + '%',
-            'success_to',
-            args.success_to
-        ).find('.material-icons').on('click', function(){
-                $('#order_by_success_slider').data("ionRangeSlider").update({
-                    to: 100
-                });
-            });
-        triggerAccordion('success')
-    }
-
-    if (args.sort_by){
-        var radio = $('#sorting-radio-' + args.sort_by);
-        if (radio) {
-            var label = $('label[for="' + radio.attr('id') + '"]');
-            if ((args.sort_by == '5' || args.sort_by == '6') && args.lat_lng) {
-                var lat_lng = args.lat_lng.split(',');
-                if (lat_lng.length == 2) {
-                    getLocByLatLng(
-                        lat_lng[0],
-                        lat_lng[1],
-                        function (data) {
-                            addChip(
-                                '',
-                                'lat_lng',
-                                args.lat_lng
-                            ).hide();
-
-                            addChip(
-                                label.text() + ' to ' + data.formatted_address,
-                                'sort_by',
-                                args.sort_by
-                            ).find('.material-icons').on('click', function () {
-                                    radio.prop('checked', false)
-                                });
-
-                            var extendedLocInput =
-                                $('#order_by_location_autocomplete');
-                            var submitBtn = $('#order_by_location_submit');
-                            var radiusInput = $('#order_by_location_radius');
-
-                            extendedLocInput.val(data.formatted_address);
-                            submitBtn.removeClass('disabled');
-                            radiusInput.prop('disabled', false);
-
-                            if (args.radius) {
-                                addChip(
-                                    'Radius ' + args.radius + ' km',
-                                    'radius',
-                                    args.radius
-                                );
-
-                                radiusInput
-                                    .val(args.radius)
-                                    .closest('.input-field')
-                                    .find('label')
-                                    .addClass('active');
-                                circle.setRadius(args.radius * 1000);
-                                circle.setVisible(true);
-                            }
-                        }
-                    );
-                    radio.prop('checked', true);
-                }
-            } else {
-                addChip(
-                    label.text(),
-                    'sort_by',
-                    args.sort_by
-                ).find('.material-icons').on('click', function () {
-                        radio.prop('checked', false)
-                    });
-                radio.prop('checked', true)
-            }
-            triggerAccordion('sorting')
-        }
-    }
 }

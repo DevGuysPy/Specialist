@@ -136,7 +136,7 @@ function initOrderServiceModal(currentServiceId){
     });
 
 
-    $('.order-service-btn').on('click', function(){
+    $('body').on('click', '.order-service-btn',  function(){
         var card = $(this).closest('.specialist-card');
 
         var specCard = modal.find('.order-service-specialist-card');
