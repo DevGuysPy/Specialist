@@ -2046,3 +2046,12 @@ footer.page-footer {
   margin-top: 5px;
   margin-bottom: 5px;
 }
+
+.map-modal-header {
+    font-size: 22px;
+    font-weight: 300;
+}
+
+#map-modal {
+    min-height: 73%;
+}

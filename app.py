@@ -19,6 +19,8 @@ login_manager.init_app(app)
 
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.jinja_env.add_extension(jinjahtmlcompress.SelectiveHTMLCompress)
+app.jinja_env.add_extension('jinja2.ext.with_')
+
 app.debug = True
 app.config.from_object('settings')
 db = SQLAlchemy(app)

@@ -779,9 +779,10 @@ class SearchSpecialist(TemplateView):
         from_user_number = (self.page - 1) * 12
         to_user_number = self.page * 12
 
-        if any(arg in request.args for arg in args_list):
-            specialists = self.service.specialists
+        specialists = self.service.specialists
 
+        set_default_sorting = False
+        if any(arg in request.args for arg in args_list):
             if 'exp_from' in request.args or 'exp_to' in request.args:
                 try:
                     specialists = specialists.filter(Specialist.experience.in_(
@@ -802,9 +803,36 @@ class SearchSpecialist(TemplateView):
                     specialists = specialists\
                         .join(User)\
                         .join(Location)\
-                        .filter(Location.city == city, Location.country == country)
+                        .filter(Location.city == city,
+                                Location.country == country)
 
-            elif 'lat_lng' in request.args:
+            # Sorting by success jobs, orders count,
+            # average price will be added later.
+            # We haven't anything which is related to this
+        else:
+            set_default_sorting = True
+
+        if 'sort_by' in request.args:
+            # sort by
+            # 1 - first the most experienced
+            # 2 - first the least experienced
+            # 5 - first the nearest
+            # 6 - first the farthest
+
+            sorting = request.args['sort_by']
+
+            if sorting == '1':
+                specialists = \
+                    sorted(specialists,
+                           key=lambda s: int(s.experience.code),
+                           reverse=True)
+            elif sorting == '2':
+                specialists = \
+                    sorted(specialists,
+                           key=lambda s: int(s.experience.code))
+            elif (sorting == '5' or sorting == '6') and \
+                    'lat_lng' in request.args and \
+                    'city_loc' not in request.args:
                 try:
                     lat, lng = request.args['lat_lng'].split(',')
                     lat = float(lat)
@@ -827,32 +855,23 @@ class SearchSpecialist(TemplateView):
                         lng=lng,
                         specialists=specialists)
 
-            if isinstance(specialists, list):
-                self.specialist_count = len(specialists)
-            else:
-                self.specialist_count = specialists.count()
-
-            return specialists[from_user_number:to_user_number]
-
-            # Sorting by success jobs, orders count,
-            # average price will be added later.
-            # We haven't functionality which is related to this
-        else:
-            self.specialist_count = self.service.specialists.count()
-
-            if not session.get('current_user_location'):
-                return self.service.specialists\
-                    .slice(from_user_number, to_user_number).all()
-
+                if sorting == '6':
+                    specialists = list(reversed(specialists))
+        elif set_default_sorting and session.get('current_user_location'):
             current_location = \
                 session['current_user_location']['geometry']['location']
             lng = current_location['lng']
             lat = current_location['lat']
 
             specialists = self.get_specialists_sorted_by_dist(
-                lat=lat, lng=lng)[from_user_number:to_user_number]
+                lat=lat, lng=lng)
 
-            return specialists
+        if not isinstance(specialists, list):
+            specialists = specialists.all()
+
+        self.specialist_count = len(specialists)
+
+        return specialists[from_user_number:to_user_number]
 
     def get_similar_services(self):
         """

@@ -481,3 +481,8 @@ a.disabled {
 .no-margin {
     margin: 0 !important;
 }
+
+[type="radio"]:checked+label:after {
+    border-color: #37474f;
+    background-color: #37474f;
+}
