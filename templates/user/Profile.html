@@ -12,7 +12,8 @@
                 <img class="activator" src="{{ user.bg_photo }}" alt="user background">
             </div>
             <figure class="card-profile-image">
-                <img src="{{ url_for('static', filename='img/profile.png') }}" alt="profile image" class="circle z-depth-2 responsive-img activator">
+                <img src="{{ url_for('static', filename='img/profile.png') }}"
+                     alt="profile image" class="circle z-depth-2 responsive-img activator">
             </figure>
             <div class="card-content">
                 <div class="row">
@@ -64,7 +65,8 @@
             </div>
             <div class="card-reveal">
                 <p>
-                    <span class="card-title grey-text text-darken-4">{{ user.full_name() }} <i class="mdi-navigation-close right"></i></span>
+                    <span class="card-title grey-text text-darken-4">{{ user.full_name() }}
+                        <i class="mdi-navigation-close right"></i></span>
                     <span><i class="mdi-action-perm-identity cyan-text text-darken-2"></i>
                         Services:
                         {% for s in user.specialist.services %}
@@ -119,7 +121,8 @@
                     <div class="map-card">
                         <div class="card">
                             <div class="card-image waves-effect waves-block waves-light">
-                                <div id="map-canvas" data-lat="{{ user.location.latitude }}" data-lng="{{ user.location.longitude }}"></div>
+                                <div id="map-canvas" data-lat="{{ user.location.latitude }}"
+                                     data-lng="{{ user.location.longitude }}"></div>
                             </div>
                             <div class="card-content">
                                 <a class="btn-floating activator btn-move-up waves-effect waves-light darken-2 right">
@@ -208,7 +211,7 @@
     <script type="text/javascript">
         initServiceActivity("{{ url_for('add_service_activity', user_id=user.id) }}");
         {% if user.location %}
-            initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}")
+            initCardMap({{ user.location.latitude }}, {{ user.location.longitude }}, "{{ user.location.get_name() }}");
         {% endif %}
     </script>
 

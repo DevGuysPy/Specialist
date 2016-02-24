@@ -460,7 +460,8 @@ app.add_url_rule(
 
 @app.route('/remove_services/<int:id>', methods=['POST'])
 def remove_services(id):
-    service = SpecialistService.query.filter_by(specialist_id=current_user.specialist.id, service_id=id).first()
+    service = SpecialistService.query.filter_by(specialist_id=current_user.specialist.id,
+                                                service_id=id).first()
     # Temporary, not sure about this
     # activities = UserUserActivity.query.filter_by(service_id=id).all()
     # if activities:

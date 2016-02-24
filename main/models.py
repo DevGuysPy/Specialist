@@ -357,7 +357,6 @@ class Location(db.Model):
             street = ' ' + self.street
             if self.building:
                 street += ' ' + self.building
-                street += ' ' + self.building
                 if self.apartment:
                     street += '/' + self.apartment
             location_parts.append(street)
