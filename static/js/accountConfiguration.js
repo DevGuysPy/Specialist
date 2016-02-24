@@ -2,6 +2,8 @@ function initAccountSettings(change_password_url, set_phone_url) {
     checkPasswordFields();
     phoneFieldEmpty();
     deletePhone();
+    changeInfo();
+    displayAvatar();
     //click events for forms' submits
     $('#change-password-submit').click(function(event){
         event.preventDefault();
@@ -18,18 +20,86 @@ function initAccountSettings(change_password_url, set_phone_url) {
     $('#set_number').mask('+38(000)000-0000')
 
 }
+function displayAvatar(){
+    var fileInput = $('#photo-file-input');
 
-//press on X or escape to remove pop-remove
+    var maxPhotoSize = 2 * 1024 * 1024;
+
+    fileInput.change(function () {
+        var photoFile = this.files[0];
+        var photoSize = photoFile.size;
+        if(photoSize > maxPhotoSize){
+            $('#error_photo_error').html('File size is over 2 MB')
+        }else{
+            readImageURL(this);
+        }
+    });
+
+}
+function readImageURL(input) {
+
+    if (input.files) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            var avatar = $('#avatar');
+            var photoPreLoader = $('#photo-preloader');
+            avatar.attr('src', e.target.result);
+            photoPreLoader.removeClass('active')
+        };
+        reader.onprogress = function(e){
+            var photoPreLoader = $('#photo-preloader');
+            photoPreLoader.addClass('active')
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
+
+function changeInfo() {
+    //click submit
+    $("#edit_profile_form").submit(function (event) {
+        event.preventDefault();
+        $('#cd-popup-info-edit').addClass('is-visible');
+        $('#accept-info-edit').click(function(){
+            var data = new FormData($('#edit_profile_form')[0]);
+            $.ajax({
+                method: 'POST',
+                url: '/account/settings/edit/profile',
+                data: data,
+                cache: false,
+                contentType: false,
+                processData: false
+            }).done(function (response) {
+                if (response.status == 'ok') {
+                    location.reload();
+                } else {
+                    _.forEach(response.input_errors, function (value, key) {
+                        var errorInput = $('#' + key);
+                        var errorDiv = $('#error_' + key);
+                        errorDiv.html(value);
+                        errorInput.attr('class', 'invalid');
+                    });
+                }
+            })
+        });
+    });
+
+}
+
+//press on X or ESCAPE to remove pop-up
 function removePopUp() {
 
     $(document).on('keyup', function(event){
-    	if(event.which=='27'){
-    		$('.cd-popup').removeClass('is-visible');
-	    }
+        if(event.which=='27'){
+            $('.cd-popup').removeClass('is-visible');
+        }
     });
     $('.cd-popup').on('click', function(event){
         $(this).removeClass('is-visible');
-	});
+    });
 }
 
 function deletePhone(){
@@ -60,18 +130,18 @@ function deletePhone(){
 
         $('#accept-contacts').click(function(){
             $.ajax({
-            method: 'POST',
-            url: '/account/delete/phone',
-            data: JSON.stringify(phonesToDelete),
-            dataType: "json",
-            contentType: "application/json"
-        }).done(function (response) {
-            if (response.status == 'ok') {
-                 location.reload();
-            }else{
-                alert('Removing the disabled class is not a good idea')
-            }
-        });
+                method: 'POST',
+                url: '/account/delete/phone',
+                data: JSON.stringify(phonesToDelete),
+                dataType: "json",
+                contentType: "application/json"
+            }).done(function (response) {
+                if (response.status == 'ok') {
+                    location.reload();
+                }else{
+                    alert('Removing the disabled class is not a good idea')
+                }
+            });
         });
     });
 }

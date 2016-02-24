@@ -11,9 +11,9 @@
             <div class="card-image waves-effect waves-block waves-light">
                 <img class="activator" src="http://goo.gl/hkIcuu" alt="user background">
             </div>
-            {% if current_user.photo %}
+            {% if user.photo %}
                 <figure class="card-profile-image">
-                    <img src="/{{ current_user.photo }}" alt="profile image" class="circle z-depth-2 responsive-img activator">
+                    <img src="/{{ user.photo }}" alt="profile image" class="circle z-depth-2 responsive-img activator" style="height: 110px;width: 110px;">
                 </figure>
             {% else %}
                 <figure class="card-profile-image">

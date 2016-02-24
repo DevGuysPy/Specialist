@@ -4,113 +4,136 @@
 
     <!-- Account Info  -->
     <div class="col s6">
-        <div class="card" style="margin-right: 15px;height:759px;padding-right: 0;padding-left: 0; z-index: 1;">
-            <form method="POST" action="{{ url_for('edit_user_profile') }}" id="edit_profile_form" enctype=multipart/form-data>
+        <div class="card" style="margin-right: 15px;height:759px;padding-right: 0;padding-left: 0; z-index: 0;">
+            <form method="POST" id="edit_profile_form"  enctype="multipart/form-data">
                 <ul id="task-card">
-                    <li class="collection-header settings-caption-text-color" style="background-color:#FFCCBC;height: 165px;">
+                    <li class="collection-header settings-caption-text-color" style="background-color:#FFCCBC;height: 84px;">
                         {% if not current_user.photo %}
-                            <img src="/static/img/profile.png" class="circle z-depth-1 responsive-img activator" style="margin-left: 100px;">
+                            <img src="/static/img/profile.png" class="circle z-depth-1 responsive-img activator">
                         {% else %}
-                            <img src="/{{ current_user.photo }}" class="circle z-depth-1 responsive-img activator" style="margin-left: 100px;">
+
+                            <img  id="avatar" src="/{{ current_user.photo }}" class="circle z-depth-1 responsive-img activator resize-image" style="height: 128px;width: 128px;">
                         {% endif %}
-
-                        <input type="file" name="photo" id="file-7" style="display:none;" class="inputfile inputfile-6" data-multiple-caption="{count} files selected" multiple />
-                        <label for="file-7" style="width: 388px;position: relative;bottom: 87px;left: 289px;"><span></span> <strong><svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17"><path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"/></svg> {% if current_user.photo %}Change photo&hellip;{% else %}Add new photo&hellip;{% endif %}</strong></label>
-
+                        <div id="photo-input">
+                            <input type="file" name="photo" id="photo-file-input" style="display:none;" class="inputfile inputfile-6" data-multiple-caption="{count} files selected"/>
+                            <label id="photo-input" for="photo-file-input" style="width: 388px;position: relative;bottom: 132px;left: 242px;"><span></span> <strong><svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17"><path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"/></svg> {% if current_user.photo %}Change photo&hellip;{% else %}Add new photo&hellip;{% endif %}</strong></label>
+                        </div>
+                        <div class="preloader-wrapper big" style="height: 130px; width: 130px;position: absolute;bottom: 610px;">
+                            <div class="spinner-layer spinner-blue">
+                                <div class="circle-clipper left">
+                                    <div class="circle"></div>
+                                </div><div class="gap-patch">
+                                <div class="circle"></div>
+                            </div><div class="circle-clipper right">
+                                <div class="circle"></div>
+                            </div>
+                            </div>
+                        </div>
                     </li>
-                    <div class="fixed-action-btn horizontal right" style="position: absolute;">
-                        <input type="submit"> <a id="edit-profile-submit" type="submit"  class="btn-floating btn-large waves-effect waves-light settings-btn-color"><i class="material-icons" style="font-size:40px ">cached</i></a>
+
+                    <div class="fixed-action-btn horizontal right" style="position: absolute;bottom: 573px;right: 31px;z-index: 2">
+                        <button type="submit" class="btn-floating btn-large waves-effect waves-light settings-btn-color">
+                            <a id="edit-profile-submit" ><i class="material-icons" style="font-size:40px ">cached</i></a>
+                        </button>
                     </div>
                 </ul>
+
                 <div class="card-content">
+                    <div id="error_photo_error" class="error" style="margin-left: 126px;"></div>
                     <div class="row">
                         {{ edit_profile_form.csrf_token }}
-                            <div class="col s4 right-align">
-                                <h5>Name</h5>
-                            </div>
-                            <div class="col s6">
-                                {{ edit_profile_form.first_name(id="first_name", value=current_user.first_name) }}
-                                <div id="error_first_name" class="edit_profile_error center-align"></div>
-                            </div>
-                            <div class="col s4 right-align">
-                                <h5>Surname</h5>
-                            </div>
-                            <div class="col s6">
-                                {{ edit_profile_form.last_name(id="last_name", value=current_user.last_name) }}
-                                <div id="error_last_name" class="edit_profile_error center-align"></div>
-                            </div>
-                            <div class="col s4 right-align">
-                                <h5>Email</h5>
-                            </div>
-                            <div class="col s6">
-                                {{ edit_profile_form.email(id="email", value=current_user.email) }}
-                                <div id="error_email" class="edit_profile_error center-align"></div>
-                            </div>
-                            <div class="col s4 right-align">
-                                <h5>Birth Date</h5>
-                            </div>
-                            <div class="col s6">
-                                {{ edit_profile_form.birth_date(id="birth_date", value=current_user.birth_date) }}
-                                <div id="error_email" class="edit_profile_error center-align"></div>
-                            </div>
+                        <div class="col s4 right-align">
+                            <h5>Name</h5>
+                        </div>
+                        <div class="col s6">
+                            {{ edit_profile_form.first_name(id="first_name", value=current_user.first_name) }}
+                            <div id="error_first_name" class="edit_profile_error center-align"></div>
+
+                        </div>
+                        <div class="col s4 right-align">
+                            <h5>Surname</h5>
+                        </div>
+                        <div class="col s6">
+                            <div id="id">{{ edit_profile_form.last_name(id="last_name", value=current_user.last_name) }}</div>
+                            <div id="error_last_name" class="edit_profile_error center-align"></div>
+                        </div>
+                        <div class="col s4 right-align">
+                            <h5>Email</h5>
+                        </div>
+                        <div class="col s6">
+                            <input id="current_email" value="{{ current_user.email }}" style="display: none"/>
+                            {{ edit_profile_form.email(id="email", value=current_user.email) }}
+                            <div id="error_email" class="edit_profile_error center-align"></div>
+                        </div>
+                        <div class="col s4 right-align">
+                            <h5>Birth Date</h5>
+                        </div>
+                        <div class="col s6">
+                            {{ edit_profile_form.birth_date(id="birth_date", type="date", value=current_user.birth_date, class="datepicker") }}
+                            <div id="error_email" class="edit_profile_error center-align"></div>
+                        </div>
                     </div>
-
                 </div>
-
             </form>
+            <div class="cd-popup" id="cd-popup-info-edit" role="alert" style="z-index: 3;position: absolute;">
+                <div class="cd-popup-container">
+                    <p>Are you sure you want to change it?</p>
+                    <ul class="cd-buttons">
+                        <li id="accept-info-edit"><a class="btn waves-effect Default">Yes</a></li>
+                        <li id="decline-info-edit"><a class="btn waves-effect Default">No</a></li>
+                    </ul>
+                    <a href="#0" class="cd-popup-close img-replace"></a>
+                </div> <!-- cd-popup-container -->
+            </div> <!-- cd-popup -->
         </div>
+
         <!-- Account Info ending  -->
     </div>
 
 
     <!-- Change contacts card  -->
-    <div class="card col s4" style="margin-right: 15px; height: 338px;padding-right: 0;padding-left: 0; z-index: 1;">
+    <div class="card col s4" style="margin-right: 15px; height: 338px;padding-right: 0;padding-left: 0; z-index: 0;">
         <ul id="task-card">
             <li class="collection-header caption-background-color">
                 <h4 class="task-card-title " style="color:#37474F;">Contacts</h4>
                 <div class="fixed-action-btn horizontal right click-to-toggle " style="position: absolute;bottom: 226px;right: 31px;z-index: 2;">
-                    <a class="btn-floating btn-large settings-btn-color">
+                    <a class="btn-floating btn-large settings-btn-color waves-effect waves-light">
                         <i class="material-icons" id="open">build</i>
                     </a>
                     <ul>
                         <li>
-                            <a class="btn-floating yellow darken-1 waves-effect waves-light activator" id="add">
+                            <a class="btn-floating yellow darken-1 waves-effect waves-light activator {% if current_user.main_phone and current_user.extra_phone %}disabled{% endif %}" id="add">
                                 <i class="material-icons">exposure_plus_1</i>
                             </a>
                         </li>
-                        {% if not current_user.extra_phone and not current_user.main_phone %}
-                            <li>
-                                <a class="btn-floating blue waves-effect waves-light disabled" type="submit" id="delete">
-                                    <i class="material-icons">delete</i>
-                                </a>
-                            </li>
-                        {% else %}
-                            <li>
-                                <a class="btn-floating blue waves-effect waves-light " type="submit" id="delete">
-                                    <i class="material-icons">delete</i>
-                                </a>
-                            </li>
-                        {% endif %}
+
+                        <li>
+                            <a class="btn-floating blue waves-effect waves-light {% if not current_user.extra_phone and not current_user.main_phone %} disabled {% endif %}" type="submit" id="delete">
+                                <i class="material-icons">delete</i>
+                            </a>
+                        </li>
+
                     </ul>
                 </div>
             </li>
+            <!-- contacts' table  -->
             <div>
-
+                {% include "includes/AccountConfigurations/Phones.html" %}
             </div>
-            {% include "includes/AccountConfigurations/Phones.html" %}
+
         </ul>
 
-        <div class="card-reveal" style="z-index: 998;">
+        <div class="card-reveal" style="z-index: 2;">
             <span class="card-title grey-text text-darken-4">Add phone<i class="material-icons right">close</i></span>
             <form method="POST" id="set_phone_form">
                 {{ set_phone_form.csrf_token }}
                 <div class="input-field">
                     {{ set_phone_form.type(id="type") }}
-                    <div id="error_type" class="set_phone_error"></div>
+                    <div id="error_type" class="set_phone_error error"></div>
                 </div>
                 <div class="input-field">
                     {{ set_phone_form.number(id="set_number") }}
-                    <div id="error_number" class="set_phone_error"></div>
+                    <div id="error_number" class="set_phone_error error"></div>
                 </div>
 
                 <a id="set-phone-submit" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Set phone number</a>
@@ -119,7 +142,7 @@
 
         <div class="cd-popup" id="cd-popup-contacts" role="alert" style="z-index: 3; position: absolute;">
             <div class="cd-popup-container" style="margin-bottom: 0;margin-left: 0;margin-top: 0;margin-right: 0;top: 48px;left: 58px;">
-                <p>Are you sure you want to delete this element?</p>
+                <p>Are you sure you want to delete?</p>
                 <ul class="cd-buttons">
                     <li id="accept-contacts"><a class="btn waves-effect Default">Yes</a></li>
                     <li id="decline-contacts"><a class="btn waves-effect Default">No</a></li>
@@ -131,7 +154,7 @@
     <!-- Change contacts card ending  -->
 
     <!-- Change password card  -->
-    <div class="card col s4" style="margin-right: 15px; height: 407px; width: 525px;padding-right: 0;padding-left: 0; z-index: 1;">
+    <div class="card col s4" style="margin-right: 15px; height: 407px; width: 525px;padding-right: 0;padding-left: 0; z-index: 0;">
 
         <form method="POST" id="change_password_form">
             <ul id="task-card">
@@ -147,19 +170,36 @@
             <div class="input-field">
                 {{ change_password_form.current_password(id="current_password") }}
                 <label for="current_password">Current password</label>
-                <div id="error_current_password" class="change_password_error center-align"></div>
+                <div id="error_current_password" class="change_password_error center-align error"></div>
             </div>
             <div class="input-field">
                 {{ change_password_form.new_password(id="new_password") }}
                 <label for="new_password">New password</label>
-                <div id="error_new_password" class="change_password_error center-align"></div>
+                <div id="error_new_password" class="change_password_error center-align error"></div>
             </div>
             <div class="input-field">
                 {{ change_password_form.new_password_again(id="new_password_again", type="password") }}
                 <label for="new_password_again">New password again</label>
-                <div id="error_new_password_again" class="change_password_error center-align"></div>
+                <div id="error_new_password_again" class="change_password_error center-align error"></div>
             </div>
+            <a class="activator">Forgot password?</a>
         </form>
+
+        <!-- Card-reveal 'forgot password'  -->
+        <div class="card-reveal" id="email-card-reveal" style="z-index: 2;">
+            <form method="post" id="email_form">
+                <span class="card-title grey-text text-darken-4">Password recovery<i class="material-icons right">close</i></span>
+                {{ email_form.csrf_token }}
+                <div class="input-field">
+                    {{ email_form.recovery_email(id="recovery_email") }}
+                    <label for="recovery_email">Email</label>
+                    <div id="error_recovery_email" class="error"></div>
+                </div>
+                <a id="send_email_to_password_recover" class="waves-effect waves-light btn grey darken-1 grey-text text-lighten-4">Send an email</a>
+            </form>
+        </div>
+        <!-- Card-reveal 'forgot password' ending -->
+
         <div class="cd-popup" id="cd-popup-pass" role="alert" style="z-index: 3;position: absolute;">
             <div class="cd-popup-container">
                 <p>Are you sure you want to change it?</p>
@@ -181,5 +221,16 @@
                 '{{ url_for('change_password') }}',
                 '{{ url_for('set_phone_number') }}',
                 '{{ url_for('edit_user_profile') }}')
+    </script>
+    <script>
+        $('.datepicker').pickadate({
+            selectMonths: true, // Creates a dropdown to control month
+            selectYears: 88, // Creates a dropdown of 15 years to control year
+            format: 'yyyy-mm-dd',
+            formatSubmit: 'yyyy/mm/dd'});
+    </script>
+    <script src="{{ url_for('static', filename='js/recoveryPage.js') }}"></script>
+    <script>
+        recoveryPageInit();
     </script>
 {% endblock %}

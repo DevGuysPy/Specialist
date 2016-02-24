@@ -7,7 +7,7 @@
                     {% if not current_user.photo %}
                         <img src="/static/img/profile.png" class="circle responsive-img valign profile-image">
                     {% else %}
-                        <img src="/{{ current_user.photo }}" class="circle responsive-img valign profile-image">
+                        <img src="/{{ current_user.photo }}" class="circle responsive-img valign profile-image" style="height: 52px;width: 52px;">
                     {% endif %}
                 </div>
                 <div class="col col s8 m8 l8">

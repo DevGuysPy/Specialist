@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-import json, os
+import json, os, sys
 from datetime import date, timedelta
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy import desc, func
@@ -21,10 +21,12 @@ from utils import (generate_confirmation_token, send_email,
                    account_not_found, page_not_found)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, ServiceForm, LoginForm, ChangePasswordForm,
-                   SetPhoneForm, EditUserProfileForm)
+                   SetPhoneForm, EditUserProfileForm, ResetPasswordForm,
+                   EmailForm)
 
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+MAX_PHOTO_CONTENT_LENGTH = 2 * 1024 * 1024
 
 current_user_location = None
 
@@ -482,6 +484,39 @@ app.add_url_rule(
 )
 
 
+class PasswordRecoveryPage(TemplateView):
+    template_name = 'recoverypage/PasswordRecoveryPage.html'
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(PasswordRecoveryPage, self).get_context_data()
+        context.update({
+            'user': current_user,
+            'form': ResetPasswordForm(prefix='recovery_page'),
+        })
+        return context
+
+    def post(self):
+        form = ResetPasswordForm(prefix='recovery_page')
+        if form.validate():
+            current_user.password = form.new_password_recover.data
+            return jsonify({
+                'status': 'ok'
+            })
+        return jsonify({
+            'status': 'errors',
+            'input_errors': form.errors
+        })
+
+app.add_url_rule(
+    '/reset-password',
+    view_func=PasswordRecoveryPage.as_view('recovery_page'),
+    methods=['GET', 'POST']
+)
+
 class AccountSettings(TemplateView):
     template_name = 'user/AccountConfigurations/AccountSettings.html'
     decorators = [login_required]
@@ -497,7 +532,9 @@ class AccountSettings(TemplateView):
             'change_password_form':
                 ChangePasswordForm(current_user, prefix='change_password'),
             'set_phone_form': SetPhoneForm(current_user, prefix='set_phone'),
-            'edit_profile_form': EditUserProfileForm(prefix='edit_profile')
+            'edit_profile_form': EditUserProfileForm(current_user,
+                                                     prefix='edit_profile'),
+            'email_form': EmailForm(prefix='email')
         })
         return context
 
@@ -513,24 +550,55 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+def udpload_photo(file, user):
+    if file and allowed_file(file.filename):
+        file.seek(0)
+        file_name = secure_filename(file.filename)
+        path_to_photo = os.path.join(app.config['UPLOAD_FOLDER'],
+                                     file_name)
+        file.save(path_to_photo)
+        user.photo = path_to_photo
+
+
+def read_in_chunks(file_object, chunk_size=1024):
+    while True:
+        data = file_object.read(chunk_size)
+        if not data:
+            break
+        yield data
+
+
 @app.route('/account/settings/edit/profile', methods=['GET' ,'POST'])
 @login_required
 def edit_user_profile():
-    edit_profile_form = EditUserProfileForm(prefix='edit_profile')
+    edit_profile_form = EditUserProfileForm(current_user, prefix='edit_profile')
     if request.method == 'POST':
         if edit_profile_form.validate():
-            user_new_photo = request.files['photo']
-            if user_new_photo and allowed_file(user_new_photo.filename):
-                file_name = secure_filename(user_new_photo.filename)
-                path_to_photo = os.path.join(app.config['UPLOAD_FOLDER'],
-                                             file_name)
-                user_new_photo.save(path_to_photo)
-                current_user.photo = path_to_photo
 
-            current_user.first_name = edit_profile_form.first_name.data
-            current_user.last_name = edit_profile_form.last_name.data
-            current_user.email = edit_profile_form.email.data
-            return redirect(url_for('account_settings'))
+            edit_profile_form.populate_obj(current_user)
+            user_new_photo = request.files['photo']
+
+            file_size = ''
+            read_generator = read_in_chunks(user_new_photo)
+            for data in read_generator:
+                if len(file_size) < MAX_PHOTO_CONTENT_LENGTH:
+                    file_size += data
+                else:
+                    del user_new_photo
+                    return jsonify({
+                        'status': 'error',
+                        'input_errors': {
+                            'photo_error': 'File size is over 2 MB'
+                        }
+                    })
+
+            if user_new_photo:
+                udpload_photo(user_new_photo, current_user)
+
+            return jsonify({
+                'status': 'ok'
+            })
+
         return jsonify({
             'status': 'error',
             'input_errors': edit_profile_form.errors

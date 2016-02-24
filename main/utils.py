@@ -4,13 +4,12 @@ from flask import abort, url_for, session, redirect, flash, render_template, \
 from flask.ext.mail import Message
 from flask.ext.login import login_user, login_required, logout_user,\
     current_user
-from sqlalchemy import or_
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 
 from app import mail, app, login_manager, db
 from models import User, UserUserActivity
-from forms import ChangePasswordForm, SetPhoneForm
+from forms import ChangePasswordForm, SetPhoneForm, ResetPasswordForm, EmailForm
 from settings import client
 
 def generate_confirmation_token(confirmation_item):
@@ -142,9 +141,60 @@ def page_not_found(e):
 def account_not_found():
     return render_template('404.html')
 
+
 @app.template_filter()
 def datetimefilter(value, format='%Y/%m/%d %H:%M'):
     return value.strftime(format)
+
+
+@app.route('/password/confirm/<token>')
+def confirm_user_to_reset_password(token):
+    user_id = confirm_token(token)
+    user = User.query.filter_by(id=user_id).first_or_404()
+    if user:
+        return redirect(url_for('recovery_page', user_id=user.id))
+    return redirect(url_for('user_profile', user_id=user.id))
+
+
+@app.route('/email-to-recover', methods=['GET', 'POST'])
+def send_email_to_password_recover():
+    email_form = EmailForm(prefix='email')
+    if request.method == 'POST':
+        if email_form.validate():
+            user = User.query.filter_by(email=email_form.recovery_email.data).first()
+            if not user:
+                email_form.recovery_email.errors.append('Wrong email')
+                return jsonify({
+                    'status': 'errors',
+                    'input_errors': email_form.errors
+                })
+
+            if user:
+                token = generate_confirmation_token(user.id)
+                confirm_url = url_for('confirm_user_to_reset_password',
+                                      token=token, _external=True)
+                html = render_template(
+                    "recoverypage/PageToLinkPasswordRecoveryPage.html",
+                    confirm_url=str(confirm_url))
+                send_email(to=user.email,
+                           subject='Forgot you password?',
+                           template=html)
+                return jsonify({
+                    'status': 'ok'
+                })
+            else:
+                email_form.recovery_email.errors.append('Wrong email!')
+                return jsonify({
+                    'status': 'errors',
+                    'input_errors': email_form.errors
+                })
+        else:
+            return jsonify({
+                'status': 'errors',
+                'input_errors': email_form.errors
+            })
+
+    return render_template('recoverypage/EmailToPasswordRecover.html', email_form=email_form)
 
 
 @app.route('/account/change/password', methods=['POST'])
@@ -174,12 +224,31 @@ def set_phone_number():
 
     if set_phone_form.validate():
         status = set_phone_form.type.data
+        # Phone is confirmed automatically for now
         if status == '0':
-            current_user.main_phone = set_phone_form.number.data
-            current_user.main_phone_confirmed = True
-        else:
-            current_user.extra_phone = set_phone_form.number.data
-            current_user.extra_phone_confirmed = True
+            if not current_user.main_phone:
+                current_user.main_phone = set_phone_form.number.data
+                current_user.main_phone_confirmed = True
+            else:
+                set_phone_form.number.errors.append(
+                    'You have already set main phone')
+                return jsonify({
+                    'status': 'error',
+                    'input_errors': set_phone_form.errors
+                })
+
+        if status == '1':
+            if not current_user.extra_phone:
+                current_user.extra_phone = set_phone_form.number.data
+                current_user.extra_phone_confirmed = True
+            else:
+                set_phone_form.number.errors.append(
+                    'You have already set extra phone')
+                return jsonify({
+                    'status': 'error',
+                    'input_errors': set_phone_form.errors
+                })
+
         # Sending an sms verification(demo, sending only to text twilio phone)
         # new_reserve_number = str(new_reserve_phone_number.number)
         # new_reserve_number_for_sms = new_reserve_number.replace(" ", "")
@@ -189,6 +258,7 @@ def set_phone_number():
         #     from_='+12018957908'
         # )
         # Every new phone number is submitted by default
+
         return jsonify({
             'status': 'ok'
         })

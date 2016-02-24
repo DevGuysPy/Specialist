@@ -60,13 +60,14 @@
                     <div class="card">
                         <div class="card-content">
                             <div class="card-title center">Contact to use</div>
-                            {% if current_user.main_phone or current_user.extra_phone %}
-                                <div class="input-field">
-                                    {{ spec_form.phone(id="phone") }}
-                                    <label for="specialist_description">+xx(xxx)xxx-xxx</label>
-                                    <div id="error_specialist_phone" class="error center"></div>
-                                </div>
-                            {% endif %}
+                            {% include "includes/AccountConfigurations/Phones.html" %}
+{#                            {% if current_user.main_phone or current_user.extra_phone %}#}
+{#                                <div class="input-field">#}
+{#                                    {{ spec_form.phone(id="phone") }}#}
+{#                                    <label for="specialist_description">+xx(xxx)xxx-xxx</label>#}
+{#                                    <div id="error_specialist_phone" class="error center"></div>#}
+{#                                </div>#}
+{#                            {% endif %}#}
                         </div>
                     </div>
                     <div class="card">

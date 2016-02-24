@@ -8,7 +8,8 @@ from wtforms import (StringField, DateTimeField, ValidationError,
                      PasswordField, IntegerField, DateField, RadioField)
 
 
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, \
+                                 StopValidation
 from wtforms_components import PhoneNumberField
 
 from models import (UserUserActivity, db, Service, User,
@@ -206,11 +207,41 @@ class SetPhoneForm(BaseModelForm):
 class EditUserProfileForm(BaseModelForm):
     class Meta:
         model = User
-        only = ['first_name', 'last_name', 'photo', 'email', 'birth_date']
+        only = ['first_name', 'last_name', 'email', 'birth_date']
 
-        email = StringField('Email', validators=[DataRequired(),
-                                                 Email(),
-                                                 Unique(User.email)])
-        first_name = StringField('FirstName', validators=[DataRequired(message=u'Required')])
-        last_name = StringField('LastName', validators=[DataRequired(message=u'Required')])
-        birth_date = DateField("Birth Date", validators=[DataRequired()])
+    def __init__(self, user, *args, **kwargs):
+        super(EditUserProfileForm, self).__init__(*args, **kwargs)
+        self.user = user
+
+    def check_equality_to_current_email(self, field):
+        if self.user.email == field.data:
+            raise StopValidation()
+
+    email = StringField('Email', validators=[DataRequired(),
+                                             Email(),
+                                             check_equality_to_current_email,
+                                             Unique(User.email),])
+    first_name = StringField('FirstName', validators=[DataRequired(message=u'Required')])
+    last_name = StringField('LastName', validators=[DataRequired(message=u'Required')])
+    birth_date = DateField("Birth Date", validators=[DataRequired()])
+
+
+class EmailForm(Form):
+    recovery_email = StringField('Email', validators=[DataRequired(),
+                                                      Email()])
+
+
+class ResetPasswordForm(Form):
+
+    new_password_recover = PasswordField('Password',
+                                         validators=[
+                                             DataRequired(),
+                                             EqualTo('new_password_again_recover',
+                                                     message='Passwords must match'),
+                                             Length(min=8, max=64)])
+    new_password_again_recover = PasswordField('PasswordAgain',
+                                               validators=[
+                                                   DataRequired(),
+                                                   Length(min=8, max=64),
+                                                   EqualTo('new_password_recover',
+                                                           message='Passwords must match')])

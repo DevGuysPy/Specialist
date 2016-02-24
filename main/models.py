@@ -30,7 +30,7 @@ class User(db.Model):
 
     email = db.Column(db.String(), nullable=False, unique=True)
 
-    photo = db.Column(db.String(), unique=True)
+    photo = db.Column(db.String())
 
     main_phone = db.Column(PhoneNumberType(unique=True))
     main_phone_confirmed = db.Column(db.Boolean(), default=False)

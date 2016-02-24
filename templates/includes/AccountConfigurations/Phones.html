@@ -11,62 +11,32 @@
             </tr>
             </thead>
             <tbody>
-                <tr>
-                    {% if current_user.main_phone and current_user.main_phone_confirmed %}
-                        <td id="checkboxes">
+                    {% if current_user.main_phone %}
+                        <td id="checkboxes" {% if not current_user.main_phone_confirmed  %}class="unconfirmed_phone{% endif %}">
                             <input type="checkbox" class="filled-in" name="phone" id="phone1" value="{{ current_user.main_phone.international }}"/>
                             <label for="phone1"></label>
                         </td>
-                        <td style="width: 100px;">Main</td>
-                        <td>{{ current_user.main_phone.international }}</td>
-                        <td>
+                        <td style="width: 100px;" {% if not current_user.main_phone_confirmed  %}class="unconfirmed_phone{% endif %}">Main</td>
+                        <td {% if not current_user.main_phone_confirmed  %}class="unconfirmed_phone{% endif %}">{{ current_user.main_phone.international }}</td>
+                        <td {% if not current_user.main_phone_confirmed  %}class="unconfirmed_phone{% endif %}">
                             {% if current_user.main_phone_confirmed %}
                                 Confirmed
                             {% else %}
                                 Unconfirmed
                             {% endif %}
                         </td>
-                    {% else %}
-                        <td id="checkboxes" class="unconfirmed_phone">
-                            <input type="checkbox" class="filled-in" name="phone" id="phone1" value="{{ current_user.main_phone.international }}"/>
-                            <label for="phone1"></label>
-                        </td>
-                        <td style="width: 100px;" class="unconfirmed_phone">Main</td>
-                        <td class="unconfirmed_phone">{{ current_user.main_phone.international }}</td>
-                        <td class="unconfirmed_phone">
-                            {% if current_user.main_phone_confirmed %}
-                                Confirmed
-                            {% else %}
-                                Unconfirmed
-                            {% endif %}
-                        </td >
                     {% endif %}
                 </tr>
                 <tr>
                     {% if current_user.extra_phone and current_user.extra_phone_confirmed %}
-                        <td id="checkboxes">
+                        <td id="checkboxes" {% if not current_user.extra_phone_confirmed  %}class="unconfirmed_phone{% endif %}">
                             <input type="checkbox" class="filled-in" name="phone" id="phone2" value="{{ current_user.extra_phone.international }}"/>
                             <label for="phone2"></label>
                         </td>
-                        <td style="width: 100px;">Extra</td>
-                        <td>{{ current_user.extra_phone.international }}</td>
+                        <td style="width: 100px;" {% if not current_user.extra_phone_confirmed  %}class="unconfirmed_phone{% endif %}">Extra</td>
+                        <td {% if not current_user.extra_phone_confirmed  %}class="unconfirmed_phone{% endif %}">{{ current_user.extra_phone.international }}</td>
 
-                        <td>
-                            {% if current_user.extra_phone_confirmed %}
-                                Confirmed
-                            {% else %}
-                                Unconfirmed
-                            {% endif %}
-                        </td>
-                    {% else %}
-                        <td id="checkboxes" class="unconfirmed_phone">
-                            <input type="checkbox" class="filled-in" name="phone" id="phone2" value="{{ current_user.extra_phone.international }}"/>
-                            <label for="phone2"></label>
-                        </td>
-                        <td style="width: 100px;" class="unconfirmed_phone">Extra</td>
-                        <td class="unconfirmed_phone">{{ current_user.extra_phone.international }}</td>
-
-                        <td class="unconfirmed_phone">
+                        <td {% if not current_user.extra_phone_confirmed  %}class="unconfirmed_phone{% endif %}">
                             {% if current_user.extra_phone_confirmed %}
                                 Confirmed
                             {% else %}
