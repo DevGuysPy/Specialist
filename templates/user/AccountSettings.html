@@ -4,25 +4,15 @@
     {% block extra_css %}{% endblock %}
 {% endblock %}
 {% block body %}
-    <div class="container-fluid">
-            <div class="row">
-                {% if current_user == user %}
-                    <div class="col m2">
-                        <div class="card">
-                            <div class="collection">
-                                <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('user_profile', user_id=user.id) }}">Profile</a>
-                                <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_specialist') }}">Specialist</a>
-                                <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_company') }}">Company</a>
-                                <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_settings') }}">Settings</a>
-                                <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_offers') }}">Offers</a>
-                                <a class="collection-item blue-grey-text text-darken-1" href="{{ url_for('account_orders') }}">Orders</a>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="col {% if current_user == user %}m10{% else %}m12{% endif %}" id="settings_content">
-                    {% block settings_content %}{% endblock %}
-                </div>
+    <div class="{% if current_user.is_authenticated %}container-fluid{% else %}container{% endif %}">
+        <div class="row section">
+            <div class="col s12" id="settings_content">
+                {% block settings_content %}{% endblock %}
             </div>
+        </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/collections.js') }}"></script>
 {% endblock %}

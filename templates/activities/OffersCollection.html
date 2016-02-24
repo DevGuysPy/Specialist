@@ -1,0 +1,21 @@
+<li class="collection-item dismissable">
+    <a href="{{ url_for('offer', id=activity.id) }}"
+       class="btn-floating waves-effect waves-light light-blue right small" style="width: 27px;height: 27px;">
+        <i class="material-icons tiny" style="margin-top: -4px;">info</i></a>
+    {% if activity.end  %}
+        <span>Start: {{ activity.start | time }} | End: {{ activity.end | time }}</span>
+    {% else %}
+        <span>Start: {{ activity.start | time }}</span>
+    {% endif %}
+    <div class="description">
+        <span class="description-text">Description: {{ activity.description }}</span>
+    </div>
+    <span class="task-cat activity-cat">{{ activity.service.title }}</span>
+    <span class="right">
+        {% if activity.confirmed %}
+            <i class="material-icons tooltipped confirmed" data-position="left" data-delay="50" data-tooltip="Confirmed">event_available</i>
+        {% else %}
+            <i class="material-icons tooltipped unconfirmed" data-position="left" data-delay="50" data-tooltip="Unconfirmed">event_busy</i>
+        {% endif %}
+    </span>
+</li>

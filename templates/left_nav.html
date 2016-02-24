@@ -1,0 +1,74 @@
+<!-- START LEFT SIDEBAR NAV -->
+<aside id="left-sidebar-nav">
+    <ul id="slide-out" class="side-nav fixed leftside-navigation">
+        <li class="user-details darken-2" style="background: url('{{ current_user.bg_photo }}') no-repeat center center !important; background-size: 240px 84px !important;">
+            <div class="row">
+                <div class="col col s4 m4 l4">
+                    <img src="{{ url_for('static', filename='img/profile.png') }}"
+                         alt="U" class="circle responsive-img valign profile-image">
+                </div>
+                <div class="col col s8 m8 l8">
+                    <a class="btn-flat waves-effect waves-light white-text profile-btn"
+                       href="{{ url_for('user_profile', user_id=current_user.id) }}">
+                        {{ current_user.full_name() }}
+                    </a>
+                </div>
+            </div>
+        </li>
+        <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+                <li>
+                    <a href="{{ url_for('user_profile', user_id=current_user.id) }}" class="waves-effect">
+                        <i class="material-icons">account_circle</i>
+                        Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_specialist') }}" class="waves-effect">
+                        <i class="material-icons">assignment_ind</i>
+                        Specialist
+                    </a>
+                </li>
+                <li><a href="{{ url_for('account_company') }}" class="waves-effect">
+                    <i class="material-icons">account_balance</i>
+                    Company
+                </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_offers') }}" class="waves-effect">
+                        <i class="material-icons">repeat</i>Offers
+                        {% if current_user.get_active_offers()|length > 0 %}
+                            <span class="badge new ">{{ current_user.get_active_offers()|length }}</span></a>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_orders') }}" class="waves-effect">
+                        <i class="material-icons">shopping_cart</i>Orders
+                        {% if current_user.get_active_orders()|length > 0 %}
+                            <span class="badge new">{{ current_user.get_active_orders()|length }}</span></a>
+                        {% endif %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('account_settings') }}" class="waves-effect">
+                        <i class="material-icons">settings</i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="li-hover"><div class="divider"></div></li>
+        <li>
+            <a href="{{ url_for('logout') }}" class="waves-effect">
+                <i class="mdi-hardware-keyboard-tab"></i>Logout
+            </a>
+        </li>
+
+    </ul>
+    <a href="#" data-activates="slide-out"
+       class="sidebar-collapse btn-floating btn-medium waves-effect waves-light hide-on-large-only cyan">
+        <i class="mdi-navigation-menu"></i>
+    </a>
+</aside>
+<!-- END LEFT SIDEBAR NAV -->
