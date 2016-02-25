@@ -1,8 +1,8 @@
-$(document).ready(function() {
-    $('select').material_select();
-    initCurrentUserLocation();
-    $('.tooltipped').tooltip({delay: 50});
+$('select').material_select();
+$('.tooltipped').tooltip({delay: 50});
 
+$(document).ready(function() {
+    initCurrentUserLocation();
     $('.sign_up_or_login').on('click', function(){
         var modal = $('#sign-up-or-login-modal');
         modal.openModal();
@@ -136,4 +136,19 @@ function initPreloader(btn){
     }
 
     return custom_preloader
+}
+
+function setMarkers(map, markers) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+}
+
+function isEmpty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+
+    return true;
 }

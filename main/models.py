@@ -1,5 +1,6 @@
 import datetime
 from app import db
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import URLType, ChoiceType, PasswordType,\
     PhoneNumberType, CurrencyType
@@ -44,7 +45,7 @@ class User(db.Model):
     location = db.relationship('Location')
 
     specialist = db.relationship("Specialist",
-                                 uselist=False, back_populates="user")
+                                 uselist=False)
 
     registration_time = db.Column(db.DateTime(),
                                   default=datetime.datetime.utcnow)
@@ -177,6 +178,10 @@ class Specialist(db.Model):
 
     confirmed = db.Column(db.Boolean(), default=False)
 
+    @hybrid_property
+    def location(self):
+        return self.user.location.get_name()
+
 
 class Service(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -213,12 +218,14 @@ class UserUserActivity(db.Model):
     from_user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                              nullable=False)
     from_user = db.relationship('User', foreign_keys=[from_user_id],
-                                backref="from_activities_user")
+                                backref=db.backref("from_activities_user",
+                                                   lazy='dynamic'))
 
     to_user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
                            nullable=False)
     to_user = db.relationship('User', foreign_keys=[to_user_id],
-                              backref="to_activities_user")
+                              backref=db.backref("to_activities_user",
+                                                 lazy='dynamic'))
 
     service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
                            nullable=False)

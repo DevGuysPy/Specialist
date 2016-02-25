@@ -21,13 +21,15 @@ from utils import (generate_confirmation_token, send_email,
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, LoginForm)
 
+from schemas import SpecialistDistanceSchema
+
 from geopy.distance import great_circle
 
 
 current_user_location = None
 
 api_manager.create_api(Specialist, exclude_columns=[
-    'experience', 'user.password', 'user.phone_number'])
+    'user.password', 'user.phone_number'])
 
 
 class Home(TemplateView):
@@ -702,17 +704,42 @@ class SearchSpecialist(TemplateView):
                     service_id=self.service.id) + '?page=1')
 
         if request.is_xhr:
+            # number of specialists on current page
+            from_user_number = (self.page - 1) * 12
+            to_user_number = self.page * 12
+
             spec = self.get_specialists()
             template = render_template(
                 "SearchSpecialistCards.html",
-                specialists=spec,
+                specialists=spec[from_user_number:to_user_number],
                 specialists_count=self.specialist_count,
                 current_page=self.page,
                 current_service=self.service)
+
+            schema = SpecialistDistanceSchema(many=True)
+
+            # calculate number of specialists which will be shown on map
+            if self.specialist_count > 80:
+                specialists_for_map_from = from_user_number - 80
+                if specialists_for_map_from < 0:
+                    specialists_for_map_from = 0
+                    specialists_for_map_to = 80
+                else:
+                    specialists_for_map_to = to_user_number + 80
+                    if specialists_for_map_to > self.specialist_count:
+                        specialists_for_map_from = \
+                            self.specialist_count - 80
+                        specialists_for_map_to = self.specialist_count
+            else:
+                specialists_for_map_from = 0
+                specialists_for_map_to = self.specialist_count + 1
+
             return json.dumps({
                 'template': template,
                 'specialists_count': self.specialist_count,
-                'current_page': self.page
+                'current_page': self.page,
+                'specialists_for_map': schema.dump(
+                    spec[specialists_for_map_from:specialists_for_map_to]).data
             })
         else:
             context = self.get_context_data()
@@ -779,17 +806,13 @@ class SearchSpecialist(TemplateView):
 
     def get_specialists(self):
         """
-        Return specialists of selected service sliced according to current page.
+        Return specialists of selected service.
         If there are request args specialists would be sorted by given params.
         Else specialists would be sorted by proximity to current user location.
         """
 
         args_list = ['lat_lng', 'radius', 'exp_from', 'exp_to',
                      'success_from', 'success_to', 'city_loc']
-
-        # number of specialists on current page
-        from_user_number = (self.page - 1) * 12
-        to_user_number = self.page * 12
 
         specialists = self.service.specialists
 
@@ -883,7 +906,7 @@ class SearchSpecialist(TemplateView):
 
         self.specialist_count = len(specialists)
 
-        return specialists[from_user_number:to_user_number]
+        return specialists
 
     def get_similar_services(self):
         """

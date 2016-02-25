@@ -12,16 +12,40 @@
         All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
     </p>
     <p class="flow-text center" id="specialists-count"></p>
-    <div class="row">
-        <div class="col m2 order-by-column">
-            <p class="flow-text center order-by-text">Filters</p>
-            <div id="chips-container"></div>
-            <div class="card">
-                <ul class="collapsible" data-collapsible="expandable">
-                    <li id="order-by-location-accordion-el">
-                        <div class="collapsible-header"><i class="material-icons">place</i>Location</div>
-                        <div class="collapsible-body order-by">
-                            <div class="input-field">
+    <div class="row search-filters">
+        <div class="col m2 offset-m1" style="display: none">
+            <div class="search-filter">
+                <div id="order-by-location-accordion-el">
+                    <div class="search-filter-header">Experience</div>
+                    <div class="card">
+                        <div class="content">
+                            <div class="order-by-slider">
+                                <input type="text" id="order_by_experience_slider" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter">
+                <div class="search-filter-header">Success jobs</div>
+                <div class="card">
+                    <div class="content">
+                        <div class="order-by-slider">
+                            <input type="text" id="order_by_success_slider" value="" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter">
+                <div class="search-filter-header">Location</div>
+                <div class="card">
+                    <div class="content">
+                        <div id="order-by-location-accordion-el">
+                            <div class="input-field no-margin no-padding" style="padding: 0 10px 0 10px">
                                 <input type="text" id="order_by_location_city_autocomplete">
                             </div>
                             <div id="order_by_location_city_details">
@@ -33,101 +57,95 @@
                                 <input type="hidden" name='lng'>
                             </div>
                         </div>
-                    </li>
-                    <li id="order-by-experience-accordion-el">
-                      <div class="collapsible-header"><i class="material-icons">trending_up</i>Experience</div>
-                      <div class="collapsible-body">
-                          <div class="order-by-slider">
-                              <input type="text" id="order_by_experience_slider" value="" />
-                          </div>
-                      </div>
-                    </li>
-                    <li id="order-by-success-accordion-el">
-                      <div class="collapsible-header"><i class="material-icons">thumb_up</i>Success jobs</div>
-                      <div class="collapsible-body">
-                          <div class="order-by-slider">
-                              <input type="text" id="order_by_success_slider" value="" />
-                          </div>
-                      </div>
-                    </li>
-                    <li id="order-by-sorting-accordion-el">
-                        <div class="collapsible-header"><i class="material-icons">sort</i>Sorting</div>
-                        <div class="collapsible-body" style="padding: 10px">
-                            <p>
-                                <input name="sorting-radio" class="common-sorting" type="radio" id="sorting-radio-1" />
-                                <label for="sorting-radio-1">First the most experienced</label>
-                            </p>
-                            <p>
-                                <input name="sorting-radio" class="common-sorting" type="radio" id="sorting-radio-2" />
-                                <label for="sorting-radio-2">First the least experienced</label>
-                            </p>
-                            <p>
-                                <input name="sorting-radio" class="common-sorting" type="radio" id="sorting-radio-3" />
-                                <label for="sorting-radio-3">First the most successful</label>
-                            </p>
-                            <p>
-                                <input name="sorting-radio" class="common-sorting" type="radio" id="sorting-radio-4" />
-                                <label for="sorting-radio-4">First the least successful</label>
-                            </p>
-                            <p>
-                                <input name="sorting-radio" type="radio" id="sorting-radio-5"/>
-                                <label for="sorting-radio-5">First the nearest</label>
-                            </p>
-                            <p>
-                                <input name="sorting-radio" type="radio" id="sorting-radio-6"/>
-                                <label for="sorting-radio-6">First the farthest</label>
-                            </p>
-                        </div>
-                    </li>
-                    <li id="order-by-orders-accordion-el">
-                      <div class="collapsible-header"><i class="material-icons">shopping_cart</i>Orders count</div>
-                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-                    </li>
-                    <li id="order-by-price-accordion-el">
-                      <div class="collapsible-header"><i class="material-icons">loyalty</i>Average price</div>
-                      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-                    </li>
-                </ul>
-            </div>
-            <div class="center">
-                <a id="order_by_submit" class="waves-effect waves-light btn blue-grey darken-3">Submit</a>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col m10">
-            <div id="specialists-container"></div>
-            <div class="row">
-                <p class="flow-text center">Similar services</p>
-                {% for service in similar_services %}
-                    <div class="col m4">
-                        <div class="card hoverable cursor"
-                             onclick="location.href='{{ url_for('search_specialist', service_id=service.id) }}'">
-                            <div class="card-content">
-                                <div class="card-title center">
-                                    {{ service.title|capitalize }}
-                                </div>
-                                <p>{{ service.specialists.all()|length }} specialists offer this service.</p>
-                            </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter" id="sorting-filter">
+                <div class="search-filter-header">Sorting</div>
+                <div class="card">
+                    <div class="content">
+                        <div class="input-field no-margin">
+                            <select>
+                                <option value="0" disabled selected>Choose sorting</option>
+                                <option value="1">First the most experienced</option>
+                                <option value="2">First the least experienced</option>
+                                <option value="3">First the most successful</option>
+                                <option value="4">First the least successful</option>
+                                <option value="5">First the nearest</option>
+                                <option value="6">First the farthest</option>
+                            </select>
                         </div>
                     </div>
-                {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter">
+                <div class="search-filter-header">Orders count</div>
+                <div class="card">
+                    <div class="content">
+                        <p class="center">We are working on this</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col m10 offset-m1 center">
+            <div id="chips-container"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col m1 offset-m5">
+
+            <a id="show-search-filters-btn" class="waves-effect waves-light btn blue-grey darken-3">Filters</a>
+            <a id="hide-search-filters-btn" class="waves-effect waves-light btn blue-grey darken-3" style="display: none">Hide</a>
+        </div>
+        <div class="col m1" style="display: none">
+            <a id="order_by_submit" class="waves-effect waves-light btn blue-grey darken-3">Submit</a>
+        </div>
+        <div class="col m2 offset-m2">
+            <a id="show-on-map-modal-btn" class="waves-effect waves-light btn blue-grey darken-3">Show on map</a>
+        </div>
+    </div>
+    <div class="row">
+        <div id="specialists-container"></div>
+    </div>
+    <div class="row">
+        <p class="flow-text center">Similar services</p>
+        {% for service in similar_services %}
+            <div class="col m4">
+                <div class="card hoverable cursor"
+                     onclick="location.href='{{ url_for('search_specialist', service_id=service.id) }}'">
+                    <div class="card-content">
+                        <div class="card-title center">
+                            {{ service.title|capitalize }}
+                        </div>
+                        <p>{{ service.specialists.all()|length }} specialists offer this service.</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
     {% include "OrderService.html" %}
+    {% include "ShowOnMapModal.html" %}
     {% with modal_header='First you must add location for this sorting' %}
         {% include "MapModal.html" %}
     {% endwith %}
 {% endblock %}
 
 {% block script %}
+    <script src="{{ url_for('static', filename='js/markerWithLabel.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
     <script src="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/js/ion-rangeSlider/ion.rangeSlider.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script>
         initSearchPage(
                 {{ current_service.id }},
-                {{ experience_types|safe }},
-                {{ request.args|tojson|safe }});
+                {{ experience_types|safe }});
     </script>
     <script src="{{ url_for('static', filename='js/orderService.js') }}"></script>
     <script type="text/javascript">

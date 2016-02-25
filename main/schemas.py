@@ -10,3 +10,10 @@ class ServiceSchema(Schema):
 class ServiceCategorySchema(Schema):
     id = fields.Integer()
     title = fields.Str()
+
+
+class SpecialistDistanceSchema(Schema):
+    id = fields.Integer()
+    user_id = fields.Integer()
+    lat = fields.Function(lambda obj: obj.user.location.latitude)
+    lng = fields.Function(lambda obj: obj.user.location.longitude)

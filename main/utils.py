@@ -2,13 +2,14 @@ import datetime
 import json
 
 from flask import (abort, url_for, session, redirect, flash, render_template,
-                   request, jsonify)
+                   request, jsonify, make_response)
 from flask.ext.mail import Message
 from flask.ext.login import (login_user, login_required, logout_user,
                              current_user)
 from sqlalchemy.orm.exc import NoResultFound
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
+from functools import wraps
 
 from app import mail, app, login_manager, db
 from models import User, UserUserActivity, Message as PersonalMessage
@@ -223,3 +224,15 @@ def send_personal_message():
     })
 
 
+def add_response_headers(headers={}):
+    """This decorator adds the headers passed in to the response"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            resp = make_response(f(*args, **kwargs))
+            h = resp.headers
+            for header, value in headers.items():
+                h[header] = value
+            return resp
+        return decorated_function
+    return decorator

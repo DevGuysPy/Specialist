@@ -2016,6 +2016,11 @@ footer.page-footer {
     margin: 10px 20px 10px 0;
 }
 
+#order-by-loc-main-map {
+    width: 100%;
+    height: 541px;
+}
+
 .collapsible-body p {
     padding: 0;
 }
@@ -2038,13 +2043,9 @@ footer.page-footer {
     line-height: 49px !important;
 }
 
-.order-by-slider {
-    padding: 15px 30px 15px 30px;
-}
-
 .search-chip {
-  margin-top: 5px;
-  margin-bottom: 5px;
+  display: inline;
+  margin: 5px;
 }
 
 .map-modal-header {
@@ -2054,4 +2055,35 @@ footer.page-footer {
 
 #map-modal {
     min-height: 73%;
+}
+
+.search-filter-header {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.labels {
+    display: none !important;
+}
+
+.map-spec-card .title {
+    font-size: 27px;
+    margin-top: 18px;
+    color: black;
+    /*padding: 0 0 0 71px;*/
+}
+
+
+.map-spec-card .img {
+    height: 80px;
+    width: 80px;
+}
+
+.map-spec-card {
+    width: 400px;
+}
+
+.search-filter .content {
+    padding: 15px 30px 15px 30px;
 }

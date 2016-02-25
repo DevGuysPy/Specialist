@@ -183,6 +183,7 @@ li > span {
 
 .divider {
     margin: 3px;
+    width: 100%;
 }
 
 .user-card-btn {
@@ -484,4 +485,29 @@ footer {
 [type="radio"]:checked+label:after {
     border-color: #37474f;
     background-color: #37474f;
+}
+
+div.vertical-line{
+  width: 1px; /* Line width */
+  background-color: grey; /* Line color */
+  height: 100%; /* Override in-line if you want specific height. */
+  float: left; /* Causes the line to float to left of content.
+    You can instead use position:absolute or display:inline-block
+    if this fits better with your design */
+}
+
+.map {
+    height: 100%;
+    width: 100%;
+}
+
+.modal.big {
+    height: 100%;
+    width: 100%;
+    max-width: 80%;
+    max-height: 80%;
+}
+
+#show-on-map-modal .gmnoprint {
+    cursor: pointer;
 }
