@@ -46,7 +46,7 @@ function initSearchPage(currentServiceId,
     });
 
     // handle delete all filters btn
-    chipsContainer.on('click', '#delete-filters', function(){
+    $('#delete-filters-div').on('click', '#delete-filters', function(){
         $(this).tooltip('remove');
         $(this).remove();
         chipsContainer.find('.search-chip').remove();
@@ -58,7 +58,7 @@ function initSearchPage(currentServiceId,
     var submitBtn = $('#order_by_submit');
 
     submitBtn.on('click', function() {
-        redirectWithSortParams(currentServiceId, showOnMapMap);
+        redirectWithSortParams(currentServiceId, showOnMapMap)
     });
 
     showFilters.on('click', function(){
@@ -285,7 +285,8 @@ function addChip(chipData, inputName, inputVal){
 
     $('.chip.tooltipped').tooltip({delay: 50});
 
-    if (!(container.find('#delete-filters').length)){
+    var deleteFilters = $('#delete-filters-div');
+    if (!(deleteFilters.find('#delete-filters').length)){
         var btn =
             $('<a id="delete-filters" class="round-btn btn-floating ' +
                     'btn-large waves-effect waves-light blue-grey darken-3 ' +
@@ -293,7 +294,7 @@ function addChip(chipData, inputName, inputVal){
                     'data-tooltip="Delete filters" style="margin-left: 20px;">' +
                 '<i class="material-icons">delete</i>' +
             '</a>');
-        container.append(btn);
+        deleteFilters.append(btn);
         btn.tooltip()
     }
 
