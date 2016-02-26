@@ -28,7 +28,7 @@
                     {% endif %}
                 </tr>
                 <tr>
-                    {% if current_user.extra_phone and current_user.extra_phone_confirmed %}
+                    {% if current_user.extra_phone %}
                         <td id="checkboxes" {% if not current_user.extra_phone_confirmed  %}class="unconfirmed_phone{% endif %}">
                             <input type="checkbox" class="filled-in" name="phone" id="phone2" value="{{ current_user.extra_phone.international }}"/>
                             <label for="phone2"></label>

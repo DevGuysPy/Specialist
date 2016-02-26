@@ -83,7 +83,7 @@ class RegistrationForm(BaseModelForm):
                            validators=[
                                DataRequired(),
                                Length(min=4, max=64)])
-    birth_date = DateField("Birth Date", validators=[DataRequired()])
+    birth_date = DateField("Birth Date")
     recaptcha = RecaptchaField()
 
 
@@ -91,11 +91,6 @@ class LocationForm(BaseModelForm):
     class Meta:
         model = Location
         validators = [DataRequired()]
-
-
-class LocationForm(BaseModelForm):
-    class Meta:
-        model = Location
 
 
 class SpecialistForm(BaseModelForm):
@@ -107,12 +102,19 @@ class SpecialistForm(BaseModelForm):
         super(SpecialistForm, self).__init__(*args, **kwargs)
         self.user = user
 
+    # unique validator checking main and extra phone on existing
+    def check_on_existing(self, field):
+        existing = self.user.query.filter(or_(self.user.main_phone == field.data, self.user.extra_phone == field.data))\
+            .first()
+        if existing:
+            raise ValidationError(u'Already exists')
 
     phone = PhoneNumberField('Phone',
                         validators=[
                             DataRequired(
                                 message=u'You should set the correct '
-                                        u'phone number')])
+                                        u'phone number'),
+                            check_on_existing])
 
     service_id = IntegerField('Service',
                               validators=[

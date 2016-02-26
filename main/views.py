@@ -324,7 +324,7 @@ def create_specialist():
             db.session.add(location)
             current_user.location = location
 
-        current_user.phone_number = form.phone.data
+        current_user.extra_phone = form.phone.data
 
         return jsonify({
             'status': 'ok'
