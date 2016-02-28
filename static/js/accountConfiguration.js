@@ -24,81 +24,74 @@ function initAccountSettings(change_password_url, set_phone_url) {
 function settingsCardShow(){
     var left, opacity, right ; //card properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
+
     var infoCard = $("#info-card");
     var contactsCard = $("#contacts-card");
     var passwordCard = $("#password-card");
 
-    $("#info-card-tab").click(function(){
-        if(animating) return false;
-        animating = true;
+    var infoCardTab = $("#info-card-tab");
+    var contactsCardTab = $("#contacts-card-tab");
+    var passwordCardTab = $("#password-card-tab");
 
-        contactsCard.css('display', 'none');
-        passwordCard.css('display', 'none');
-        infoCard.css('opacity', '0');
-
-        infoCard.animate({
+    //if(infoCardTab.find('a').hasClass('active')){
+    //    infoCardTab.unbind('click', cardAnimate)
+    //}
+    function cardAnimate(card, turn){
+        card.animate({
             opacity: 1
         }, {
             step: function(now, mx) {
-                right = ((1-now) * 50)+"%";
-                $(this).css({'right': right, 'opacity':opacity, 'display':'block'});
+                var side;
+                side = ((1-now) * 50)+"%";
+
+                card.css({'display':'block'});
+                card.css(turn, side);
             },
             duration: 650,
             complete: function(){
-                $("#info-card").show();
                 animating = false;
             },
             //this comes from the custom easing plugin
             easing: 'easeInOutBack'
         });
+    }
+
+    infoCardTab.click(function(){
+        if(!$(this).find('a').hasClass('active')) {
+
+            if (animating) return false;
+            animating = true;
+
+            contactsCard.css('display', 'none');
+            passwordCard.css('display', 'none');
+            infoCard.css('opacity', '0');
+
+            cardAnimate(infoCard, 'right');
+
+        }
     });
+    contactsCardTab.click(function(){
+        if(!$(this).find('a').hasClass('active')) {
+            if (animating) return false;
+            animating = true;
 
-    $("#contacts-card-tab").click(function(){
-        if(animating) return false;
-        animating = true;
+            infoCard.css('display', 'none');
+            passwordCard.css('display', 'none');
+            contactsCard.css('opacity', '0');
 
-        infoCard.css('display', 'none');
-        passwordCard.css('display', 'none');
-        contactsCard.css('opacity', '0');
-
-        contactsCard.animate({
-            opacity: 1
-        }, {
-            step: function(now, mx) {
-                left = ((1-now) * 50)+"%";
-                $(this).css({'left': left, 'opacity':opacity, 'display':'block'});
-            },
-            duration: 650,
-            complete: function(){
-                $("#contacts-card").show();
-                animating = false;
-            },
-            //this comes from the custom easing plugin
-            easing: 'easeInOutBack'
-        });
+            cardAnimate(contactsCard, 'left');
+        }
     });
-    $("#password-card-tab").click(function(){
-        if(animating) return false;
-        animating = true;
-        infoCard.css('display', 'none');
-        contactsCard.css('display', 'none');
-        passwordCard.css('opacity', '0');
+    passwordCardTab.click(function(){
+        if(!$(this).find('a').hasClass('active')) {
+            if (animating) return false;
+            animating = true;
+            infoCard.css('display', 'none');
+            contactsCard.css('display', 'none');
+            passwordCard.css('opacity', '0');
 
-        passwordCard.animate({
-            opacity: 1
-        }, {
-            step: function(now, mx) {
-                right = ((1-now) * 50)+"%";
-                $(this).css({'right': right, 'opacity':opacity,'display':'block'});
-            },
-            duration: 650,
-            complete: function(){
-                $("#password-card").show();
-                animating = false;
-            },
-            //this comes from the custom easing plugin
-            easing: 'easeInOutBack'
-        });
+            cardAnimate(passwordCard, 'right');
+        }
     });
 }
 function displayAvatar(){

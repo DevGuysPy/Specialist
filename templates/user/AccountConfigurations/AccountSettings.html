@@ -1,13 +1,13 @@
 {% extends "user/AccountSettings.html" %}
-{% block extra_css %}<link href="{{ url_for('static', filename='css/style_for_table.css') }}" rel="stylesheet">{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/style_for_table.css') }}" rel="stylesheet">
+{% endblock %}
 {% block settings_content %}
 
 
 
-    <ul class="tabs">
+    <ul class="tabs" style="overflow:hidden">
         <li class="tab col s3" id="contacts-card-tab"><a  >Contacts</a></li>
         <li class="tab col s3" id="info-card-tab"><a class="active" >Account Info</a></li>
-
         <li class="tab col s3" id="password-card-tab"><a >Password</a></li>
     </ul>
 
@@ -216,16 +216,36 @@
     <script src="{{ url_for('static', filename='js/accountConfiguration.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins/phone_table.js') }}"></script>
     <script>
+        $(function(){
+            var animating;
+            var infoCard = $("#info-card");
+            infoCard.animate({
+                opacity: 1
+            }, {
+                step: function(now, mx) {
+                    var side;
+                    side = ((1-now) * 50)+"%";
+
+                    infoCard.css('display', 'block');
+                    infoCard.css('right', side);
+                },
+                duration: 650,
+                complete: function(){
+                    animating = false;
+                },
+                //this comes from the custom easing plugin
+                easing: 'easeInOutBack'
+            });
+
+        });
+    </script>
+    <script>
         initAccountSettings(
                 '{{ url_for('change_password') }}',
                 '{{ url_for('set_phone_number') }}',
                 '{{ url_for('edit_user_profile') }}')
     </script>
-    <script>
-        $(function(){
-            $("#info-card-tab").click();
-        });
-    </script>
+
     <script>
         $('.datepicker').pickadate({
             selectMonths: true, // Creates a dropdown to control month
