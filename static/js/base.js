@@ -14,6 +14,12 @@ $(document).ready(function() {
         })
     });
     $('.tooltipped').tooltip({delay: 50});
+    $('ul.tabs').tabs();
+    var infoCardSettings = $('#info-card-tab');
+    infoCardSettings.find('a').removeClass('active');
+    infoCardSettings.click();
+    infoCardSettings.find('a').addClass('active')
+
 });
 
 function initInputAutocomplete(input, apiUrl, params, onSelectFunc){

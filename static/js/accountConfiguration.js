@@ -36,7 +36,7 @@ function settingsCardShow(){
     //if(infoCardTab.find('a').hasClass('active')){
     //    infoCardTab.unbind('click', cardAnimate)
     //}
-    function cardAnimate(card, turn){
+    function cardSideAnimate(card, turn){
         card.animate({
             opacity: 1
         }, {
@@ -47,7 +47,7 @@ function settingsCardShow(){
                 card.css({'display':'block'});
                 card.css(turn, side);
             },
-            duration: 650,
+            duration: 750,
             complete: function(){
                 animating = false;
             },
@@ -59,6 +59,7 @@ function settingsCardShow(){
     infoCardTab.click(function(){
         if(!$(this).find('a').hasClass('active')) {
 
+            //Scale animation
             if (animating) return false;
             animating = true;
 
@@ -66,7 +67,21 @@ function settingsCardShow(){
             passwordCard.css('display', 'none');
             infoCard.css('opacity', '0');
 
-            cardAnimate(infoCard, 'right');
+            infoCard.animate({
+                opacity: 1
+            }, {
+                step: function(now, mx) {
+                    var scale;
+                    scale = 0.8 + (2 - now) * 0.2;
+                    infoCard.css({'display':'block', 'transform': 'scale('+scale+')'});
+                },
+                duration: 650,
+                complete: function(){
+                    animating = false;
+                },
+                //this comes from the custom easing plugin
+                easing: 'easeInOutBack'
+            });
 
         }
     });
