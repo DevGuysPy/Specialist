@@ -1,15 +1,23 @@
 import datetime
 import random
 
-from flask import abort, url_for, session, redirect, flash, render_template
+import json
+
+from flask import (abort, url_for, session, redirect, flash, render_template,
+                   request, jsonify, make_response)
 from flask.ext.mail import Message
-from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import (login_user, login_required, logout_user,
+                             current_user)
+from sqlalchemy.orm.exc import NoResultFound
 
 from itsdangerous import URLSafeTimedSerializer, BadSignature
+from functools import wraps
 
 import settings
+
 from app import mail, app, login_manager, db, bucket
-from models import User, UserUserActivity
+from models import User, UserUserActivity, Message as PersonalMessage
+from forms import RegistrationForm, LoginForm
 
 
 def generate_confirmation_token(confirmation_item):
@@ -34,10 +42,10 @@ def confirm_token(token, expiration=3600):
 
 def send_email(to, subject, template, sender=None):
     msg = Message(
-            subject,
-            recipients=[to],
-            html=template,
-            sender=sender or app.config['MAIL_DEFAULT_SENDER']
+        subject,
+        recipients=[to],
+        html=template,
+        sender=sender or app.config['MAIL_DEFAULT_SENDER']
     )
     mail.send(msg)
 
@@ -171,3 +179,66 @@ def current_time():
 def get_random_background():
     img = random.choice(list(bucket.list()))
     return 'https://' + settings.REGION_HOST + '/spec-bg/' + img.name
+
+
+@app.context_processor
+def get_sign_up_form():
+    return dict(sign_up_form=RegistrationForm())
+
+
+@app.context_processor
+def get_login_form():
+    return dict(login_form=LoginForm())
+
+
+@app.route('/send_message', methods=['POST'])
+@login_required
+def send_personal_message():
+    data = json.loads(request.data)
+
+    user_id = data.get('user_id')
+    subject = data.get('subject')
+    text = data.get('text')
+
+    if not user_id or not subject or not text:
+        return jsonify({
+            'status': 'error',
+            'message': 'Please enter subject and text of message'
+        })
+
+    try:
+        user = User.query.filter_by(id=int(user_id)).one()
+    except (ValueError, NoResultFound):
+        return jsonify({
+            'status': 'error',
+            'message': 'User does not exist'
+        })
+
+    message = PersonalMessage(
+        from_user=current_user,
+        to_user=user,
+        subject=subject,
+        text=text)
+
+    db.session.add(message)
+    db.session.flush()
+
+    return jsonify({
+        'status': 'ok',
+        'redirect_url': '/account/' + str(current_user.id)
+    })
+
+
+def add_response_headers(headers={}):
+    """This decorator adds the headers passed in to the response"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            resp = make_response(f(*args, **kwargs))
+            h = resp.headers
+            for header, value in headers.items():
+                h[header] = value
+            return resp
+        return decorated_function
+    return decorator
+

@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
 import json
 from datetime import date, timedelta
-from math import radians, cos, sin, asin, sqrt
-from sqlalchemy import desc, func
 
+from sqlalchemy import desc, func
 from flask import (render_template, url_for, jsonify, redirect, request,
                    session, abort)
 from flask_views.base import TemplateView
@@ -11,16 +10,25 @@ from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
 
-from app import app, db
+from app import app, db, api_manager
 
 from models import (Specialist, Service, UserUserActivity, Company, User,
-                    SpecialistService, ServiceCategory, Location)
+                    SpecialistService, ServiceCategory, Location,
+                    get_experience_types)
 from utils import (generate_confirmation_token, send_email,
                    send_user_verification_email, page_not_found, get_random_background)
 from forms import (AddServiceActivityForm, RegistrationForm,
                    SpecialistForm, LoginForm)
 
+from schemas import SpecialistDistanceSchema
+
+from geopy.distance import great_circle
+
+
 current_user_location = None
+
+api_manager.create_api(Specialist, exclude_columns=[
+    'user.password', 'user.phone_number'])
 
 
 class Home(TemplateView):
@@ -59,6 +67,7 @@ class Home(TemplateView):
         if yesterday_users:
             self.stats['new_users_in_percents'] = \
                 self.stats['new_users'] / yesterday_users * 100
+
 
         return self.stats
 
@@ -126,7 +135,6 @@ class UserProfile(TemplateView):
     def get_service_activity_form(self):
         if self.user.specialist:
             return AddServiceActivityForm.get_form(self.user.specialist)
-
 
     # commented for now(will be done soon)
     # def get_activity(self, kwargs):
@@ -238,6 +246,9 @@ def sign_up_user():
         send_user_verification_email(user.id)
 
         session['signing_up_user_id'] = user.id
+
+        if 'login' in request.args:
+            login_user(user)
 
         return jsonify({
             'status': 'ok',
@@ -695,6 +706,7 @@ class SearchSpecialist(TemplateView):
         super(SearchSpecialist, self).__init__()
         self.service = None
         self.page = None
+        self.specialist_count = None
 
     def get(self, service_id, *args, **kwargs):
         self.service = Service.query.get(service_id)
@@ -711,55 +723,210 @@ class SearchSpecialist(TemplateView):
                     'search_specialist',
                     service_id=self.service.id) + '?page=1')
 
-        context = self.get_context_data()
-        return self.render_to_response(context)
+        if request.is_xhr:
+            # number of specialists on current page
+            from_user_number = (self.page - 1) * 12
+            to_user_number = self.page * 12
+
+            spec = self.get_specialists()
+            template = render_template(
+                "SearchSpecialistCards.html",
+                specialists=spec[from_user_number:to_user_number],
+                specialists_count=self.specialist_count,
+                current_page=self.page,
+                current_service=self.service)
+
+            schema = SpecialistDistanceSchema(many=True)
+
+            # calculate number of specialists which will be shown on map
+            if self.specialist_count > 80:
+                specialists_for_map_from = from_user_number - 80
+                if specialists_for_map_from < 0:
+                    specialists_for_map_from = 0
+                    specialists_for_map_to = 80
+                else:
+                    specialists_for_map_to = to_user_number + 80
+                    if specialists_for_map_to > self.specialist_count:
+                        specialists_for_map_from = \
+                            self.specialist_count - 80
+                        specialists_for_map_to = self.specialist_count
+            else:
+                specialists_for_map_from = 0
+                specialists_for_map_to = self.specialist_count + 1
+
+            return json.dumps({
+                'template': template,
+                'specialists_count': self.specialist_count,
+                'current_page': self.page,
+                'specialists_for_map': schema.dump(
+                    spec[specialists_for_map_from:specialists_for_map_to]).data
+            })
+        else:
+            context = self.get_context_data()
+
+            return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(SearchSpecialist, self).get_context_data(**kwargs)
         context.update({'current_service': self.service})
-        context.update({'specialists_count': len(self.service.specialists.all())})
-        context.update({'specialists': self.get_specialists()})
         context.update({'similar_services': self.get_similar_services()})
-        context.update({'current_page': self.page})
+        context.update({'experience_types': json.dumps(get_experience_types())})
 
         return context
 
-    def get_specialists_with_distance(self):
+    def get_specialists_sorted_by_dist(
+            self,
+            specialists=None,
+            radius=None,
+            lat=None,
+            lng=None):
         """
-        Return dict which contains specialist and distance between him and
-        current user.
-        Sorted by proximity
+        Sort specialists which have current service entry by proximity
+        to given coordinates.
+        Return list of Specialist objects.
         """
 
-        specialist_info = [
-            {
-                'specialist': s,
-                'distance': get_distance(s.user.location.longitude,
-                                         s.user.location.latitude,
-                                         current_user_location['longitude'],
-                                         current_user_location['latitude'])
-            }
-            for s in self.service.specialists.all()
-        ]
-        return sorted(specialist_info, key=lambda d: d['distance'])
+        if specialists:
+            extra_filter = 'AND Specialist.id IN {}'\
+                .format(tuple(s.id for s in specialists))
+        else:
+            extra_filter = None
+
+        spec_infos = db.engine.execute(
+            'SELECT Specialist.id, Location.latitude, Location.longitude '
+            'FROM specialist_service '
+            'INNER JOIN Specialist ON '
+            'Specialist.id = specialist_service.specialist_id '
+            'INNER JOIN users ON users.id = Specialist.user_id '
+            'INNER JOIN Location ON Location.id = users.location_id '
+            'WHERE specialist_service.service_id = {} {}'
+            .format(self.service.id, extra_filter or ''))
+
+        distances = \
+            [
+                (
+                    s[0],
+                    great_circle((lat, lng), (s[1], s[2])).meters
+                )
+                for s in spec_infos
+                if not radius or
+                great_circle((lat, lng), (s[1], s[2])).meters < radius
+            ]
+
+        sorted_dist = sorted(distances, key=lambda dist: dist[1])
+
+        ids = [s[0] for s in sorted_dist]
+
+        if specialists:
+            specialists = specialists.filter(Specialist.id.in_(ids))
+        else:
+            specialists = self.service.specialists
+
+        return sorted(specialists, key=lambda spec: ids.index(spec.id))
 
     def get_specialists(self):
         """
-        Return specialists of selected service sliced according to current page.
-        If user allowed usage of his current location specialists would
-        be sorted by proximity
+        Return specialists of selected service.
+        If there are request args specialists would be sorted by given params.
+        Else specialists would be sorted by proximity to current user location.
         """
-        from_user_number = (self.page - 1) * 12
-        to_user_number = self.page * 12
-        if not current_user_location:
-            return self.service.specialists\
-                .slice(from_user_number, to_user_number).all()
 
-        return [
-            s['specialist']
-            for s in self.get_specialists_with_distance()
-            [from_user_number:to_user_number]
-        ]
+        args_list = ['lat_lng', 'radius', 'exp_from', 'exp_to',
+                     'success_from', 'success_to', 'city_loc']
+
+        specialists = self.service.specialists
+
+        set_default_sorting = False
+        if any(arg in request.args for arg in args_list):
+            if 'exp_from' in request.args or 'exp_to' in request.args:
+                try:
+                    specialists = specialists.filter(Specialist.experience.in_(
+                        [str(i) for i in
+                         range(
+                             int(request.args.get('exp_from', 0)),
+                             int(request.args.get('exp_to', 11)) + 1)]))
+                except ValueError:
+                    pass
+
+            if 'city_loc' in request.args:
+                try:
+                    city, country = request.args['city_loc'].split(',')
+                except ValueError:
+                    city = country = None
+
+                if city and country:
+                    specialists = specialists\
+                        .join(User)\
+                        .join(Location)\
+                        .filter(Location.city == city,
+                                Location.country == country)
+
+            # Sorting by success jobs, orders count,
+            # average price will be added later.
+            # We haven't anything which is related to this
+        else:
+            set_default_sorting = True
+
+        if 'sort_by' in request.args:
+            # sort by
+            # 1 - first the most experienced
+            # 2 - first the least experienced
+            # 5 - first the nearest
+            # 6 - first the farthest
+
+            sorting = request.args['sort_by']
+
+            if sorting == '1':
+                specialists = \
+                    sorted(specialists,
+                           key=lambda s: int(s.experience.code),
+                           reverse=True)
+            elif sorting == '2':
+                specialists = \
+                    sorted(specialists,
+                           key=lambda s: int(s.experience.code))
+            elif (sorting == '5' or sorting == '6') and \
+                    'lat_lng' in request.args and \
+                    'city_loc' not in request.args:
+                try:
+                    lat, lng = request.args['lat_lng'].split(',')
+                    lat = float(lat)
+                    lng = float(lng)
+                except ValueError:
+                    lat = lng = None
+
+                if lat and lng:
+                    if 'radius' in request.args:
+                        try:
+                            radius = int(request.args['radius']) * 1000
+                        except ValueError:
+                            radius = None
+                    else:
+                        radius = None
+
+                    specialists = self.get_specialists_sorted_by_dist(
+                        radius=radius,
+                        lat=lat,
+                        lng=lng,
+                        specialists=specialists)
+
+                if sorting == '6':
+                    specialists = list(reversed(specialists))
+        elif set_default_sorting and session.get('current_user_location'):
+            current_location = \
+                session['current_user_location']['geometry']['location']
+            lng = current_location['lng']
+            lat = current_location['lat']
+
+            specialists = self.get_specialists_sorted_by_dist(
+                lat=lat, lng=lng)
+
+        if not isinstance(specialists, list):
+            specialists = specialists.all()
+
+        self.specialist_count = len(specialists)
+
+        return specialists
 
     def get_similar_services(self):
         """
@@ -789,23 +956,6 @@ app.add_url_rule(
 )
 
 
-def get_distance(lon1, lat1, lon2, lat2):
-    """
-    Calculate the great circle distance between two points
-    on the earth (specified in decimal degrees)
-    """
-    # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    km = 6367 * c
-
-    return km
-
-
 @app.route('/set_current_location', methods=['POST'])
 def set_current_location():
     """
@@ -815,8 +965,58 @@ def set_current_location():
     """
 
     data = json.loads(request.data)
-    global current_user_location
-    current_user_location = data
+    session['current_user_location'] = data
     return jsonify({
         'status': 'ok'
     })
+
+
+@app.route('/add_order', methods=['POST'])
+@login_required
+def create_order():
+    data = json.loads(request.data)
+    service_id = data.get('service_id')
+    user_id = data.get('user_id')
+    if not (user_id and service_id):
+        return abort(400)
+
+    try:
+        from_user = User.query.filter_by(id=int(user_id)).one()
+        service = Service.query.filter_by(id=int(service_id)).one()
+    except (ValueError, NoResultFound):
+        return abort(400)
+    location = data.get('location')
+
+    if location and location.get('country') and location.get('lng') and \
+            location.get('lat'):
+        location = Location(
+            country=location['country'],
+            state=location.get('administrative_area_level_1'),
+            city=location.get('locality'),
+            street=location.get('route'),
+            building=location.get('street_number'),
+            longitude=location.get('lng'),
+            latitude=location.get('lat'))
+        db.session.add(location)
+        db.session.flush()
+    else:
+        location = None
+
+    order = UserUserActivity(
+        from_user=from_user,
+        to_user=current_user,
+        service=service,
+        description=data.get('description'),
+        start=data.get('start') or None,
+        end=data.get('end') or None,
+        location=location,
+        timing_type=data.get('timing_type', '0'))
+
+    db.session.add(order)
+    db.session.flush()
+
+    return jsonify({
+        'status': 'ok',
+        'redirect_url': url_for('order', id=order.id)
+    })
+

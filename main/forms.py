@@ -79,7 +79,6 @@ class RegistrationForm(BaseModelForm):
                            validators=[
                                DataRequired(),
                                Length(min=4, max=64)])
-    birth_date = DateField("Birth Date", validators=[DataRequired()])
     recaptcha = RecaptchaField()
 
 
@@ -87,11 +86,6 @@ class LocationForm(BaseModelForm):
     class Meta:
         model = Location
         validators = [DataRequired()]
-
-
-class LocationForm(BaseModelForm):
-    class Meta:
-        model = Location
 
 
 class SpecialistForm(BaseModelForm):

@@ -4,7 +4,7 @@ import random
 
 from loremipsum import get_sentences
 
-from datetime import datetime, timedelta, date
+from datetime import datetime
 import logging
 
 from flask.ext.script import Manager
@@ -38,8 +38,7 @@ def create_activities():
                                 start=time,
                                 from_user_id=random.randint(1, users),
                                 to_user_id=random.randint(1, users),
-                                service_id=random.randint(1, services)
-                                )
+                                service_id=random.randint(1, services))
         db.session.add(user)
     db.session.commit()
 
@@ -70,7 +69,7 @@ def create_users():
     orgs = Company.query.all()
     services = Service.query.all()
 
-    for i in range(100):
+    for i in range(2000):
         city_item = random.choice(countries_and_cities)
 
         location_name = city_item['city'].split(', ')
@@ -97,16 +96,16 @@ def create_users():
         user = User(first_name=first_name,
                     last_name=last_name,
                     email='{}{}@gmail.com'.format(
-                            unicode(first_name.lower()),
-                            unicode(last_name.lower()) + str(
-                                    random.randint(0, 10000))),
+                        unicode(first_name.lower()),
+                        unicode(last_name.lower()) + str(
+                            random.randint(0, 10000))),
                     password='1111',
                     confirmed=True,
                     location=loc,
                     bg_photo=get_random_background(),
                     birth_date=get_random_date(1950, 1996),
                     phone_number='+380' + str(
-                            random.randint(100000000, 999999999)))
+                        random.randint(100000000, 999999999)))
 
         db.session.add(user)
         db.session.flush()
@@ -116,14 +115,14 @@ def create_users():
                           experience=str(random.randint(0, 11)),
                           confirmed=True,
                           description=' '.join(
-                                  get_sentences(random.randint(4, 7))))
+                              get_sentences(random.randint(4, 7))))
         db.session.add(spec)
         db.session.flush()
 
         service_ids = [random.choice(services).id for x in range(20)]
         for ser_id in set(service_ids):
             spec_ser = SpecialistService(
-                    specialist_id=spec.id, service_id=ser_id)
+                specialist_id=spec.id, service_id=ser_id)
             db.session.add(spec_ser)
 
         logger.info('Added user {} {}'.format(i, user.full_name()))
@@ -148,7 +147,7 @@ def create_companies():
     db.session.commit()
 
     categories = OrgCategory.query.all()
-    for index in range(150):
+    for index in range(200):
         name = get_name(Company)
         com = Company(name=name, category=random.choice(categories))
         db.session.add(com)
@@ -160,7 +159,6 @@ def create_companies():
 @manager.command
 def rr():
     db.drop_all()
-    db.create_all()
 
 
 @manager.command

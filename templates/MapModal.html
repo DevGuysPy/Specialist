@@ -1,0 +1,26 @@
+<div id="map-modal" class="modal">
+    <div class="modal-content">
+        <div class="row center">
+            <p class="no-margin map-modal-header">{{ modal_header }}</p>
+        </div>
+        <div class="row">
+            <div class="col m6">
+                <div class="input-field">
+                    <input type="text" id="order_by_location_autocomplete">
+                </div>
+            </div>
+            <div class="col m6">
+                <div class="input-field">
+                    <input type="number" min="0" pattern="^[0-9]" id="order_by_location_radius" disabled>
+                    <label for="order_by_location_radius">Radius in km</label>
+                </div>
+            </div>
+            <input type="checkbox" id="order_by_location_current_loc" />
+            <label for="order_by_location_current_loc">Select your current location</label>
+        </div>
+        <div id="order-by-location-map"></div>
+        <div class="center">
+            <a id="order_by_location_submit" class="disabled center waves-effect waves-light btn blue-grey darken-3">Submit</a>
+        </div>
+    </div>
+</div>

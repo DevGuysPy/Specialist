@@ -1,155 +1,119 @@
 {% extends "Base.html" %}
 
-{% block body %}
+{% block css %}
+    <link href="{{ url_for('static', filename='css/order_service_modal.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/css/ion.rangeSlider.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/css/normalize.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/css/ion.rangeSlider.skinFlat.css') }}" rel="stylesheet">
+{% endblock %}
 
+{% block body %}
     <p class="flow-text search-title center">
         All specialists who offer <strong>{{ current_service.title|capitalize }}</strong>
     </p>
-    <p class="flow-text center">Found {{ specialists_count }} specialists.</p>
-    <div class="section">
-        <div id="products" class="row">
-            <div class="product-sizer"></div>
-            {% for specialist in specialists %}
-                <div class="product">
-                    <div class="card specialist-card hoverable">
-                        <input type="hidden" class="specialist-id" value={{ specialist.user.id }}>
-                        <div class="card-image waves-effect waves-block waves-light">
-                            <img src="{{ url_for('static', filename='img/profile.png') }}"
-                                 class="btn-price waves-effect waves-light">
-                            <img src="{{ specialist.user.bg_photo }}" alt="product-img" style="max-height: 150px">
-                        </div>
-                        <ul class="card-action-buttons stars">
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star_half</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light blue-grey darken-3">
-                                    <i class="material-icons">star_border</i>
-                                </a>
-                            </li>
-                        </ul>
-                        <ul class="card-action-buttons">
-                            <li>
-                                <a class="btn-floating waves-effect waves-light green accent-4">
-                                    <i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Fast order">repeat</i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light red accent-2">
-                                    <i class="mdi-action-favorite"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="btn-floating waves-effect waves-light light-blue">
-                                    <i class="mdi-action-info activator"></i>
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="center"><span class="flow-text profile-trigger cursor">{{ specialist.user.full_name()}}</span></div>
-                        <div class="card-content">
-                            <div class="row">
-                                <div class="col m6">
-                                    <p><i class="material-icons tiny">location_on</i><strong> {{ specialist.user.location.get_name() }}</strong></p>
-                                </div>
-                                <div class="col m6">
-                                    <p><strong>Experience: {{ specialist.experience.value }}</strong></p>
-                                </div>
+    <p class="flow-text center" id="specialists-count"></p>
+    <div class="row search-filters">
+        <div class="col m2 offset-m1" style="display: none">
+            <div class="search-filter">
+                <div id="order-by-location-accordion-el">
+                    <div class="search-filter-header">Experience</div>
+                    <div class="card">
+                        <div class="content">
+                            <div class="order-by-slider">
+                                <input type="text" id="order_by_experience_slider" value="" />
                             </div>
-                            <div class="divider"></div>
-                            <div class="row">
-                                <p class="center">Success jobs: 70%</p>
-                                <div class="progress">
-                                    <div class="determinate" style="width: 70%"></div>
-                                </div>
-                                <div class="col s6">
-                                    <div class="specialist-phone">
-                                        <i class="material-icons tiny">contact_phone</i>
-                                        <span class="phone" style="display: none"> <strong>{{ specialist.user.phone_number }}</strong></span>
-                                        <a class="show-phone"> Show phone</a>
-                                    </div>
-                                </div>
-                                <div class="col s6">
-                                    {% if specialist.org %}
-                                        <p><strong>Works in <a href="#">{{ specialist.org.name }}</a></strong></p>
-                                    {% else %}
-                                        <p><strong>{{ specialist.user.first_name }} doesn't work in company.</strong></p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4"><i class="mdi-navigation-close right"></i></span>
-                            {% if specialist.description %}
-                                <div class="description">
-                                    <p class="center">About {{ specialist.user.first_name }}</p>
-                                    <p class="description-text">{{ specialist.description }}</p>
-                                    <div class="divider"></div>
-                                </div>
-                            {% endif %}
-                            {% if specialist.services|length > 1 %}
-                                <p>Also offer:
-                                    {% set services_added = 0 %}
-                                    {%  for s in specialist.services %}
-                                        {% if s != current_service %}
-                                            {% set services_added = services_added + 1 %}
-                                            {{ s.title }}
-
-                                            {% if loop.last %}
-                                                .
-                                            {% elif services_added == 2 %}
-                                                and {{ specialist.services|length - 3 }} more.
-                                                {% break %}
-                                            {% else %}
-                                                ,
-                                            {% endif %}
-                                        {% endif %}
-
-                                    {% endfor %}
-                                </p>
-                                <div class="divider"></div>
-                                <p><i class="mdi-social-cake text-darken-2"></i>Age {{ specialist.user.get_age() }}</p>
-                                <div class="divider"></div>
-                                <p><i class="mdi-communication-email text-darken-2"></i> {{ specialist.user.email }}</p>
-
-                            {% endif %}
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-        <ul class="pagination center">
-            <li class="waves-effect" id="previous_page">
-                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page - 1 }}">
-                    <i class="material-icons">chevron_left</i>
-                </a>
-            </li>
-            <div class="page-numbers">
             </div>
-            <li class="waves-effect" id="next_page">
-                <a href="{{ url_for('search_specialist', service_id=current_service.id) }}?page={{ current_page + 1 }}">
-                    <i class="material-icons">chevron_right</i>
-                </a>
-            </li>
-        </ul>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter">
+                <div class="search-filter-header">Success jobs</div>
+                <div class="card">
+                    <div class="content">
+                        <div class="order-by-slider">
+                            <input type="text" id="order_by_success_slider" value="" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter">
+                <div class="search-filter-header">Location</div>
+                <div class="card">
+                    <div class="content">
+                        <div id="order-by-location-accordion-el">
+                            <div class="input-field no-margin no-padding" style="padding: 0 10px 0 10px">
+                                <input type="text" id="order_by_location_city_autocomplete">
+                            </div>
+                            <div id="order_by_location_city_details">
+                                <input type="hidden" name='country'>
+                                <input type="hidden" name='locality'>
+                            </div>
+                            <div id="order_by_location_extended_details">
+                                <input type="hidden" name='lat'>
+                                <input type="hidden" name='lng'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter" id="sorting-filter">
+                <div class="search-filter-header">Sorting</div>
+                <div class="card">
+                    <div class="content">
+                        <div class="input-field no-margin">
+                            <select>
+                                <option value="0" disabled selected>Choose sorting</option>
+                                <option value="1">First the most experienced</option>
+                                <option value="2">First the least experienced</option>
+                                <option value="3">First the most successful</option>
+                                <option value="4">First the least successful</option>
+                                <option value="5">First the nearest</option>
+                                <option value="6">First the farthest</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col m2" style="display: none">
+            <div class="search-filter">
+                <div class="search-filter-header">Orders count</div>
+                <div class="card">
+                    <div class="content">
+                        <p class="center">We are working on this</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="row">
+        <div class="col m10 offset-m1 center">
+            <div id="chips-container" style="display: inline;"></div>
+            <div id="delete-filters-div" style="display: inline;"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col m1 offset-m5">
 
+            <a id="show-search-filters-btn" class="waves-effect waves-light btn blue-grey darken-3">Filters</a>
+            <a id="hide-search-filters-btn" class="waves-effect waves-light btn blue-grey darken-3" style="display: none">Hide</a>
+        </div>
+        <div class="col m1" style="display: none">
+            <a id="order_by_submit" class="waves-effect waves-light btn blue-grey darken-3">Submit</a>
+        </div>
+        <div class="col m2 offset-m2">
+            <a id="show-on-map-modal-btn" class="waves-effect waves-light btn blue-grey darken-3">Show on map</a>
+        </div>
+    </div>
+    <div class="row">
+        <div id="specialists-container"></div>
+    </div>
     <div class="row">
         <p class="flow-text center">Similar services</p>
         {% for service in similar_services %}
@@ -167,29 +131,26 @@
         {% endfor %}
     </div>
 
+    {% include "OrderService.html" %}
+    {% include "ShowOnMapModal.html" %}
+    {% with modal_header='First you must add location for this sorting' %}
+        {% include "MapModal.html" %}
+    {% endwith %}
 {% endblock %}
 
 {% block script %}
+    <script src="{{ url_for('static', filename='js/markerWithLabel.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.geocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='ion.rangeSlider-2.1.2/ion.rangeSlider-2.1.2/js/ion-rangeSlider/ion.rangeSlider.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script>
         initSearchPage(
                 {{ current_service.id }},
-                {{ specialists_count }},
-                {{ current_page }});
+                {{ experience_types|safe }});
     </script>
+    <script src="{{ url_for('static', filename='js/orderService.js') }}"></script>
     <script type="text/javascript">
-        /*
-         * Masonry container
-         */
-        var $containerProducts = $("#products").masonry({
-            singleMode: true, isAnimated: true
-        });
-        $containerProducts.imagesLoaded(function() {
-            $containerProducts.masonry({
-                itemSelector: ".product",
-                columnWidth: ".product-sizer"
-            });
-        });
+        initOrderServiceModal({{ current_service.id }});
     </script>
 
 {% endblock %}

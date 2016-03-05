@@ -65,12 +65,16 @@
     </div>
 </div>
 {% include 'footer.html' %}
+{% include "Preloader.html" %}
+{% if not current_user.is_authenticated %}
+    {% include "LoginOrSignUp.html" %}
+{% endif %}
 </body>
 
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&language=en"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
-<script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
 <script src="{{ url_for('static', filename='datetimepicker/jquery.datetimepicker.full.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/lodash.js') }}"></script>
 <script src="{{ url_for('static', filename='js/jquery.autocomplete.js') }}"></script>
@@ -90,11 +94,11 @@
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 <script>
-    $(window).load(function() {
-        setTimeout(function() {
-            $('body').addClass('loaded');
-        }, 200);
-    });
+{#    $(window).load(function() {#}
+{#        setTimeout(function() {#}
+{#            $('body').addClass('loaded');#}
+{#        }, 200);#}
+{#    });#}
     searchAutocomplete("{{ url_for('service_autocomplete') }}");
 </script>
 {% block script %}{% endblock %}
