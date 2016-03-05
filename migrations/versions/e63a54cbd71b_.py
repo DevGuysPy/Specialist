@@ -1,19 +1,20 @@
 """empty message
 
-Revision ID: fc3fa8512959
-Revises: 71924d1000be
-Create Date: 2016-01-24 13:50:21.027837
+Revision ID: e63a54cbd71b
+Revises: None
+Create Date: 2016-03-05 11:18:47.154171
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'fc3fa8512959'
-down_revision = '71924d1000be'
+revision = 'e63a54cbd71b'
+down_revision = None
 
 from alembic import op
 import sqlalchemy as sa
 import sqlalchemy_utils
-from main.models import ACTIVITY_STATUS_TYPES, get_experience_types, UserOrgActivity
+
+from main.models import get_experience_types, ACTIVITY_STATUS_TYPES, UserOrgActivity
 
 
 def upgrade():
@@ -68,14 +69,15 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('title')
     )
-    op.create_table('user',
+    op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('first_name', sa.String(length=256), nullable=True),
     sa.Column('last_name', sa.String(length=256), nullable=True),
     sa.Column('password', sqlalchemy_utils.types.password.PasswordType(), nullable=False),
     sa.Column('phone_number', sqlalchemy_utils.types.phone_number.PhoneNumberType(length=20), nullable=True),
     sa.Column('email', sa.String(), nullable=False),
-    sa.Column('photo', sa.String(), nullable=True),
+    sa.Column('profile_photo', sa.String(), nullable=True),
+    sa.Column('bg_photo', sa.String(), nullable=False),
     sa.Column('birth_date', sa.Date(), nullable=False),
     sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('registration_time', sa.DateTime(), nullable=True),
@@ -83,7 +85,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['location_id'], ['location.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('photo')
+    sa.UniqueConstraint('profile_photo')
     )
     op.create_table('org_org_activity',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -109,7 +111,7 @@ def upgrade():
     sa.Column('org_id', sa.Integer(), nullable=True),
     sa.Column('confirmed', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['org_id'], ['company.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_org_activity',
@@ -126,7 +128,7 @@ def upgrade():
     sa.Column('created_time', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['org_id'], ['company.id'], ),
     sa.ForeignKeyConstraint(['service_id'], ['service.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_user_activity',
@@ -142,9 +144,9 @@ def upgrade():
     sa.Column('status', sqlalchemy_utils.types.choice.ChoiceType(ACTIVITY_STATUS_TYPES), nullable=True),
     sa.Column('confirmed', sa.Boolean(), nullable=True),
     sa.Column('created_time', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['from_user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['from_user_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['service_id'], ['service.id'], ),
-    sa.ForeignKeyConstraint(['to_user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['to_user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('specialist_service',
@@ -164,7 +166,7 @@ def downgrade():
     op.drop_table('user_org_activity')
     op.drop_table('specialist')
     op.drop_table('org_org_activity')
-    op.drop_table('user')
+    op.drop_table('users')
     op.drop_table('service')
     op.drop_table('company')
     op.drop_table('service_category')
