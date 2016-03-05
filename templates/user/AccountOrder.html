@@ -1,26 +1,117 @@
 {% extends "user/AccountSettings.html" %}
 
+{% block css %}
+    <link href="{{ url_for('static', filename='css/orderPage.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block settings_content %}
-    <div class="card">
-        <div class="card-content">
-            {% if activity.confirmed %}
-                <div class="chip right confirmed">
-                    Confirmed
+    {% if current_user == activity.to_user  %}
+        <div class="row">
+            <div class="col m8">
+
+            </div>
+            <div class="col m4 offset-m8">
+                <div class="card profile-card">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator" src="{{ activity.from_user.bg_photo }}" alt="user background">
+                    </div>
+                    <figure class="card-profile-image">
+                        <img src="{{ url_for('static', filename='img/profile.png') }}"
+                             alt="profile image" class="circle z-depth-1 responsive-img activator">
+                    </figure>
+                    <div class="card-buttons">
+                        <a href="{{ url_for('user_profile', user_id=activity.from_user.id) }}" class="z-depth-1 btn-floating btn-large waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Full information"><i class="material-icons">info</i></a>
+                        <a id="send-message-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Send private message"><i class="material-icons">message</i></a>
+                        <a id="report-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light red tooltipped" data-position="top" data-delay="50" data-tooltip="Report"><i class="material-icons">report</i></a>
+                    </div>
+
+                    <div class="card-content">
+                        <div class="card-title center">
+                            {{ activity.from_user.full_name() }}
+                        </div>
+
+                        <div class="verification">
+                            <p>
+                                <i class="material-icons tooltipped" data-position="right" data-tooltip="Phone">contact_phone</i>
+                                {% if activity.confirmed %}
+                                    {{ activity.from_user.phone }}
+                                    <i class="material-icons verified tooltipped right"
+                                   data-position="top" data-tooltip="Verified">verified_user</i>
+                                {% else %}
+                                    First specialist must confirm order
+                                {% endif %}
+                            </p>
+                            <p>
+                                <i class="material-icons tooltipped" data-position="right" data-tooltip="Email">email</i>
+                                {{ activity.from_user.email }}
+                                <i class="material-icons verified tooltipped right"
+                               data-position="top" data-tooltip="Verified">verified_user</i>
+                            </p>
+                        </div>
+                        <div class="divider" style="margin: 15px 0 15px 0"></div>
+                        <div class="information">
+                            <div class="card-title center">Latest comments</div>
+                            <ul class="collection">
+                                <li class="collection-item avatar">
+                                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
+                                    <span class="title">Random Dude</span>
+                                    <p>About <a>Advertising</a> <br>
+                                       Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+                                    </p>
+                                    <div class="stars">
+                                        <span class="tooltipped" data-position="top" data-tooltip="Mark 3.5">
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star_half</i>
+                                            <i class="material-icons">star_border</i>
+                                        </span>
+                                    </div>
+                                </li>
+                                <li class="collection-item avatar">
+                                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
+                                    <span class="title">Random Dude</span>
+                                    <p>About <a>Advertising</a> <br>
+                                       Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+                                    </p>
+                                    <div class="stars">
+                                        <span class="tooltipped" data-position="top" data-tooltip="Mark 3.5">
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star_half</i>
+                                            <i class="material-icons">star_border</i>
+                                        </span>
+                                    </div>
+                                </li>
+                                <li class="collection-item avatar">
+                                    <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="circle">
+                                    <span class="title">Random Dude</span>
+                                    <p>About <a>Advertising</a> <br>
+                                       Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+                                    </p>
+                                    <div class="stars">
+                                        <span class="tooltipped" data-position="top" data-tooltip="Mark 3.5">
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star</i>
+                                            <i class="material-icons">star_half</i>
+                                            <i class="material-icons">star_border</i>
+                                        </span>
+                                    </div>
+                                </li>
+                              </ul>
+                        </div>
+                    </div>
                 </div>
-            {% else %}
-                <div class="chip right unconfirmed">
-                    Unconfirmed
-                </div>
-            {% endif %}
-            <p class="flow-text center">Specialist : <a href="{{ url_for('user_profile', user_id=activity.from_user_id) }}">
-                {{ activity.from_user.full_name() }}
-            </a>
-            </p>
-            {% if activity.start %}
-                <p class="flow-text center">Start at: {{ activity.start | datetimefilter }}</p>
-            {% endif %}
-            <blockquote>{{ activity.description }}</blockquote>
-            <p class="flow-text center">Status: </p>
+            </div>
         </div>
-    </div>
+    {% elif current_user == activity.from_user %}
+    {% else %}
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script>
+    </script>
 {% endblock %}

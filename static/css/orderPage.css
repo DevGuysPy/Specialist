@@ -1,0 +1,41 @@
+.profile-card .card-profile-image {
+    width: 105px;
+    position: absolute;
+    top: 51px;
+    z-index: 1;
+    left: 20px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.profile-card .card-image {
+    height: 110px;
+}
+
+.card-buttons {
+    position: absolute;
+    left: 283px;
+    top: 81px;
+}
+
+.card-buttons a {
+    margin: 0 5px 0 5px;
+}
+
+.verification p {
+    font-size: 16px;
+}
+
+.verification i {
+    font-size: 27px;
+    vertical-align: bottom;
+    margin-right: 15px;
+}
+
+.verified {
+    color: #00e676;
+}
+
+.information .stars {
+    text-align: right;
+}

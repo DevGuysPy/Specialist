@@ -237,7 +237,6 @@ def sign_up_user():
                         form.full_name.data.split(' ')[1:]),
                     email=form.email.data,
                     password=form.password.data,
-                    birth_date=form.birth_date.data,
                     bg_photo=get_random_background())
 
         db.session.add(user)
@@ -595,20 +594,33 @@ class AccountOrder(TemplateView):
     template_name = 'user/AccountOrder.html'
     decorators = [login_required]
 
-    def get(self, *args, **kwargs):
-        self.activity = UserUserActivity.query.get(kwargs.get('id'))
+    def __init__(self):
+        self.user = None
+        self.activity = None
+
+    def get(self, user_id, order_id, *args, **kwargs):
+        self.user = User.query.get(user_id)
+        if not self.user:
+            return abort(404)
+
+        self.activity = self.user.to_activities_user.filter(
+            UserUserActivity.id == order_id).first()
+        if not self.activity:
+            return abort(404)
+
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(AccountOrder, self).get_context_data()
-        context.update({'user': current_user})
+        context.update({'user': self.user})
         context.update({'activity': self.activity})
+
         return context
 
 
 app.add_url_rule(
-    '/account/order/<int:id>',
+    '/account/<int:user_id>/order/<int:order_id>',
     view_func=AccountOrder.as_view('order')
 )
 
