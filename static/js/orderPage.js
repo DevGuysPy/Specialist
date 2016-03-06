@@ -64,8 +64,12 @@ function initChat(activityId){
     });
 
     function sendMessage(){
+        if (!(input.val())){
+            return null;
+        }
+
         socket.emit('message',
-            {'message': $('#send-message-input').val(),
+            {'message': input.val(),
                 'room': 'order_' + activityId + '_room' });
     }
 
