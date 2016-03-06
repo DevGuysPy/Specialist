@@ -599,12 +599,8 @@ class AccountOrder(TemplateView):
         self.user = None
         self.activity = None
 
-    def get(self, user_id, order_id, *args, **kwargs):
-        self.user = User.query.get(user_id)
-        if not self.user:
-            return abort(404)
-
-        self.activity = self.user.to_activities_user.filter(
+    def get(self, order_id, *args, **kwargs):
+        self.activity = UserUserActivity.query.filter(
             UserUserActivity.id == order_id).first()
         if not self.activity:
             return abort(404)
@@ -614,7 +610,6 @@ class AccountOrder(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AccountOrder, self).get_context_data()
-        context.update({'user': self.user})
         context.update({'activity': self.activity})
         context.update({'chat_msgs': self.get_chat_msgs()})
 
@@ -628,7 +623,7 @@ class AccountOrder(TemplateView):
 
 
 app.add_url_rule(
-    '/account/<int:user_id>/order/<int:order_id>',
+    '/order/<int:order_id>',
     view_func=AccountOrder.as_view('order')
 )
 
@@ -1037,7 +1032,7 @@ def create_order():
 
     return jsonify({
         'status': 'ok',
-        'redirect_url': url_for('order', id=order.id)
+        'redirect_url': url_for('order', order_id=order.id)
     })
 
 
