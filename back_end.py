@@ -5,21 +5,16 @@ import random
 from loremipsum import get_sentences
 
 from datetime import datetime
-import logging
 
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
 from main.views import get_random_background
-from app import app, db
+from app import app, db, socketio, logger
 from default_db_data import services_data, nouns, countries_and_cities
 from main.models import (Service, ServiceCategory, User, UserUserActivity,
                          Specialist, SpecialistService, Company, OrgCategory,
                          Location)
-
-logging.basicConfig()
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -178,4 +173,4 @@ def add_services_to_database():
 
 
 if __name__ == '__main__':
-    manager.run()
+    socketio.run(app)

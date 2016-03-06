@@ -39,3 +39,7 @@ marshmallow==2.4.2
 Flask-Restless==0.17.0
 Babel==2.2.0
 geopy==1.11.0
+Flask-SocketIO==2.1
+eventlet==0.18.4
+gevent==1.1.0
+gevent-websocket==0.9.5

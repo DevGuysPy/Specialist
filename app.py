@@ -2,6 +2,8 @@ import boto
 
 import boto.s3
 
+import logging
+
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.mail import Mail
@@ -10,12 +12,15 @@ from flask_cache import Cache
 from flask_session import Session
 from flask_login import LoginManager
 from flask.json import JSONEncoder
+from flask_socketio import SocketIO
 from sqlalchemy_utils import Choice
 
 import jinjahtmlcompress
 
 
 app = Flask(__name__, static_url_path='/static')
+
+socketio = SocketIO(app)
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
@@ -31,6 +36,10 @@ app.jinja_env.add_extension('jinja2.ext.with_')
 app.debug = True
 app.config.from_object('settings')
 db = SQLAlchemy(app)
+
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class CustomJSONEncoder(JSONEncoder):

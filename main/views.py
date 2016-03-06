@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import json
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from sqlalchemy import desc, func
 from flask import (render_template, url_for, jsonify, redirect, request,
@@ -9,8 +9,9 @@ from flask_views.base import TemplateView
 from flask_views.edit import FormView
 from sqlalchemy.orm.exc import NoResultFound
 from flask.ext.login import login_user, current_user, login_required
+from flask_socketio import emit, join_room
 
-from app import app, db, api_manager
+from app import app, db, api_manager, socketio, logger
 
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location,
@@ -1032,3 +1033,19 @@ def create_order():
         'redirect_url': url_for('order', id=order.id)
     })
 
+
+@socketio.on('join')
+def join_to_room(data):
+    join_room(data['room'])
+    logger.info('User with ID: {} joined to {}'.format(
+        current_user.id, data['room']))
+
+
+@socketio.on('message')
+def handle_message(data):
+    send_data = {
+        'message': data['message'],
+        'author': current_user.full_name(),
+        'time': datetime.now().strftime('%H:%M')
+    }
+    emit('message', send_data, room=data['room'])

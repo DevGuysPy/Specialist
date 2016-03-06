@@ -39,3 +39,144 @@
 .information .stars {
     text-align: right;
 }
+
+.chat-card .title-bg {
+    height: 75px;
+    background-color: #37474f;
+    display: table;
+    width: 100%;
+    position: relative;
+}
+
+.chat-card .title-bg .row{
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/*.chat-card .title-bg .row:first-child {*/
+    /*display: table-cell;*/
+    /*vertical-align: middle;*/
+/*}*/
+
+
+.chat-card .title-bg .user-name {
+    font-size: 30px;
+    font-weight: 300;
+    color: white;
+    padding-left: 49px;
+}
+
+.chat-card .buttons a {
+    /*display: inline;*/
+    margin: 0 5px 0 5px;
+}
+
+.chat-card .buttons {
+    position: absolute;
+    left: 774px;
+    top: 45px;
+}
+
+.chat-card .title-bg .buttons a i {
+    vertical-align: bottom;
+}
+
+.chat-box {
+    height: 500px;
+    padding: 0 60px 0 60px;
+    margin-bottom: 15px;
+}
+
+.chat-box .current-date {
+    color: #908D8D;
+}
+
+.chat-box .message {
+    margin: 5px 0 5px 0;
+}
+
+.chat-box .message .message-content {
+    margin-left: 49px;
+}
+
+.chat-box .message .message-content .message-title {
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.chat-box .message .message-time {
+    color: #908D8D;
+    text-align: right;
+    padding: 0;
+}
+
+.chat-box .message-box {
+    position: relative;
+    height: 91%;
+    overflow: hidden;
+    left: 0;
+}
+
+
+.chat-box .message .sender-img {
+    height: 70px;
+    width: 70px;
+}
+
+.send-message-box {
+    height: 75px;
+    padding: 0 60px 0 60px;
+    background-color: #37474f;
+    display: table;
+    width: 100%;
+    position: relative;
+}
+
+.send-message-box .row {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.send-message-box #send-message-input {
+    display: block;
+    padding: 8px 8px 8px 72px;
+    width: 100%;
+    background: rgba(255,255,255,0.3);
+    height: 24px;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+    border: none;
+    font-size: 16px;
+    font-weight: 400;
+    outline: none;
+    border-radius: 3px;
+    margin: 0;
+    color: white;
+}
+
+.send-message-box #send-message-input:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+.send-message-box #send-message-input:focus {
+    color: inherit;
+    background: white;
+}
+
+.send-message-box .input-box i {
+    position: absolute;
+    color: white;
+    top: 37%;
+    left: 93px;
+    transition: color 200ms ease;
+}
+
+.send-message-box .btn-box {
+    padding: 0;
+}
+
+.send-message-box .btn-box a {
+    position: absolute;
+    right: 49px;
+    bottom: 9px;
+}

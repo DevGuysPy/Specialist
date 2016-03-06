@@ -1,6 +1,8 @@
 $('select').material_select();
 $('.tooltipped').tooltip({delay: 50});
 
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+
 $(document).ready(function() {
     initCurrentUserLocation();
     $('.sign_up_or_login').on('click', function(){

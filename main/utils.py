@@ -173,7 +173,13 @@ app.jinja_env.filters['time'] = timefilter
 @app.context_processor
 def current_time():
     current_time = datetime.datetime.now()
-    return dict(current_time=current_time)
+
+    current_date_readable = datetime.date(
+        year=int(current_time.strftime('%Y')),
+        month=int(current_time.strftime('%m')),
+        day=int(current_time.strftime('%d'))).strftime('%A %d %B %Y')
+    return dict(current_time=current_time,
+                current_date_readable=current_date_readable)
 
 
 def get_random_background():
