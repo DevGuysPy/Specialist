@@ -15,7 +15,7 @@ from app import app, db, api_manager, socketio, logger
 
 from models import (Specialist, Service, UserUserActivity, Company, User,
                     SpecialistService, ServiceCategory, Location,
-                    get_experience_types)
+                    get_experience_types, ChatMessage)
 from utils import (generate_confirmation_token, send_email,
                    send_user_verification_email, page_not_found, get_random_background)
 from forms import (AddServiceActivityForm, RegistrationForm,
@@ -616,8 +616,15 @@ class AccountOrder(TemplateView):
         context = super(AccountOrder, self).get_context_data()
         context.update({'user': self.user})
         context.update({'activity': self.activity})
+        context.update({'chat_msgs': self.get_chat_msgs()})
 
         return context
+
+    def get_chat_msgs(self):
+        msgs = ChatMessage.query.filter_by(
+            room='order_{}_room'.format(self.activity.id)).all()
+
+        return msgs
 
 
 app.add_url_rule(
@@ -1043,9 +1050,18 @@ def join_to_room(data):
 
 @socketio.on('message')
 def handle_message(data):
+    msg = ChatMessage(
+        author=current_user,
+        text=data['message'],
+        created_time=datetime.now(),
+        room=data['room'])
+
+    db.session.commit()
+
     send_data = {
-        'message': data['message'],
-        'author': current_user.full_name(),
-        'time': datetime.now().strftime('%H:%M')
+        'message': msg.text,
+        'author': msg.author.full_name(),
+        'time': msg.created_time.strftime('%H:%M')
     }
-    emit('message', send_data, room=data['room'])
+
+    emit('message', send_data, room=msg.room)

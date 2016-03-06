@@ -476,3 +476,20 @@ class OrderPost(db.Model):
     created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
     timing_type = db.Column(ChoiceType(TIMING_TYPE), default='0')
+
+
+class ChatMessage(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+
+    author_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
+                          nullable=False)
+    author = db.relationship('User', foreign_keys=[author_id],
+                             backref="chat_messages")
+
+    text = db.Column(db.String(), nullable=False)
+
+    room = db.Column(db.String(), nullable=False)
+
+    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+    edited = db.Column(db.Boolean(), default=False)

@@ -27,6 +27,29 @@
                     </div>
                     <div class="divider"></div>
                     <div class="message-box">
+                        {% for msg in chat_msgs %}
+                            <div class="message">
+                                <div class="row">
+                                    <div class="col m1">
+                                        <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="sender-img circle">
+                                    </div>
+                                    <div class="col m11 no-padding">
+                                        <div class="message-content row no-padding">
+                                            <div class="col m11">
+                                                <div class="message-title">
+                                                    <p class="no-margin">{{ msg.author.full_name() }}</p>
+                                                </div>
+                                                <p>{{ msg.text }}</p>
+                                            </div>
+                                            <div class="message-time col m1">
+                                                <p class="no-margin">{{ msg.created_time.strftime('%H:%M') }}</p>
+                                            </div>
+                                            <div class="divider"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="send-message-box">
