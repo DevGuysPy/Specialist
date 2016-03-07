@@ -78,42 +78,42 @@ class User(db.Model):
         return datetime.date.today().year - self.birth_date.year
 
     def get_orders(self):
-        orders = UserUserActivity.query\
+        orders = Activity.query\
             .filter(
-                UserUserActivity.to_user_id == self.id).all()
+                Activity.to_user_id == self.id).all()
         return orders
 
     def get_active_orders(self):
-        active_orders = UserUserActivity.query\
+        active_orders = Activity.query\
             .filter(
-                UserUserActivity.to_user_id == self.id,
-                UserUserActivity.start >= datetime.date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
+                Activity.to_user_id == self.id,
+                Activity.start >= datetime.date.today())\
+            .order_by(Activity.start.desc()).all()
         return active_orders
 
     def get_past_orders(self):
-        past_offers = UserUserActivity.query\
+        past_offers = Activity.query\
             .filter(
-                UserUserActivity.to_user_id == self.id,
-                UserUserActivity.start < datetime.date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
+                Activity.to_user_id == self.id,
+                Activity.start < datetime.date.today())\
+            .order_by(Activity.start.desc()).all()
 
         return past_offers
 
     def get_active_offers(self):
-        active_orders = UserUserActivity.query\
+        active_orders = Activity.query\
             .filter(
-                UserUserActivity.from_user_id == self.id,
-                UserUserActivity.start >= datetime.date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
+                Activity.from_user_id == self.id,
+                Activity.start >= datetime.date.today())\
+            .order_by(Activity.start.desc()).all()
         return active_orders
 
     def get_past_offers(self):
-        past_offers = UserUserActivity.query\
+        past_offers = Activity.query\
             .filter(
-                UserUserActivity.from_user_id == self.id,
-                UserUserActivity.start < datetime.date.today())\
-            .order_by(UserUserActivity.start.desc()).all()
+                Activity.from_user_id == self.id,
+                Activity.start < datetime.date.today())\
+            .order_by(Activity.start.desc()).all()
 
         return past_offers
 
@@ -202,7 +202,7 @@ class Service(db.Model):
 
     # temporary, for specialist page
     def activities_count(self):
-        return UserUserActivity.query.filter_by(
+        return Activity.query.filter_by(
             service_id=self.id,
             from_user_id=current_user.id).count()
 
@@ -222,7 +222,33 @@ TIMING_TYPE = (
     )
 
 
-class UserUserActivity(db.Model):
+RATING = (
+    ('5', 'Excellent'),
+    ('4', 'Good'),
+    ('3', 'Not bad'),
+    ('2', 'Not good'),
+    ('1', 'Bad'),
+    ('0', 'Not specified')
+)
+
+PAYMENT_TYPE = (
+    ('0', 'By cash'),
+    ('1', 'PayPal'),
+    ('2', 'Credit card')
+)
+
+
+class ActivityMember(db.Model):
+    __tablename__ = 'activity_member'
+
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
+                        primary_key=True)
+    activity_id = db.Column(db.Integer(), db.ForeignKey('activity.id'),
+                            primary_key=True)
+
+
+class Activity(db.Model):
+    __tablename__ = 'activity'
 
     id = db.Column(db.Integer(), primary_key=True)
 
@@ -246,14 +272,24 @@ class UserUserActivity(db.Model):
                             nullable=True)
     location = db.relationship('Location')
 
+    member = db.relationship('User',
+                             secondary="activity_member",
+                             backref=db.backref("activity", lazy='dynamic'))
+
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
-    description = db.Column(db.Text())
 
-    specialist_rating = db.Column(db.Integer())
-    customer_rating = db.Column(db.Integer())
+    title = db.Column(db.Text(), nullable=False)
+    description = db.Column(db.Text(), nullable=False)
+
+    price = db.Column(db.Integer(), nullable=True)
+
+    specialist_rating = db.Column(ChoiceType(RATING), default='0')
+    customer_rating = db.Column(ChoiceType(RATING), default='0')
 
     timing_type = db.Column(ChoiceType(TIMING_TYPE), default='0')
+
+    payment_type = db.Column(ChoiceType(PAYMENT_TYPE), default='0')
 
     status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
 
@@ -269,7 +305,7 @@ class UserUserActivity(db.Model):
                       start,
                       defaults=None):
         """
-        Func for adding UserUserActivity
+        Func for adding Activity
 
         :param User from_user: specialist
         :param User to_user: customer
@@ -280,12 +316,12 @@ class UserUserActivity(db.Model):
         """
 
         try:
-            activity = UserUserActivity.query.filter_by(
+            activity = Activity.query.filter_by(
                 from_user=from_user, to_user=to_user,
                 service=service, start=start).one()
             return activity, False
         except NoResultFound:
-            activity = UserUserActivity(
+            activity = Activity(
                 from_user=from_user, to_user=to_user,
                 service=service, start=start)
             db.session.add(activity)

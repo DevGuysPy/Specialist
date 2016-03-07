@@ -12,7 +12,7 @@ from flask.ext.migrate import Migrate, MigrateCommand
 from main.views import get_random_background
 from app import app, db, socketio, logger
 from default_db_data import services_data, nouns, countries_and_cities
-from main.models import (Service, ServiceCategory, User, UserUserActivity,
+from main.models import (Service, ServiceCategory, User, Activity,
                          Specialist, SpecialistService, Company, OrgCategory,
                          Location)
 
@@ -35,7 +35,7 @@ def create_activities():
     services = Service.query.count()
     for i in range(1000000):
         print i
-        user = UserUserActivity(confirmed=True,
+        user = Activity(confirmed=True,
                                 start=time,
                                 from_user_id=random.randint(1, users),
                                 to_user_id=random.randint(1, users),

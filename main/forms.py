@@ -8,7 +8,7 @@ from wtforms import (StringField, DateTimeField, ValidationError,
 from wtforms.validators import DataRequired, Length, Email
 from wtforms_components import PhoneNumberField
 
-from models import (UserUserActivity, db, Service, User,
+from models import (Activity, db, Service, User,
                     Specialist, Location, Company)
 
 
@@ -37,7 +37,7 @@ def validate_id_for(model):
 
 class AddServiceActivityForm(BaseModelForm):
     class Meta:
-        model = UserUserActivity
+        model = Activity
         only = ['description', 'end']
 
     service = QuerySelectField(

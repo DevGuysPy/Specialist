@@ -13,7 +13,7 @@ from flask_socketio import emit, join_room
 
 from app import app, db, api_manager, socketio, logger
 
-from models import (Specialist, Service, UserUserActivity, Company, User,
+from models import (Specialist, Service, Activity, Company, User,
                     SpecialistService, ServiceCategory, Location,
                     get_experience_types, ChatMessage)
 from utils import (generate_confirmation_token, send_email,
@@ -50,9 +50,9 @@ class Home(TemplateView):
         return context
 
     def get_stats(self):
-        self.stats['activities'] = UserUserActivity.query\
-            .filter(UserUserActivity.created_time >= date.today()).count()
-        self.stats['total_activities'] = UserUserActivity.query.count()
+        self.stats['activities'] = Activity.query\
+            .filter(Activity.created_time >= date.today()).count()
+        self.stats['total_activities'] = Activity.query.count()
         self.stats['specialists'] = len(Specialist.query.all())
         self.stats['specialists_online'] = "1"
         # Coming soon
@@ -141,10 +141,10 @@ class UserProfile(TemplateView):
     # def get_activity(self, kwargs):
     #     if self.user is not None:
     #         if self.user.specialist is not None:
-    #             self.activity = UserUserActivity.query.filter_by(
+    #             self.activity = Activity.query.filter_by(
     #                 from_user_id=kwargs.get('user_id')).all()
     #         else:
-    #             self.activity = UserUserActivity.query.filter_by(
+    #             self.activity = Activity.query.filter_by(
     #                 to_user_id=kwargs.get('user_id')).all()
     #         return self.activity
 
@@ -167,7 +167,7 @@ def add_service_activity(user_id):
     form = AddServiceActivityForm.get_form(user.specialist)
 
     if form.validate():
-        activity, created = UserUserActivity.get_or_create(
+        activity, created = Activity.get_or_create(
             from_user=user,
             to_user=current_user,
             service=form.service.data,
@@ -428,16 +428,16 @@ class AccountSpecialist(TemplateView):
         context.update({'user': current_user})
         context.update({'spec_form': SpecialistForm()})
         context.update({
-            'latest_activities': self.get_latest_u_u_services_activities()
+            'latest_activities': self.get_latest_services_activities()
         })
 
         return context
 
-    def get_latest_u_u_services_activities(self):
+    def get_latest_services_activities(self):
         """
-        Get latest UserUserActivity for all services offered by the user
+        Get latest Activity for all services offered by the user
         sample_return_dict = {
-            'Service Title': UserUserActivity objects
+            'Service Title': Activity objects
         }
         :return:
         """
@@ -447,11 +447,11 @@ class AccountSpecialist(TemplateView):
 
         latest_activities = {}
         for service in self.user.specialist.services:
-            rel = UserUserActivity.query\
+            rel = Activity.query\
                 .filter_by(service=service,
                            from_user=self.user,
                            confirmed=True)\
-                .order_by(desc(UserUserActivity.start)).first()
+                .order_by(desc(Activity.start)).first()
             latest_activities[service.title] = rel
 
         return latest_activities
@@ -474,7 +474,7 @@ def remove_services(id):
     service = SpecialistService.query.filter_by(specialist_id=current_user.specialist.id,
                                                 service_id=id).first()
     # Temporary, not sure about this
-    # activities = UserUserActivity.query.filter_by(service_id=id).all()
+    # activities = Activity.query.filter_by(service_id=id).all()
     # if activities:
     #     for a in activities:
     #         db.session.delete(a)
@@ -574,7 +574,7 @@ class AccountOffer(TemplateView):
     decorators = [login_required]
 
     def get(self, *args, **kwargs):
-        self.activity = UserUserActivity.query.get(kwargs.get('id'))
+        self.activity = Activity.query.get(kwargs.get('id'))
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -600,8 +600,8 @@ class AccountOrder(TemplateView):
         self.activity = None
 
     def get(self, order_id, *args, **kwargs):
-        self.activity = UserUserActivity.query.filter(
-            UserUserActivity.id == order_id).first()
+        self.activity = Activity.query.filter(
+            Activity.id == order_id).first()
         if not self.activity:
             return abort(404)
 
@@ -649,13 +649,13 @@ def service_autocomplete():
 
     try:
         # db query which selects services which start with search string.
-        # Order by count of UserUserActivity entries.
+        # Order by count of Activity entries.
         services = db.session\
             .query(Service,
                    db.func.count(Service.user_user_activities)
                    .label('total'))\
             .filter(*q)\
-            .outerjoin(UserUserActivity)\
+            .outerjoin(Activity)\
             .group_by(Service.id)\
             .order_by('total DESC')\
             .limit(7)\
@@ -687,7 +687,7 @@ def category_autocomplete():
 
     try:
         # db query which selects services which start with search string.
-        # Order by count of UserUserActivity entries.
+        # Order by count of Activity entries.
         categories = db.session\
             .query(ServiceCategory,
                    db.func.count(ServiceCategory.services)
@@ -948,7 +948,7 @@ class SearchSpecialist(TemplateView):
         db query which selects services which have the
         same category as selected service and have at least one
         Specialist entry.
-        Order by count of UserUserActivity entries.
+        Order by count of Activity entries.
         """
         similar_services = db.session\
             .query(Service, db.func.count(Service.user_user_activities)
@@ -958,7 +958,7 @@ class SearchSpecialist(TemplateView):
             .join(SpecialistService)\
             .group_by(Service.id)\
             .having(db.func.count(SpecialistService.specialist_id) > 0)\
-            .outerjoin(UserUserActivity)\
+            .outerjoin(Activity)\
             .order_by('total DESC')\
             .limit(3)\
             .all()
@@ -1017,10 +1017,11 @@ def create_order():
     else:
         location = None
 
-    order = UserUserActivity(
+    order = Activity(
         from_user=from_user,
         to_user=current_user,
         service=service,
+        title='some title',
         description=data.get('description'),
         start=data.get('start') or None,
         end=data.get('end') or None,

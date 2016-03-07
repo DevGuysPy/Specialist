@@ -16,7 +16,7 @@ from functools import wraps
 import settings
 
 from app import mail, app, login_manager, db, bucket
-from models import User, UserUserActivity, Message as PersonalMessage
+from models import User, Activity, Message as PersonalMessage
 from forms import RegistrationForm, LoginForm
 
 
@@ -98,7 +98,7 @@ def send_user_verification_email(user_id):
 @app.route('/user_user_activity/confirm/<token>')
 def confirm_specialist_activity(token):
     activity_id = confirm_token(token)
-    activity = UserUserActivity.query.filter_by(
+    activity = Activity.query.filter_by(
             id=activity_id).first_or_404()
 
     if activity.confirmed:
