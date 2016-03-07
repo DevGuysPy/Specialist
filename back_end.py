@@ -21,6 +21,12 @@ manager.add_command('db', MigrateCommand)
 migrate = Migrate(app, db)
 
 
+# run server
+@manager.command
+def run():
+    socketio.run(app, host='0.0.0.0')
+
+
 # create users and activities
 @manager.command
 def create_activities():
@@ -64,7 +70,7 @@ def create_users():
     orgs = Company.query.all()
     services = Service.query.all()
 
-    for i in range(2000):
+    for i in range(1000):
         city_item = random.choice(countries_and_cities)
 
         location_name = city_item['city'].split(', ')
@@ -162,15 +168,15 @@ def add_services_to_database():
         category = ServiceCategory(title=category_name)
         db.session.add(category)
         db.session.flush()
-        logger.info('Added category: {}'.format(category_name))
+        # logger.info('Added category: {}'.format(category_name))
 
         for s in services:
             service = Service(title=s, category=category)
             db.session.add(service)
-            logger.info('Added service: {}'.format(s))
+            # logger.info('Added service: {}'.format(s))
 
     db.session.commit()
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0')
+    manager.run()

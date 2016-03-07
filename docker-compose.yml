@@ -6,7 +6,7 @@ db:
 web:
   build: .
   env_file: .env
-  command: bash -c "python back_end.py"
+  command: bash -c "python back_end.py db upgrade && python back_end.py run"
   working_dir: /code
   volumes:
     - .:/code
