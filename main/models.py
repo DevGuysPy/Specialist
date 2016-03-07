@@ -222,13 +222,12 @@ TIMING_TYPE = (
     )
 
 
-RATING = (
+RATING_TYPE = (
     ('5', 'Excellent'),
     ('4', 'Good'),
     ('3', 'Not bad'),
     ('2', 'Not good'),
-    ('1', 'Bad'),
-    ('0', 'Not specified')
+    ('1', 'Bad')
 )
 
 PAYMENT_TYPE = (
@@ -237,11 +236,40 @@ PAYMENT_TYPE = (
     ('2', 'Credit card')
 )
 
+BRACKETS_TYPE = (
+    ('0', 'Any'),
+    ('1', 'Morning'),
+    ('2', 'Midday'),
+    ('3', 'Evening')
+)
+
 
 class ActivityMember(db.Model):
     __tablename__ = 'activity_member'
 
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
+                        primary_key=True)
+    activity_id = db.Column(db.Integer(), db.ForeignKey('activity.id'),
+                            primary_key=True)
+
+
+class Photo(db.Model):
+    __tablename__ = 'photos'
+
+    id = db.Column(db.Integer(), primary_key=True)
+
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    owner = db.relationship('User', foreign_keys=[owner_id],
+                            backref=db.backref("photos",
+                                               lazy='dynamic'))
+
+    name = db.Column(db.String(), nullable=False)
+
+
+class ActivityPhoto(db.Model):
+    __tablename__ = 'activity_photo'
+
+    photo_id = db.Column(db.Integer(), db.ForeignKey('photos.id'),
                         primary_key=True)
     activity_id = db.Column(db.Integer(), db.ForeignKey('activity.id'),
                             primary_key=True)
@@ -272,20 +300,25 @@ class Activity(db.Model):
                             nullable=True)
     location = db.relationship('Location')
 
-    member = db.relationship('User',
-                             secondary="activity_member",
-                             backref=db.backref("activity", lazy='dynamic'))
+    members = db.relationship('User',
+                              secondary="activity_member",
+                              backref=db.backref("activity", lazy='dynamic'))
 
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
+    time_brackets = db.Column(ChoiceType(BRACKETS_TYPE), default='0')
 
     title = db.Column(db.Text(), nullable=False)
     description = db.Column(db.Text(), nullable=False)
+    confidential_desc = db.Column(db.Text(), nullable=True)
+    photos = db.relationship('Photo',
+                             secondary="activity_photo",
+                             backref=db.backref("activity", lazy='dynamic'))
 
     price = db.Column(db.Integer(), nullable=True)
 
-    specialist_rating = db.Column(ChoiceType(RATING), default='0')
-    customer_rating = db.Column(ChoiceType(RATING), default='0')
+    specialist_rating = db.Column(ChoiceType(RATING_TYPE))
+    customer_rating = db.Column(ChoiceType(RATING_TYPE))
 
     timing_type = db.Column(ChoiceType(TIMING_TYPE), default='0')
 
@@ -341,66 +374,6 @@ ACTIVITY_TYPE = (
         (0, 'User Org'),
         (1, 'Org User')
     )
-
-
-class UserOrgActivity(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-
-    org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
-                       nullable=False)
-    org = db.relationship('Company', foreign_keys=[org_id],
-                          backref="from_activities_user_org")
-
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'),
-                        nullable=False)
-    user = db.relationship('User', foreign_keys=[user_id],
-                           backref="to_activities_user_org")
-
-    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
-                           nullable=False)
-    service = db.relationship('Service')
-
-    customer = db.Column(ChoiceType(ACTIVITY_TYPE), default=0)
-
-    start = db.Column(db.DateTime())
-    end = db.Column(db.DateTime())
-    description = db.Column(db.Text())
-
-    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
-
-    confirmed = db.Column(db.Boolean(), default=False)
-
-    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
-
-
-class OrgOrgActivity(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-
-    from_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
-                            nullable=False)
-    from_org = db.relationship('Company', foreign_keys=[from_org_id],
-                               backref="from_activities_org")
-
-    to_org_id = db.Column(db.Integer(), db.ForeignKey('company.id'),
-                          nullable=False)
-    to_org = db.relationship('Company', foreign_keys=[to_org_id],
-                             backref="to_activities_org")
-
-    service_id = db.Column(db.Integer(), db.ForeignKey('service.id'),
-                           nullable=False)
-    service = db.relationship('Service')
-
-    start = db.Column(db.DateTime())
-
-    end = db.Column(db.DateTime())
-
-    description = db.Column(db.Text())
-
-    status = db.Column(ChoiceType(ACTIVITY_STATUS_TYPES))
-
-    confirmed = db.Column(db.Boolean(), default=False)
-
-    created_time = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
 
 
 class Location(db.Model):
