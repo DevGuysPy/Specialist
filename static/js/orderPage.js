@@ -52,8 +52,6 @@ function initChat(activityId){
         messageBox.animate(
             { scrollTop: messageBox.prop("scrollHeight") }, 1000);
 
-        input.val('');
-
     }
 
     socket.on("message", function (message) {
@@ -76,12 +74,14 @@ function initChat(activityId){
 
     input.keypress(function (e) {
         if (e.which == 13) {
-            sendMessage()
+            sendMessage();
+            input.val('');
         }
     });
 
     $('#send-message-btn').on('click', function(){
         sendMessage();
+        input.val('');
     });
 
 }
