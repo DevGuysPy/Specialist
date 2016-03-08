@@ -36,6 +36,6 @@
 {% block script %}
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
     <script type="text/javascript">
-        initLogin("{{ url_for('login') }}")
+        initLogin("{{ url_for('login') }}" + "?" + "{{ request.query_string }}")
     </script>
 {% endblock %}
