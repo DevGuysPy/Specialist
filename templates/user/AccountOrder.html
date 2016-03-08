@@ -8,6 +8,197 @@
 {#    {% if current_user == activity.to_user  %}#}
     <div class="row">
         <div class="col m8">
+            <div class="card activity-card">
+                <div class="title-bg">
+                    <div class="row">
+                        <div class="title">
+                            Info
+                        </div>
+                        <div class="buttons">
+                            <a id="add-people-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Edit"><i class="material-icons">edit</i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="activity-connection">
+                        <div class="row">
+                            <div class="col m3 no-padding">
+                                <div class="spec-img connection-img">
+                                    <img class="z-depth-1 circle tooltipped"
+                                         data-position="top" data-delay="50"
+                                         data-tooltip="Specialist: {{ activity.from_user.full_name() }}"
+                                         src="{{ activity.from_user.profile_photo }}" alt="">
+                                </div>
+                                <div class="connection-line-spec"></div>
+                            </div>
+                            <div class="col m4 offset-m1 service-title">
+                                <div class="title">{{ activity.service.title }}</div>
+                            </div>
+                            <div class="col m3 offset-m1 no-padding">
+                                <div class="cust-img connection-img">
+                                    <img class="z-depth-1 circle tooltipped"
+                                         data-position="top" data-delay="50"
+                                         data-tooltip="Customer: {{ activity.to_user.full_name() }}"
+                                         src="{{ activity.to_user.profile_photo }}" alt="">
+                                </div>
+                                <div class="connection-line-cust"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="activity-info">
+                        <div class="activity-title">{{ activity.title }}</div>
+                        <ul class="collapsible" data-collapsible="accordion">
+                            <li class="description">
+                                <div class="collapsible-header"><div class="info-title"><i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Full information">info</i>Full description</div></div>
+                                <div class="collapsible-body">
+                                    {{ activity.description }}
+                                    <p class="confidential-description info-text">
+                                        <i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Confidential information">lock</i>
+                                        <span style="font-size: 14px;">{{ activity.confidential_desc }}</span>
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="timing">
+                                <div class="collapsible-header">
+                                    <div class="info-title">
+                                        <i class="material-icons tooltipped"
+                                           data-position="top" data-delay="50"
+                                           data-tooltip="Timing">
+                                            access_time
+                                        </i>
+                                        <p class="no-margin" style="display: inline">Timing</p>
+                                        <div style="">
+                                            <div class="info-line"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="collapsible-body">
+                                    <div class="row">
+                                        <div class="col m3">
+                                            <p class="timing-title">Start</p>
+                                            {% if activity.start %}
+                                                {{ activity.start.strftime('%d %B %Y  %H:%M') }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                        </div>
+                                        <div class="col m3">
+                                            <p class="timing-title">End</p>
+                                            {% if activity.end %}
+                                                {{ activity.end.strftime('%d %B %Y  %H:%M') }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                        </div>
+                                        <div class="col m3">
+                                            <p class="timing-title">Time brackets</p>
+                                            {{ activity.time_brackets.value }}
+                                        </div>
+                                        <div class="col m3">
+                                            <p class="timing-title">Timing type</p>
+                                            {{ activity.timing_type.value }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="payment">
+                                <div class="collapsible-header">
+                                    <div class="info-title"><i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Payment">attach_money</i>Payment</div>
+                                </div>
+                                <div class="collapsible-body">
+                                    <div class="row">
+                                        <div class="col m6">
+                                            <p class="payment-title">Price</p>
+                                            {% if activity.price %}
+                                                {{ activity.price }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                        </div>
+                                        <div class="col m6">
+                                            <p class="payment-title">Payment type</p>
+                                            {{ activity.payment_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="photos">
+                                <div class="collapsible-header">
+                                    <div class="info-title"><i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Photos">photo_camera</i>Photos</div>
+                                </div>
+                                <div class="collapsible-body">
+                                    {% if activity.photos %}
+                                        {% for photo in activity.photos %}
+                                            <img class="materialboxed" width="284" src="{{ photo.name }}">
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="info-title" style="text-align: center">
+                                            No photos
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            <li class="members">
+                                <div class="collapsible-header">
+                                    <div class="info-title"><i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Members">account_circle</i>Members</div>
+                                </div>
+                                <div class="collapsible-body">
+                                    {% if activity.members %}
+                                        <div class="members-box">
+                                            {% set members_in_row = 0 %}
+                                            {% for member in activity.members %}
+                                                {% if members_in_row == 0 %}
+                                                    <div class="row">
+                                                {% endif %}
+                                                <div class="col m2 member">
+                                                    <img src="{{ member.profile_photo }}" alt="" class="member-img circle">
+                                                    <div class="member-name">{{ member.full_name() }}</div>
+                                                </div>
+                                                {% set members_in_row = members_in_row +  1 %}
+                                                {% if loop.last or members_in_row == 5 %}
+                                                    </div>
+                                                    {% set members_in_row = 0 %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="info-title" style="text-align: center">
+                                            No members
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            <li class="status">
+                                <div class="collapsible-header">
+                                    <div class="info-title"><i class="material-icons tooltipped" data-position="top" data-delay="50" data-tooltip="Status and confirmation">verified_user</i>Status and confirmation</div>
+                                </div>
+                                <div class="collapsible-body">
+                                    <div class="row">
+                                        <div class="col m6">
+                                            <p class="status-title">Status</p>
+                                            {{ activity.status }}
+                                        </div>
+                                        <div class="col m6">
+                                            <p class="status-title">Confirmation</p>
+                                            {% if activity.confirmed %}
+                                                Specialist accepted your request
+                                            {% else %}
+                                                Wait while specialist accepts your request
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="created-time">
+                        Created {{ activity.created_time.strftime('%d %B %Y') }} at {{ activity.created_time.strftime('%H:%M') }}
+                    </div>
+                </div>
+            </div>
             <div class="card chat-card">
                 <div class="title-bg">
                     <div class="row">
@@ -17,7 +208,7 @@
                     </div>
                 </div>
                 <div class="buttons">
-                        <a id="attach-file-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Add people"><i class="material-icons">add</i></a>
+                        <a id="add-people-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Add people"><i class="material-icons">add</i></a>
                         <a id="attach-file-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Attach"><i class="material-icons">attach_file</i></a>
                         <a id="ban-btn" class="z-depth-1 btn-floating btn-large waves-effect waves-light red tooltipped" data-position="top" data-delay="50" data-tooltip="Ban"><i class="material-icons">report</i></a>
                     </div>
@@ -31,7 +222,7 @@
                             <div class="message">
                                 <div class="row">
                                     <div class="col m1">
-                                        <img src="{{ url_for('static', filename='img/profile.png') }}" alt="" class="sender-img circle">
+                                        <img src="{{ msg.author.profile_photo }}" alt="" class="sender-img circle">
                                     </div>
                                     <div class="col m11 no-padding">
                                         <div class="message-content row no-padding">
@@ -39,7 +230,7 @@
                                                 <div class="message-title">
                                                     <p class="no-margin">{{ msg.author.full_name() }}</p>
                                                 </div>
-                                                <p>{{ msg.text }}</p>
+                                                <p class="message-text">{{ msg.text }}</p>
                                             </div>
                                             <div class="message-time col m1">
                                                 <p class="no-margin">{{ msg.created_time.strftime('%H:%M') }}</p>
@@ -72,7 +263,7 @@
                     <img class="activator" src="{{ activity.from_user.bg_photo }}" alt="user background">
                 </div>
                 <figure class="card-profile-image">
-                    <img src="{{ url_for('static', filename='img/profile.png') }}"
+                    <img src="{{ activity.from_user.profile_photo }}"
                          alt="profile image" class="circle z-depth-1 responsive-img activator">
                 </figure>
                 <div class="card-buttons">
@@ -90,7 +281,7 @@
                         <p>
                             <i class="material-icons tooltipped" data-position="right" data-tooltip="Phone">contact_phone</i>
                             {% if activity.confirmed %}
-                                {{ activity.from_user.phone }}
+                                {{ activity.from_user.phone_number }}
                                 <i class="material-icons verified tooltipped right"
                                data-position="top" data-tooltip="Verified">verified_user</i>
                             {% else %}
@@ -164,6 +355,7 @@
     </div>
 {#    Order page will have another functionality for specialist#}
 {#    {% elif current_user == activity.from_user %}#}
+{#    and for members#}
 {#    {% else %}#}
 {#    {% endif %}#}
 {% endblock %}

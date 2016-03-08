@@ -39,7 +39,7 @@ class User(db.Model):
 
     email = db.Column(db.String(), nullable=False, unique=True)
 
-    profile_photo = db.Column(db.String(), unique=True)
+    profile_photo = db.Column(db.String(), default='/static/img/profile.png')
 
     bg_photo = db.Column(db.String(), nullable=False)
 

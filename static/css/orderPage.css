@@ -104,6 +104,10 @@
     font-weight: 300;
 }
 
+.chat-box .message .message-content .message-text {
+    word-wrap: break-word;
+}
+
 .chat-box .message .message-time {
     color: #908D8D;
     text-align: right;
@@ -179,4 +183,177 @@
     position: absolute;
     right: 49px;
     bottom: 9px;
+}
+
+.activity-card .title-bg {
+    height: 75px;
+    background-color: #37474f;
+    display: table;
+    width: 100%;
+    position: relative;
+}
+
+.activity-card .title-bg .row {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.activity-card .title-bg .title {
+    font-size: 30px;
+    font-weight: 300;
+    color: white;
+    padding-left: 60px;
+}
+
+.activity-card .title-bg .buttons {
+    position: absolute;
+    left: 915px;
+    top: 45px;
+}
+
+.activity-card .content {
+    height: auto;
+    position: relative;
+    padding: 0 60px 0 60px;
+}
+
+.activity-card .content .info-title {
+    font-size: 25px;
+    font-weight: 300;
+    text-align: left;
+    margin-top: 10px;
+}
+.activity-card .content .info-title i {
+    font-size: 28px;
+    vertical-align: sub;
+    margin-right: 15px;
+}
+
+.activity-card .content .activity-connection img {
+    height: 100px;
+}
+
+.activity-card .content .activity-connection .row {
+    margin-top: 25px;
+}
+
+.activity-card .content .activity-connection .cust-img{
+    float: right;
+}
+
+.activity-card .content .activity-connection .service-title {
+    display: table;
+    position: relative;
+    height: 100px;
+}
+
+.activity-card .content .activity-connection .service-title .title {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 25px;
+    font-weight: 300;
+    text-align: center;
+}
+
+.activity-card .content .activity-connection .connection-line-spec {
+    height: 1px;
+    background-color: grey;
+    position: absolute;
+    width: 182px;
+    left: 179px;
+    top: 51px;
+}
+
+.activity-card .content .activity-connection .connection-line-cust {
+    height: 1px;
+    background-color: grey;
+    position: absolute;
+    width: 182px;
+    left: 667px;
+    top: 51px;
+}
+
+.activity-card .content .info-text {
+    font-size: 19px;
+    margin: 5px 0 5px 0;
+}
+
+.activity-card .content .info-text i {
+    font-size: 28px;
+    vertical-align: top;
+    margin-right: 15px;
+}
+
+.activity-card .content .activity-info {
+    margin-top: 20px;
+}
+
+.activity-card .content .activity-info .activity-title {
+    font-size: 25px;
+    font-weight: 300;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.activity-card .content .activity-info .collapsible-body {
+    padding: 15px;
+}
+
+.activity-card .content .activity-info .timing .col {
+    text-align: center;
+}
+
+.activity-card .content .activity-info .timing .timing-title {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 5px;
+}
+
+.activity-card .content .activity-info .payment .col {
+    text-align: center;
+}
+
+.activity-card .content .activity-info .payment .payment-title {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 5px;
+}
+
+.activity-card .content .activity-info .status .col {
+    text-align: center;
+}
+
+.activity-card .content .activity-info .status .status-title {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 5px;
+}
+
+.activity-card .content .activity-info .photos img {
+    display: inline;
+}
+
+.activity-card .content .activity-info .photos .material-placeholder {
+    display: inline;
+}
+
+.activity-card .content .activity-info .members .members-box .member {
+    display: inline;
+    margin: 0 14px 0 14px;
+    text-align: center;
+}
+
+.activity-card .content .activity-info .members .members-box .member-img {
+    height: 75px;
+    width: 75px;
+}
+
+.activity-card .card-footer {
+    padding: 0 60px 0 60px;
+}
+
+.activity-card .card-footer .created-time {
+    color: #908D8D;
+    text-align: right;
+    padding: 5px 0 10px 0;
 }

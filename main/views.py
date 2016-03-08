@@ -1056,7 +1056,10 @@ def handle_message(data):
 
     send_data = {
         'message': msg.text,
-        'author': msg.author.full_name(),
+        'author': {
+            'name': msg.author.full_name(),
+            'img': msg.author.profile_photo
+        },
         'time': msg.created_time.strftime('%H:%M')
     }
 

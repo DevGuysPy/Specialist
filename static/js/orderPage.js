@@ -27,15 +27,16 @@ function initChat(activityId){
                 '<div class="message">' +
                     '<div class="row no-margin">' +
                         '<div class="col m1">' +
-                            '<img src="/static/img/profile.png" alt="" class="sender-img circle">' +
+                            '<img src="' + data.author.img + '" alt="" ' +
+                            'class="sender-img circle">' +
                         '</div>' +
                         '<div class="col m11 no-padding">' +
                             '<div class="message-content row no-padding">' +
                                 '<div class="col m11">' +
                                     '<div class="message-title">' +
-                                        '<p class="no-margin">' + data.author + '</p>' +
+                                        '<p class="no-margin">' + data.author.name + '</p>' +
                                     '</div>' +
-                                    '<p>' + data.message +'</p>' +
+                                    '<p class="message-text">' + data.message +'</p>' +
                                 '</div>' +
                                 '<div class="message-time col m1">' +
                                     '<p class="no-margin">' + data.time + '</p>' +
@@ -64,7 +65,7 @@ function initChat(activityId){
     });
 
     function sendMessage(){
-        if (!(input.val())){
+        if (!(input.val().trim())){
             return null;
         }
 

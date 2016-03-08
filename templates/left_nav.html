@@ -4,7 +4,7 @@
         <li class="user-details darken-2" style="background: url('{{ current_user.bg_photo }}') no-repeat center center !important; background-size: 240px 84px !important;">
             <div class="row">
                 <div class="col col s4 m4 l4">
-                    <img src="{{ url_for('static', filename='img/profile.png') }}"
+                    <img src="{{ current_user.profile_photo }}"
                          alt="U" class="circle responsive-img valign profile-image">
                 </div>
                 <div class="col col s8 m8 l8">
